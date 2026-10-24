@@ -16,7 +16,6 @@ export const authApi = createApi({
       async onQueryStarted(_, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled
-          localStorage.setItem('access_token', data.accessToken)
           dispatch(setUser(data.user))
         } catch {
           /* handled by component */
@@ -33,7 +32,6 @@ export const authApi = createApi({
       async onQueryStarted(_, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled
-          localStorage.setItem('access_token', data.accessToken)
           dispatch(setUser(data.user))
         } catch {
           /* handled by component */
@@ -50,7 +48,6 @@ export const authApi = createApi({
         try {
           await queryFulfilled
         } finally {
-          localStorage.removeItem('access_token')
           dispatch(clearUser())
         }
       },

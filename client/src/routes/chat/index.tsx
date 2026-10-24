@@ -20,8 +20,7 @@ export function ChatPage() {
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    const token = localStorage.getItem('access_token')
-    const s = io('http://localhost:8000/chat', { auth: { token }, transports: ['websocket', 'polling'] })
+    const s = io('http://localhost:8000/chat', { transports: ['websocket', 'polling'] })
     setSocket(s)
     return () => { s.disconnect() }
   }, [])

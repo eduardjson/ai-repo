@@ -33,7 +33,6 @@ export function Profile() {
       /* ignore */
     }
     dispatch(clearUser())
-    localStorage.removeItem('access_token')
     navigate({ to: '/auth/login' })
   }
 
