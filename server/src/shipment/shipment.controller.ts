@@ -7,7 +7,6 @@ import {
   Param,
   Body,
 } from '@nestjs/common';
-import { Roles } from '../auth/roles.decorator';
 import { ShipmentService } from './shipment.service';
 import { CreateShipmentDto } from './dto/create-shipment.dto';
 import { UpdateStatusDto } from './dto/update-status.dto';
@@ -36,19 +35,16 @@ export class ShipmentController {
     return this.shipmentService.findById(id);
   }
 
-  @Roles('ADMIN')
   @Post()
   create(@Body() dto: CreateShipmentDto) {
     return this.shipmentService.create(dto);
   }
 
-  @Roles('ADMIN')
   @Patch(':id/status')
   updateStatus(@Param('id') id: string, @Body() dto: UpdateStatusDto) {
     return this.shipmentService.updateStatus(id, dto);
   }
 
-  @Roles('ADMIN')
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.shipmentService.remove(id);

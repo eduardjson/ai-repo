@@ -7,7 +7,6 @@ import {
   Param,
   Body,
 } from '@nestjs/common';
-import { Roles } from '../auth/roles.decorator';
 import { WarehouseService } from './warehouse.service';
 import { CreateWarehouseDto } from './dto/create-warehouse.dto';
 import { AddStockDto } from './dto/add-stock.dto';
@@ -31,25 +30,21 @@ export class WarehouseController {
     return this.warehouseService.findById(id);
   }
 
-  @Roles('ADMIN')
   @Post()
   create(@Body() dto: CreateWarehouseDto) {
     return this.warehouseService.create(dto);
   }
 
-  @Roles('ADMIN')
   @Patch(':id')
   update(@Param('id') id: string, @Body() dto: Partial<CreateWarehouseDto>) {
     return this.warehouseService.update(id, dto);
   }
 
-  @Roles('ADMIN')
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.warehouseService.remove(id);
   }
 
-  @Roles('ADMIN')
   @Post(':id/stock')
   addStock(@Param('id') id: string, @Body() dto: AddStockDto) {
     return this.warehouseService.addStock(id, dto);

@@ -8,7 +8,6 @@ import { UpdateUserDto } from './dto/update-user.dto';
 export class UserController {
   constructor(private userService: UserService) {}
 
-  @Roles('ADMIN')
   @Get('all-users')
   async findAll() {
     return this.userService.findAll();
