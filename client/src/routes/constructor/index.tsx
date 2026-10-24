@@ -36,7 +36,9 @@ import {
 } from '@mui/material'
 import { RestartAlt, GridOn, Download, Print, Save, FolderOpen, Delete, ExpandMore } from '@mui/icons-material'
 import { ModuleViewer } from './ModuleViewer'
+import { ModuleDrawing } from './ModuleDrawing'
 import { calculateEstimate, exportEstimateCsv, exportEstimatePdf, defaultConfig, type ModuleConfig } from './estimate'
+import { exportDrawingPdf } from './drawing'
 import { ROOF_MATERIALS, WALL_TYPES, FOUNDATIONS, WALL_COLORS, ROOF_COLORS, DEFAULT_RATES, type RateMap, type Option, type ColorOption } from './config'
 import { useGetProjectsQuery, useCreateProjectMutation, useUpdateProjectMutation, useDeleteProjectMutation, type ProjectDto } from '../../api/projectApi'
 import { useGetPriceListQuery } from '../../api/warehouseApi'
@@ -139,6 +141,7 @@ export function ConstructorPage() {
   const [rates, setRates] = useState<RateMap>({ ...DEFAULT_RATES })
   const [viewMode, setViewMode] = useState<'solid' | 'wireframe'>('solid')
   const [resetSignal, setResetSignal] = useState(0)
+  const [viewTab, setViewTab] = useState<'3d' | 'drawing'>('3d')
 
   const [saveOpen, setSaveOpen] = useState(false)
   const [loadOpen, setLoadOpen] = useState(false)
@@ -327,15 +330,39 @@ export function ConstructorPage() {
         </Grid>
 
         <Grid size={{ xs: 12, md: 7 }}>
-          <Box sx={{ position: 'relative' }}>
-            <ModuleViewer config={config} viewMode={viewMode} resetSignal={resetSignal} />
-            <Box sx={{ position: 'absolute', top: 8, right: 8, display: 'flex', gap: 0.5 }}>
-              <Tooltip title="Сбросить камеру"><IconButton size="small" onClick={() => setResetSignal((s) => s + 1)} sx={{ bgcolor: 'background.paper', boxShadow: 1 }}><RestartAlt fontSize="small" /></IconButton></Tooltip>
-              <Tooltip title="Каркасный режим"><IconButton size="small" onClick={() => setViewMode(viewMode === 'solid' ? 'wireframe' : 'solid')} sx={{ bgcolor: 'background.paper', boxShadow: 1, color: viewMode === 'wireframe' ? 'primary.main' : 'inherit' }}><GridOn fontSize="small" /></IconButton></Tooltip>
-            </Box>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+            <ToggleButtonGroup value={viewTab} exclusive onChange={(_, v) => v && setViewTab(v)} size="small">
+              <ToggleButton value="3d">3D-вид</ToggleButton>
+              <ToggleButton value="drawing">Чертёж</ToggleButton>
+            </ToggleButtonGroup>
+            {viewTab === 'drawing' && (
+              <Button
+                size="small"
+                variant="outlined"
+                startIcon={<Download />}
+                onClick={() => exportDrawingPdf(config).catch((e) => console.error('Чертёж PDF не удалось сформировать', e))}
+              >
+                Скачать PDF
+              </Button>
+            )}
           </Box>
+
+          {viewTab === '3d' ? (
+            <Box sx={{ position: 'relative' }}>
+              <ModuleViewer config={config} viewMode={viewMode} resetSignal={resetSignal} />
+              <Box sx={{ position: 'absolute', top: 8, right: 8, display: 'flex', gap: 0.5 }}>
+                <Tooltip title="Сбросить камеру"><IconButton size="small" onClick={() => setResetSignal((s) => s + 1)} sx={{ bgcolor: 'background.paper', boxShadow: 1 }}><RestartAlt fontSize="small" /></IconButton></Tooltip>
+                <Tooltip title="Каркасный режим"><IconButton size="small" onClick={() => setViewMode(viewMode === 'solid' ? 'wireframe' : 'solid')} sx={{ bgcolor: 'background.paper', boxShadow: 1, color: viewMode === 'wireframe' ? 'primary.main' : 'inherit' }}><GridOn fontSize="small" /></IconButton></Tooltip>
+              </Box>
+            </Box>
+          ) : (
+            <ModuleDrawing config={config} />
+          )}
+
           <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-            Вращение — левая кнопка мыши, масштаб — колесо, перемещение — правая кнопка. Стены полупрозрачны, окна/двери — реальные проёмы.
+            {viewTab === '3d'
+              ? 'Вращение — левая кнопка мыши, масштаб — колесо, перемещение — правая кнопка. Стены полупрозрачны, окна/двери — реальные проёмы.'
+              : 'Чертёж: план, фасад и боковой вид с размерами и штампом. Скачайте PDF для печати (А4, альбомная ориентация).'}
           </Typography>
         </Grid>
       </Grid>
