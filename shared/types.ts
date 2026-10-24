@@ -208,10 +208,7 @@ export interface AttachmentDto {
 }
 
 export interface CreateMessageRequest {
-  userId: string
-  userName: string
   text: string
-  attachments?: { fileName: string; fileSize: number; fileType: string; filePath: string }[]
 }
 
 export interface UpdateMessageRequest {

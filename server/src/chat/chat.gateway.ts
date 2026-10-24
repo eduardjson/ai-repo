@@ -1,63 +1,62 @@
 import {
+  OnGatewayConnection,
   WebSocketGateway,
   WebSocketServer,
-  SubscribeMessage,
-  MessageBody,
-  ConnectedSocket,
 } from '@nestjs/websockets';
+import { JwtService } from '@nestjs/jwt';
 import { Server, Socket } from 'socket.io';
-import { ChatService } from './chat.service';
 
 @WebSocketGateway({
   namespace: 'chat',
-  cors: { origin: 'http://localhost:5173', credentials: true },
+  cors: {
+    origin: ['http://localhost:5173', 'http://localhost:3000'],
+    credentials: true,
+  },
 })
-export class ChatGateway {
+export class ChatGateway implements OnGatewayConnection {
   @WebSocketServer()
   server: Server;
 
-  constructor(private chatService: ChatService) {}
+  constructor(private jwtService: JwtService) {}
 
-  @SubscribeMessage('messages:get')
-  async handleGetMessages(@ConnectedSocket() client: Socket) {
-    const messages = await this.chatService.getMessages();
-    client.emit('messages', messages);
+  handleConnection(client: Socket) {
+    const token = this.extractToken(client);
+    if (!token) {
+      client.disconnect();
+      return;
+    }
+
+    try {
+      const payload = this.jwtService.verify(token);
+      client.data.user = payload;
+    } catch {
+      client.disconnect();
+    }
   }
 
-  @SubscribeMessage('message:post')
-  async handlePostMessage(
-    @ConnectedSocket() client: Socket,
-    @MessageBody() data: { userId: string; userName: string; text: string },
-  ) {
-    const message = await this.chatService.createMessage(
-      data.userId,
-      data.userName,
-      data.text,
-    );
+  emitMessageCreated(message: unknown) {
     this.server.emit('message:new', message);
   }
 
-  @SubscribeMessage('message:put')
-  async handlePutMessage(
-    @ConnectedSocket() client: Socket,
-    @MessageBody() data: { id: number; userId: string; text: string },
-  ) {
-    const message = await this.chatService.updateMessage(data.id, data.userId, data.text);
+  emitMessageUpdated(message: unknown) {
     this.server.emit('message:updated', message);
   }
 
-  @SubscribeMessage('message:delete')
-  async handleDeleteMessage(
-    @ConnectedSocket() client: Socket,
-    @MessageBody() data: { id: number; userId: string },
-  ) {
-    await this.chatService.deleteMessage(data.id, data.userId);
-    this.server.emit('message:deleted', { id: data.id });
+  emitMessageDeleted(id: number) {
+    this.server.emit('message:deleted', { id });
   }
 
-  @SubscribeMessage('messages:clear')
-  async handleClearMessages() {
-    await this.chatService.clearMessages();
-    this.server.emit('messages:cleared');
+  private extractToken(client: Socket): string | null {
+    const fromAuth = client.handshake.auth?.token;
+    if (typeof fromAuth === 'string' && fromAuth.length > 0) {
+      return fromAuth;
+    }
+
+    const fromHeader = client.handshake.headers?.authorization;
+    if (typeof fromHeader === 'string' && fromHeader.startsWith('Bearer ')) {
+      return fromHeader.slice(7);
+    }
+
+    return null;
   }
 }

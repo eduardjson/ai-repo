@@ -1,13 +1,21 @@
 import { useState, useEffect, useRef } from 'react'
 import { Box, Typography, TextField, Button, Paper, IconButton, CircularProgress, Avatar } from '@mui/material'
 import { Send, Edit, Delete } from '@mui/icons-material'
-import { io, type Socket } from 'socket.io-client'
-import { useGetMessagesQuery, useCreateMessageMutation, useUpdateMessageMutation, useDeleteMessageMutation } from '../../api/chatApi'
-import { useAppSelector } from '../../store/hooks'
+import { io } from 'socket.io-client'
+import {
+  useGetMessagesQuery,
+  useCreateMessageMutation,
+  useUpdateMessageMutation,
+  useDeleteMessageMutation,
+  chatApi,
+} from '../../api/chatApi'
+import { useAppSelector, useAppDispatch } from '../../store/hooks'
+import { getAccessToken } from '../../api/base'
 import { ActionModal } from '../../components/ActionModal'
 
 export function ChatPage() {
   const user = useAppSelector((s) => s.auth.user)
+  const dispatch = useAppDispatch()
   const { data: messages, isLoading } = useGetMessagesQuery({ limit: 100 })
   const [createMessage] = useCreateMessageMutation()
   const [updateMessage] = useUpdateMessageMutation()
@@ -16,37 +24,64 @@ export function ChatPage() {
   const [editingId, setEditingId] = useState<number | null>(null)
   const [editText, setEditText] = useState('')
   const [deleteTarget, setDeleteTarget] = useState<number | null>(null)
-  const [_socket, setSocket] = useState<Socket | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    const s = io('http://localhost:8000/chat', { transports: ['websocket', 'polling'] })
-    setSocket(s)
-    return () => { s.disconnect() }
-  }, [])
+    const socket = io('/chat', {
+      auth: { token: getAccessToken() },
+      transports: ['websocket', 'polling'],
+    })
 
-  useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }) }, [messages])
+    const refresh = () => dispatch(chatApi.util.invalidateTags(['Message']))
+    socket.on('message:new', refresh)
+    socket.on('message:updated', refresh)
+    socket.on('message:deleted', refresh)
+
+    return () => {
+      socket.disconnect()
+    }
+  }, [dispatch])
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [messages])
 
   const handleSend = async () => {
     if (!text.trim() || !user) return
-    await createMessage({ userId: user.id, userName: user.firstName || user.username || user.email, text: text.trim() }).unwrap()
-    setText('')
+    try {
+      await createMessage({ text: text.trim() }).unwrap()
+      setText('')
+    } catch {
+      /* handled by RTK */
+    }
   }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend() }
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault()
+      handleSend()
+    }
   }
 
   const handleEdit = async () => {
     if (editingId === null) return
-    await updateMessage({ id: editingId, data: { text: editText } }).unwrap()
-    setEditingId(null); setEditText('')
+    try {
+      await updateMessage({ id: editingId, data: { text: editText } }).unwrap()
+      setEditingId(null)
+      setEditText('')
+    } catch {
+      /* handled by RTK */
+    }
   }
 
   const handleDelete = async () => {
     if (deleteTarget === null) return
-    await deleteMessage(deleteTarget).unwrap()
-    setDeleteTarget(null)
+    try {
+      await deleteMessage(deleteTarget).unwrap()
+      setDeleteTarget(null)
+    } catch {
+      /* handled by RTK */
+    }
   }
 
   return (
