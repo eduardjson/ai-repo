@@ -64,7 +64,7 @@ export function WarehouseListPage() {
         <Button variant="contained" startIcon={<Add />} onClick={openCreate}>Добавить склад</Button>
       </Box>
       <TableContainer component={Paper} elevation={1}>
-        <Table>
+        <Table size="small">
           <TableHead><TableRow><TableCell>Название</TableCell><TableCell>Адрес</TableCell><TableCell align="right">Действия</TableCell></TableRow></TableHead>
           <TableBody>
             {warehouses?.map((w) => (

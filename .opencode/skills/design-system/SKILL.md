@@ -34,8 +34,8 @@ description: UI/UX conventions and design tokens for the СтройМат fronte
 ## Типографика
 
 - Шрифт — Roboto (MUI default), не меняй.
-- Заголовок страницы: `Typography variant="h4" fontWeight={700} gutterBottom`.
-- Заголовок секции: `variant="h5"` или `"h6"`, `fontWeight={600}`.
+- Заголовок страницы: `Typography variant="h4" sx={{ mb: 3 }}` (вес 700 задаёт тема).
+- Заголовок секции: `Typography variant="h5"`/`"h6"` с `sx={{ mb: 2 }}`.
 - Основной текст: `body1`; вторичный/подписи: `body2` + `color="text.secondary"`.
 - Заголовки таблиц: MUI default (или `fontWeight: 600`).
 
@@ -63,7 +63,7 @@ description: UI/UX conventions and design tokens for the СтройМат fronte
 - **Кнопки**: основное действие `variant="contained"` (+ `startIcon`); вторичное
   `variant="outlined"`; деструктив `color="error"`; иконки в строках — `IconButton size="small"`.
 - **Списки/таблицы**: `TableContainer component={Paper} elevation={1}` + MUI
-  `Table`/`TableHead`/`TableBody`. НЕ использовать сырой `<table>`.
+  `Table size="small"`/`TableHead`/`TableBody`. НЕ использовать сырой `<table>`.
 - **Пустое состояние**: `<TableCell colSpan={n} align="center" sx={{ py: 4, color: 'text.secondary' }}>Нет данных</TableCell>`.
 - **Формы (диалог)**: `Dialog maxWidth="sm" fullWidth`; `DialogTitle`; `DialogContent
   sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}`; `DialogActions` =

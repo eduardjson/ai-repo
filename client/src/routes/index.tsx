@@ -39,7 +39,7 @@ export function DashboardPage() {
 
   return (
     <Box>
-      <Typography variant="h4" gutterBottom>Дашборд</Typography>
+      <Typography variant="h4" sx={{ mb: 3 }}>Дашборд</Typography>
       <Grid container spacing={3} sx={{ mb: 4 }}>
         {cards.map((card) => (
           <Grid size={{ xs: 12, sm: 6, md: 3 }} key={card.label}>
@@ -55,7 +55,7 @@ export function DashboardPage() {
           </Grid>
         ))}
       </Grid>
-      <Typography variant="h5" gutterBottom>Последние отгрузки</Typography>
+      <Typography variant="h5" sx={{ mb: 2 }}>Последние отгрузки</Typography>
       <TableContainer component={Paper} elevation={1}>
         <Table size="small">
           <TableHead>

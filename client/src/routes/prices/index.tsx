@@ -13,7 +13,7 @@ export function PriceListPage() {
 
   return (
     <Box>
-      <Typography variant="h4" fontWeight={700} gutterBottom>Прайс-лист</Typography>
+      <Typography variant="h4" fontWeight={700} sx={{ mb: 3 }}>Прайс-лист</Typography>
       <Box sx={{ display: 'flex', gap: 2, mb: 3, flexWrap: 'wrap' }}>
         <FormControl size="small" sx={{ minWidth: 180 }}><InputLabel>Склад</InputLabel><Select value={warehouseFilter} label="Склад" onChange={(e) => setWarehouseFilter(e.target.value)}><MenuItem value="">Все</MenuItem>{warehouses?.map((w) => <MenuItem key={w.id} value={w.id}>{w.name}</MenuItem>)}</Select></FormControl>
         <FormControl size="small" sx={{ minWidth: 180 }}><InputLabel>Категория</InputLabel><Select value={categoryFilter} label="Категория" onChange={(e) => setCategoryFilter(e.target.value)}><MenuItem value="">Все</MenuItem>{categories.map((c) => <MenuItem key={c} value={c!}>{c}</MenuItem>)}</Select></FormControl>

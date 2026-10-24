@@ -86,7 +86,7 @@ export function ChatPage() {
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 120px)' }}>
-      <Typography variant="h4" fontWeight={700} gutterBottom>Чат</Typography>
+      <Typography variant="h4" fontWeight={700} sx={{ mb: 3 }}>Чат</Typography>
       <Paper elevation={1} sx={{ flex: 1, overflow: 'auto', p: 2, mb: 2, display: 'flex', flexDirection: 'column', gap: 1.5 }}>
         {isLoading && <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}><CircularProgress /></Box>}
         {messages?.map((msg) => (

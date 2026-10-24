@@ -9,9 +9,9 @@ export function EmployeeListPage() {
 
   return (
     <Box>
-      <Typography variant="h4" fontWeight={700} gutterBottom>Сотрудники</Typography>
+      <Typography variant="h4" fontWeight={700} sx={{ mb: 3 }}>Сотрудники</Typography>
       <TableContainer component={Paper} elevation={1}>
-        <Table>
+        <Table size="small">
           <TableHead><TableRow><TableCell>Сотрудник</TableCell><TableCell>Email</TableCell><TableCell>Роль</TableCell><TableCell>Дата регистрации</TableCell></TableRow></TableHead>
           <TableBody>
             {users?.map((u) => (

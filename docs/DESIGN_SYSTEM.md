@@ -43,8 +43,8 @@ Tailwind импортирован, но не используется — сти
 ## Типографика
 
 - Шрифт: Roboto (MUI default).
-- Заголовок страницы: `h4` + `fontWeight={700}`.
-- Заголовок секции: `h5`/`h6` + `fontWeight={600}`.
+- Заголовок страницы: `h4` + `sx={{ mb: 3 }}` (вес 700 задаёт тема).
+- Заголовок секции: `h5`/`h6` + `sx={{ mb: 2 }}`.
 - Основной текст: `body1`; вторичный: `body2` + `text.secondary`.
 
 ## Отступы (сетка 8px)
@@ -66,7 +66,7 @@ Tailwind импортирован, но не используется — сти
 ## Паттерны компонентов
 
 - **Кнопки**: основное `contained`, вторичное `outlined`, деструктив `color="error"`.
-- **Таблицы**: `TableContainer component={Paper} elevation={1}` + MUI `Table` (не сырой `<table>`).
+- **Таблицы**: `TableContainer component={Paper} elevation={1}` + MUI `Table size="small"` (не сырой `<table>`).
 - **Пустое состояние**: `<TableCell colSpan={n} align="center" sx={{ py: 4, color: 'text.secondary' }}>`.
 - **Формы**: `Dialog maxWidth="sm" fullWidth` + `DialogContent` flex-column `gap: 2` + `DialogActions` (Отмена / Сохранить).
 - **Детали**: `Card elevation={2}` + `CardContent p: 4`.

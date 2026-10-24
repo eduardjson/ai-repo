@@ -37,7 +37,7 @@ export function ObjectListPage() {
         <Button variant="contained" startIcon={<Add />} onClick={openCreate}>Добавить объект</Button>
       </Box>
       <TableContainer component={Paper} elevation={1}>
-        <Table>
+        <Table size="small">
           <TableHead><TableRow><TableCell>Название</TableCell><TableCell>Адрес</TableCell><TableCell>Описание</TableCell><TableCell align="right">Действия</TableCell></TableRow></TableHead>
           <TableBody>
             {objects?.map((o) => (
