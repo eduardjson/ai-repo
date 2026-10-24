@@ -11,7 +11,6 @@ import { store } from './store'
 import { ThemeProvider, useThemeMode } from './contexts/ThemeContext'
 import { lightTheme, darkTheme } from './theme/muiTheme'
 
-import './App.css'
 import './index.css'
 import 'react-toastify/dist/ReactToastify.css'
 

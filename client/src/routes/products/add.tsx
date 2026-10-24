@@ -116,7 +116,7 @@ export function ProductAddPage() {
                   {selectedFile && <Typography variant="body2" color="text.secondary">{selectedFile.name}</Typography>}
                 </Box>
                 {previewUrl && (
-                  <Box sx={{ width: 200, height: 200, border: '1px solid #ddd', borderRadius: 1, overflow: 'hidden' }}>
+                  <Box sx={{ width: 200, height: 200, border: 1, borderColor: 'divider', borderRadius: 1, overflow: 'hidden' }}>
                     <img src={previewUrl} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                   </Box>
                 )}
