@@ -1,4 +1,6 @@
-import { ROOF_MATERIALS, WALL_TYPES, FOUNDATIONS, getOption } from './config'
+import { jsPDF } from 'jspdf'
+import autoTable from 'jspdf-autotable'
+import { ROOF_MATERIALS, WALL_TYPES, FOUNDATIONS, getOption, type RateMap } from './config'
 
 export interface ModuleConfig {
   length: number
@@ -6,6 +8,7 @@ export interface ModuleConfig {
   height: number
   windows: number
   doors: number
+  partitions: number
   roofType: 'flat' | 'gable'
   roofMaterial: string
   wallType: string
@@ -21,6 +24,7 @@ export const defaultConfig: ModuleConfig = {
   height: 2.5,
   windows: 2,
   doors: 1,
+  partitions: 1,
   roofType: 'gable',
   roofMaterial: 'proflist',
   wallType: 'frame',
@@ -43,91 +47,111 @@ export interface EstimateSection {
   items: EstimateItem[]
 }
 
+interface RawItem {
+  name: string
+  unit: string
+  quantity: number
+  rateKey: string
+}
+
 export interface EstimateResult {
   sections: EstimateSection[]
   floorArea: number
   wallArea: number
   roofArea: number
   netWallArea: number
+  partitionArea: number
   subtotal: number
   marginAmount: number
   total: number
 }
 
-export function calculateEstimate(cfg: ModuleConfig): EstimateResult {
+export function calculateEstimate(cfg: ModuleConfig, rates: RateMap): EstimateResult {
+  const r = (key: string) => rates[key] ?? 0
+
   const floorArea = cfg.length * cfg.width
   const perimeter = 2 * (cfg.length + cfg.width)
   const wallArea = perimeter * cfg.height
   const openingsArea = cfg.windows * 1.0 + cfg.doors * 1.9
   const netWallArea = Math.max(0, wallArea - openingsArea)
   const roofArea = cfg.roofType === 'gable' ? floorArea * 1.15 : floorArea
+  const partitionArea = cfg.partitions * cfg.width * cfg.height
 
   const wall = getOption(WALL_TYPES, cfg.wallType)
   const roof = getOption(ROOF_MATERIALS, cfg.roofMaterial)
   const foundation = getOption(FOUNDATIONS, cfg.foundation)
 
-  const rawSections: { title: string; items: Omit<EstimateItem, 'total'>[] }[] = [
+  const rawSections: { title: string; items: RawItem[] }[] = [
     {
       title: 'Фундамент',
       items: [
-        { name: `Фундамент — ${foundation.label}`, unit: 'м²', quantity: floorArea, rate: foundation.rate },
+        { name: `Фундамент — ${foundation.label}`, unit: 'м²', quantity: floorArea, rateKey: foundation.rateKey },
       ],
     },
     {
       title: 'Стены и каркас',
       items: [
-        { name: `Стены — ${wall.label}`, unit: 'м²', quantity: netWallArea, rate: wall.rate },
-        { name: 'Обшивка OSB-3', unit: 'м²', quantity: netWallArea * 2, rate: 420 },
-        { name: 'Утеплитель стен', unit: 'м²', quantity: netWallArea, rate: 340 },
+        { name: `Стены — ${wall.label}`, unit: 'м²', quantity: netWallArea, rateKey: wall.rateKey },
+        { name: 'Обшивка OSB-3', unit: 'м²', quantity: netWallArea * 2, rateKey: 'osb' },
+        { name: 'Утеплитель стен', unit: 'м²', quantity: netWallArea, rateKey: 'insulation_wall' },
       ],
     },
     {
       title: 'Кровля',
       items: [
-        { name: `Кровля — ${roof.label}`, unit: 'м²', quantity: roofArea, rate: roof.rate },
-        { name: 'Утепление кровли', unit: 'м²', quantity: roofArea, rate: 320 },
+        { name: `Кровля — ${roof.label}`, unit: 'м²', quantity: roofArea, rateKey: roof.rateKey },
+        { name: 'Утепление кровли', unit: 'м²', quantity: roofArea, rateKey: 'insulation_roof' },
       ],
     },
     {
       title: 'Пол',
       items: [
-        { name: 'Напольное покрытие', unit: 'м²', quantity: floorArea, rate: 640 },
-        { name: 'Утепление пола', unit: 'м²', quantity: floorArea, rate: 300 },
+        { name: 'Напольное покрытие', unit: 'м²', quantity: floorArea, rateKey: 'floor' },
+        { name: 'Утепление пола', unit: 'м²', quantity: floorArea, rateKey: 'insulation_floor' },
+      ],
+    },
+    {
+      title: 'Перегородки',
+      items: [
+        { name: 'Внутренние перегородки', unit: 'м²', quantity: partitionArea, rateKey: 'partition' },
       ],
     },
     {
       title: 'Окна и двери',
       items: [
-        { name: 'Окно ПВХ', unit: 'шт', quantity: cfg.windows, rate: 8500 },
-        { name: 'Дверь', unit: 'шт', quantity: cfg.doors, rate: 14500 },
+        { name: 'Окно ПВХ', unit: 'шт', quantity: cfg.windows, rateKey: 'window' },
+        { name: 'Дверь', unit: 'шт', quantity: cfg.doors, rateKey: 'door' },
       ],
     },
     {
       title: 'Отделка',
       items: [
-        { name: 'Внутренняя отделка', unit: 'м²', quantity: netWallArea + floorArea, rate: 460 },
-        { name: 'Наружная отделка', unit: 'м²', quantity: netWallArea, rate: 520 },
+        { name: 'Внутренняя отделка', unit: 'м²', quantity: netWallArea + floorArea, rateKey: 'finish_in' },
+        { name: 'Наружная отделка', unit: 'м²', quantity: netWallArea, rateKey: 'finish_out' },
       ],
     },
     {
       title: 'Инженерия',
       items: [
-        { name: 'Электромонтаж', unit: 'модуль', quantity: 1, rate: 26000 },
-        { name: 'Сантехника', unit: 'модуль', quantity: 1, rate: 18000 },
+        { name: 'Электромонтаж', unit: 'модуль', quantity: 1, rateKey: 'electric' },
+        { name: 'Сантехника', unit: 'модуль', quantity: 1, rateKey: 'plumbing' },
       ],
     },
     {
       title: 'Монтажные работы',
       items: [
-        { name: 'Монтаж стен и кровли', unit: 'м²', quantity: netWallArea + roofArea, rate: 850 },
-        { name: 'Монтаж пола', unit: 'м²', quantity: floorArea, rate: 600 },
+        { name: 'Монтаж стен и кровли', unit: 'м²', quantity: netWallArea + roofArea, rateKey: 'work_mount' },
+        { name: 'Монтаж пола', unit: 'м²', quantity: floorArea, rateKey: 'work_floor' },
       ],
     },
   ]
 
   const sections: EstimateSection[] = rawSections.map((sec) => ({
     title: sec.title,
-    items: sec.items.map((it) => ({ ...it, total: it.quantity * it.rate })),
+    items: sec.items.map((it) => {
+      const rate = r(it.rateKey)
+      return { name: it.name, unit: it.unit, quantity: it.quantity, rate, total: it.quantity * rate }
+    }),
   }))
 
   const subtotal = sections.reduce(
@@ -137,12 +161,12 @@ export function calculateEstimate(cfg: ModuleConfig): EstimateResult {
   const marginAmount = (subtotal * cfg.margin) / 100
   const total = subtotal + marginAmount
 
-  return { sections, floorArea, wallArea, roofArea, netWallArea, subtotal, marginAmount, total }
+  return { sections, floorArea, wallArea, roofArea, netWallArea, partitionArea, subtotal, marginAmount, total }
 }
 
-export function exportEstimateCsv(cfg: ModuleConfig, estimate: EstimateResult) {
-  const csvNum = (n: number) => String(Math.round(n * 100) / 100).replace('.', ',')
+const csvNum = (n: number) => String(Math.round(n * 100) / 100).replace('.', ',')
 
+export function exportEstimateCsv(cfg: ModuleConfig, estimate: EstimateResult) {
   const rows: string[] = ['Раздел;Наименование;Ед.;Кол-во;Цена;Сумма']
   for (const sec of estimate.sections) {
     rows.push(`${sec.title};;;;;`)
@@ -162,4 +186,41 @@ export function exportEstimateCsv(cfg: ModuleConfig, estimate: EstimateResult) {
   a.download = 'smeta-modulya.csv'
   a.click()
   URL.revokeObjectURL(url)
+}
+
+const fmtMoney = (n: number) => `${Math.round(n).toLocaleString('ru-RU')} ₽`
+const fmtQty = (n: number) => (Number.isInteger(n) ? n.toString() : n.toFixed(1).replace('.', ','))
+
+export function exportEstimatePdf(cfg: ModuleConfig, estimate: EstimateResult) {
+  const doc = new jsPDF()
+  doc.setFontSize(16)
+  doc.text('Смета — жилой модуль', 14, 16)
+  doc.setFontSize(10)
+  doc.text(`Габариты: ${cfg.length} x ${cfg.width} x ${cfg.height} м`, 14, 24)
+  doc.text(`Площадь пола: ${estimate.floorArea.toFixed(1)} м², стен: ${estimate.netWallArea.toFixed(1)} м², кровли: ${estimate.roofArea.toFixed(1)} м²`, 14, 30)
+
+  const body: (string | { content: string; colSpan: number; styles: Record<string, unknown> })[][] = []
+  for (const sec of estimate.sections) {
+    body.push([{ content: sec.title, colSpan: 3, styles: { fontStyle: 'bold', fillColor: [240, 240, 240] } }])
+    for (const it of sec.items) {
+      body.push([it.name, `${fmtQty(it.quantity)} ${it.unit}`, fmtMoney(it.total)])
+    }
+  }
+
+  autoTable(doc, {
+    head: [['Наименование', 'Кол-во', 'Сумма']],
+    body,
+    startY: 36,
+    styles: { fontSize: 9 },
+    headStyles: { fillColor: [25, 118, 210] },
+  })
+
+  const y = (doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 10
+  doc.setFontSize(11)
+  doc.text(`Итого по смете: ${fmtMoney(estimate.subtotal)}`, 14, y)
+  doc.text(`Наценка (${cfg.margin}%): ${fmtMoney(estimate.marginAmount)}`, 14, y + 7)
+  doc.setFont('helvetica', 'bold')
+  doc.text(`ИТОГО: ${fmtMoney(estimate.total)}`, 14, y + 16)
+
+  doc.save('smeta-modulya.pdf')
 }

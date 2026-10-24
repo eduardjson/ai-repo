@@ -34,6 +34,7 @@ model User {
 
   tokens   Token[]
   messages Message[]
+  projects Project[]
 }
 
 model Token {
@@ -155,4 +156,14 @@ model Attachment {
   uploadedAt DateTime @default(now())
 
   message Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
+}
+
+model Project {
+  id        String   @id @default(uuid())
+  name      String
+  config    Json
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

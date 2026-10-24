@@ -4,6 +4,7 @@ import { productApi } from '../api/productApi'
 import { warehouseApi } from '../api/warehouseApi'
 import { chatApi } from '../api/chatApi'
 import { fileApi } from '../api/fileApi'
+import { projectApi } from '../api/projectApi'
 import authReducer from './authSlice'
 import filterReducer from './filterSlice'
 
@@ -16,6 +17,7 @@ export const store = configureStore({
     [warehouseApi.reducerPath]: warehouseApi.reducer,
     [chatApi.reducerPath]: chatApi.reducer,
     [fileApi.reducerPath]: fileApi.reducer,
+    [projectApi.reducerPath]: projectApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(
@@ -24,6 +26,7 @@ export const store = configureStore({
       warehouseApi.middleware,
       chatApi.middleware,
       fileApi.middleware,
+      projectApi.middleware,
     ),
 })
 
