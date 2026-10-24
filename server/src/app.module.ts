@@ -11,6 +11,7 @@ import { ShipmentModule } from './shipment/shipment.module';
 import { ChatModule } from './chat/chat.module';
 import { AttachmentsModule } from './attachments/attachments.module';
 import { JWTAuthGuard } from './auth/jwt-auth.guard';
+import { RolesGuard } from './auth/roles.guard';
 
 @Module({
   imports: [
@@ -29,6 +30,10 @@ import { JWTAuthGuard } from './auth/jwt-auth.guard';
     {
       provide: APP_GUARD,
       useClass: JWTAuthGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: RolesGuard,
     },
   ],
 })

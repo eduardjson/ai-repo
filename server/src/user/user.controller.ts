@@ -1,5 +1,6 @@
 import { Controller, Get, Patch, Param, Body, Req } from '@nestjs/common';
 import { Request } from 'express';
+import { Roles } from '../auth/roles.decorator';
 import { UserService } from './user.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 
@@ -7,6 +8,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 export class UserController {
   constructor(private userService: UserService) {}
 
+  @Roles('ADMIN')
   @Get('all-users')
   async findAll() {
     return this.userService.findAll();
@@ -23,6 +25,7 @@ export class UserController {
     return this.userService.findById(id);
   }
 
+  @Roles('ADMIN')
   @Patch(':id')
   async update(@Param('id') id: string, @Body() dto: UpdateUserDto) {
     return this.userService.update(id, dto);

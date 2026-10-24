@@ -6,11 +6,23 @@ import {
 } from '@reduxjs/toolkit/query/react'
 import { clearUser } from '../store/authSlice'
 
-// Tokens live in httpOnly cookies (not localStorage), so we only need to
-// send credentials and let the browser attach the cookies.
+// Access token lives in memory only (not localStorage, not a cookie) to avoid
+// both XSS and CSRF. The refresh token stays in an httpOnly cookie.
+let accessToken: string | null = null
+
+export function setAccessToken(token: string | null) {
+  accessToken = token
+}
+
 const rawBaseQuery = fetchBaseQuery({
   baseUrl: '/api',
   credentials: 'include',
+  prepareHeaders: (headers) => {
+    if (accessToken) {
+      headers.set('Authorization', `Bearer ${accessToken}`)
+    }
+    return headers
+  },
 })
 
 // Single-flight: coalesce concurrent 401s into a single refresh request so we
@@ -30,17 +42,26 @@ export const baseQueryWithReauth: BaseQueryFn<
         { url: '/auth/refresh-tokens', method: 'POST' },
         api,
         extraOptions,
-      ).finally(() => {
-        refreshPromise = null
-      })
+      )
+        .then((res) => {
+          const data = res.data as { accessToken?: string } | undefined
+          if (data?.accessToken) {
+            accessToken = data.accessToken
+          }
+          return res
+        })
+        .finally(() => {
+          refreshPromise = null
+        })
     }
 
     const refreshResult = await refreshPromise
 
     if (!refreshResult.error) {
-      // Retry the original request with the freshly-set access cookie.
+      // Retry the original request with the freshly issued access token.
       result = await rawBaseQuery(args, api, extraOptions)
     } else {
+      accessToken = null
       api.dispatch(clearUser())
     }
   }

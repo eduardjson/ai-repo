@@ -1,6 +1,6 @@
 import { createApi } from '@reduxjs/toolkit/query/react'
 import type { LoginRequest, RegisterRequest, AuthResponse, UserDto } from '@shared/types'
-import { baseQueryWithReauth } from './base'
+import { baseQueryWithReauth, setAccessToken } from './base'
 import { setUser, clearUser } from '../store/authSlice'
 
 export const authApi = createApi({
@@ -16,6 +16,7 @@ export const authApi = createApi({
       async onQueryStarted(_, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled
+          setAccessToken(data.accessToken)
           dispatch(setUser(data.user))
         } catch {
           /* handled by component */
@@ -32,6 +33,7 @@ export const authApi = createApi({
       async onQueryStarted(_, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled
+          setAccessToken(data.accessToken)
           dispatch(setUser(data.user))
         } catch {
           /* handled by component */
@@ -48,6 +50,7 @@ export const authApi = createApi({
         try {
           await queryFulfilled
         } finally {
+          setAccessToken(null)
           dispatch(clearUser())
         }
       },

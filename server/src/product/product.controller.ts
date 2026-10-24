@@ -16,6 +16,7 @@ import {
 import { FilesInterceptor, FileInterceptor } from '@nestjs/platform-express';
 import { Response } from 'express';
 import { Public } from '../auth/public.decorator';
+import { Roles } from '../auth/roles.decorator';
 import { ProductService } from './product.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
@@ -56,6 +57,7 @@ export class ProductController {
     return this.productService.findById(id);
   }
 
+  @Roles('ADMIN')
   @Post()
   @UseInterceptors(FileInterceptor('image', { limits: { fileSize: 5 * 1024 * 1024 } }))
   create(
@@ -65,6 +67,7 @@ export class ProductController {
     return this.productService.create(dto, file);
   }
 
+  @Roles('ADMIN')
   @Patch(':id')
   @Put(':id')
   @UseInterceptors(FileInterceptor('image', { limits: { fileSize: 5 * 1024 * 1024 } }))
@@ -76,11 +79,13 @@ export class ProductController {
     return this.productService.update(id, dto, file);
   }
 
+  @Roles('ADMIN')
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.productService.remove(id);
   }
 
+  @Roles('ADMIN')
   @Post(':id/images')
   @UseInterceptors(FilesInterceptor('files', 20))
   uploadImages(

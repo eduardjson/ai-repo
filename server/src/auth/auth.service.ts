@@ -9,7 +9,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { PrismaService } from '../prisma/prisma.service';
 import { LoginDto, RegisterDto } from './dto/login.dto';
 
-const ACCESS_TOKEN_TTL_MS = 15 * 60 * 1000; // 15 minutes
+const ACCESS_TOKEN_TTL = '15m';
 const REFRESH_TOKEN_TTL_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
 
 @Injectable()
@@ -98,7 +98,9 @@ export class AuthService {
       await tx.token.delete({ where: { id: tokenRecord.id } });
 
       const payload = { sub: user.id, email: user.email, role: user.role };
-      const accessToken = this.jwtService.sign(payload, { expiresIn: '15m' });
+      const accessToken = this.jwtService.sign(payload, {
+        expiresIn: ACCESS_TOKEN_TTL,
+      });
       const newRefreshToken = uuidv4();
       const expires = new Date(Date.now() + REFRESH_TOKEN_TTL_MS);
       await tx.token.create({
@@ -122,7 +124,9 @@ export class AuthService {
 
   private async generateTokens(userId: string, email: string, role: string[]) {
     const payload = { sub: userId, email, role };
-    const accessToken = this.jwtService.sign(payload, { expiresIn: '15m' });
+    const accessToken = this.jwtService.sign(payload, {
+      expiresIn: ACCESS_TOKEN_TTL,
+    });
 
     const refreshToken = uuidv4();
     const expires = new Date(Date.now() + REFRESH_TOKEN_TTL_MS);
@@ -132,16 +136,6 @@ export class AuthService {
     });
 
     return { accessToken, refreshToken };
-  }
-
-  getAccessTokenCookieOptions() {
-    return {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax' as const,
-      path: '/',
-      maxAge: ACCESS_TOKEN_TTL_MS,
-    };
   }
 
   getRefreshTokenCookieOptions() {
