@@ -10,6 +10,7 @@ import {
 import { WarehouseService } from './warehouse.service';
 import { CreateWarehouseDto } from './dto/create-warehouse.dto';
 import { AddStockDto } from './dto/add-stock.dto';
+import { UpdateStockDto } from './dto/update-stock.dto';
 
 @Controller('warehouses')
 export class WarehouseController {
@@ -48,6 +49,15 @@ export class WarehouseController {
   @Post(':id/stock')
   addStock(@Param('id') id: string, @Body() dto: AddStockDto) {
     return this.warehouseService.addStock(id, dto);
+  }
+
+  @Patch(':id/stock/:stockId')
+  updateStock(
+    @Param('id') id: string,
+    @Param('stockId') stockId: string,
+    @Body() dto: UpdateStockDto,
+  ) {
+    return this.warehouseService.updateStock(stockId, id, dto);
   }
 
   @Get(':id/stock')

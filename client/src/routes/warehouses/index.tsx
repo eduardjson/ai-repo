@@ -1,10 +1,10 @@
 import { useState } from 'react'
-import { Box, Typography, Button, Table, TableHead, TableBody, TableRow, TableCell, TableContainer, Paper, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, TextField } from '@mui/material'
-import { Add, Edit, Delete, Inventory } from '@mui/icons-material'
+import { Box, Typography, Button, Table, TableHead, TableBody, TableRow, TableCell, TableContainer, Paper, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Tooltip, CircularProgress } from '@mui/material'
+import { Add, Edit, Delete, Inventory, Visibility } from '@mui/icons-material'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useGetWarehousesQuery, useCreateWarehouseMutation, useUpdateWarehouseMutation, useDeleteWarehouseMutation, useAddStockMutation } from '../../api/warehouseApi'
+import { useGetWarehousesQuery, useCreateWarehouseMutation, useUpdateWarehouseMutation, useDeleteWarehouseMutation, useAddStockMutation, useGetStockQuery } from '../../api/warehouseApi'
 import { useGetProductsQuery } from '../../api/productApi'
 import { ActionModal } from '../../components/ActionModal'
 import type { WarehouseDto } from '@shared/types'
@@ -27,6 +27,8 @@ export function WarehouseListPage() {
   const [deleteTarget, setDeleteTarget] = useState<WarehouseDto | null>(null)
   const [stockDialogOpen, setStockDialogOpen] = useState(false)
   const [stockWarehouseId, setStockWarehouseId] = useState<string | null>(null)
+  const [stockViewWarehouseId, setStockViewWarehouseId] = useState<string | null>(null)
+  const { data: stockItems, isLoading: stockLoading } = useGetStockQuery(stockViewWarehouseId!, { skip: !stockViewWarehouseId })
 
   const { register, handleSubmit: handleWhSubmit, reset, formState: { errors } } = useForm<WarehouseFormValues>({ resolver: zodResolver(warehouseSchema) })
   const { register: regStock, handleSubmit: handleStSubmit, reset: resetStock, formState: { errors: stockErrors } } = useForm<StockFormValues>({ resolver: zodResolver(stockSchema) })
@@ -72,7 +74,8 @@ export function WarehouseListPage() {
                 <TableCell sx={{ fontWeight: 500 }}>{w.name}</TableCell>
                 <TableCell>{w.address || '-'}</TableCell>
                 <TableCell align="right">
-                  <IconButton size="small" onClick={() => { setStockWarehouseId(w.id); setStockDialogOpen(true); resetStock({ productId: '', quantity: '0' }) }}><Inventory fontSize="small" /></IconButton>
+                  <Tooltip title="Остатки"><IconButton size="small" onClick={() => setStockViewWarehouseId(w.id)}><Visibility fontSize="small" /></IconButton></Tooltip>
+                  <Tooltip title="Добавить товар"><IconButton size="small" onClick={() => { setStockWarehouseId(w.id); setStockDialogOpen(true); resetStock({ productId: '', quantity: '0' }) }}><Inventory fontSize="small" /></IconButton></Tooltip>
                   <IconButton size="small" onClick={() => openEdit(w)}><Edit fontSize="small" /></IconButton>
                   <IconButton size="small" color="error" onClick={() => setDeleteTarget(w)}><Delete fontSize="small" /></IconButton>
                 </TableCell>
@@ -110,6 +113,32 @@ export function WarehouseListPage() {
           </DialogContent>
           <DialogActions><Button onClick={() => setStockDialogOpen(false)}>Отмена</Button><Button type="submit" variant="contained">Добавить</Button></DialogActions>
         </form>
+      </Dialog>
+
+      <Dialog open={!!stockViewWarehouseId} onClose={() => setStockViewWarehouseId(null)} maxWidth="md" fullWidth>
+        <DialogTitle>Остатки на складе</DialogTitle>
+        <DialogContent sx={{ mt: 1 }}>
+          {stockLoading ? (
+            <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}><CircularProgress /></Box>
+          ) : (
+            <Table size="small">
+              <TableHead><TableRow><TableCell>Товар</TableCell><TableCell align="right">Кол-во</TableCell><TableCell align="right">Закупка</TableCell><TableCell align="right">Сметная</TableCell><TableCell align="right">Продажа</TableCell></TableRow></TableHead>
+              <TableBody>
+                {stockItems?.map((s) => (
+                  <TableRow key={s.id} hover>
+                    <TableCell sx={{ fontWeight: 500 }}>{s.product?.title ?? '-'}</TableCell>
+                    <TableCell align="right">{s.quantity}</TableCell>
+                    <TableCell align="right">{s.purchasePrice ?? '-'}</TableCell>
+                    <TableCell align="right">{s.estimatePrice ?? '-'}</TableCell>
+                    <TableCell align="right">{s.salePrice ?? '-'}</TableCell>
+                  </TableRow>
+                ))}
+                {(!stockItems || stockItems.length === 0) && <TableRow><TableCell colSpan={5} align="center" sx={{ py: 3, color: 'text.secondary' }}>Нет остатков</TableCell></TableRow>}
+              </TableBody>
+            </Table>
+          )}
+        </DialogContent>
+        <DialogActions><Button onClick={() => setStockViewWarehouseId(null)}>Закрыть</Button></DialogActions>
       </Dialog>
 
       <ActionModal open={!!deleteTarget} title="Удалить склад" message={`Удалить "${deleteTarget?.name}"?`} onConfirm={async () => { if (deleteTarget) { await deleteWarehouse(deleteTarget.id).unwrap(); setDeleteTarget(null) } }} onCancel={() => setDeleteTarget(null)} />

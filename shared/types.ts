@@ -113,6 +113,54 @@ export interface AddStockRequest {
   discount?: number
 }
 
+export interface UpdateStockRequest {
+  purchasePrice?: number
+  estimatePrice?: number
+  salePrice?: number
+  discount?: number
+}
+
+// ── Stock Transfer ──
+export interface StockTransferDto {
+  id: string
+  productId: string
+  quantity: number
+  fromWarehouseId: string
+  toWarehouseId: string
+  createdAt: string
+  product?: ProductDto
+  fromWarehouse?: WarehouseDto
+  toWarehouse?: WarehouseDto
+}
+
+export interface CreateTransferRequest {
+  productId: string
+  fromWarehouseId: string
+  toWarehouseId: string
+  quantity: number
+}
+
+// ── User management ──
+export interface CreateUserRequest {
+  email: string
+  password: string
+  username?: string
+  firstName?: string
+  lastName?: string
+  phone?: string
+  role?: string[]
+}
+
+export interface UpdateUserRequest {
+  email?: string
+  username?: string
+  firstName?: string
+  lastName?: string
+  phone?: string
+  avatar?: string
+  role?: string[]
+}
+
 // ── Object (Construction Site) ──
 export interface ObjectDto {
   id: string
@@ -164,6 +212,7 @@ export interface UpdateShipmentStatusRequest {
 
 // ── Price List ──
 export interface PriceListItemDto {
+  id: string
   productId: string
   productTitle: string
   category?: string

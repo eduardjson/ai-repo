@@ -3,28 +3,32 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreateShipmentDto } from './dto/create-shipment.dto';
 import { UpdateStatusDto } from './dto/update-status.dto';
 
+const INCLUDE = {
+  items: { include: { product: true } },
+  warehouse: true,
+  object: true,
+};
+
 @Injectable()
 export class ShipmentService {
   constructor(private prisma: PrismaService) {}
 
-  async findAll() {
+  async findAll(filters?: { objectId?: string; warehouseId?: string; status?: string }) {
+    const where: any = {};
+    if (filters?.objectId) where.objectId = filters.objectId;
+    if (filters?.warehouseId) where.warehouseId = filters.warehouseId;
+    if (filters?.status) where.status = filters.status;
     return this.prisma.shipment.findMany({
-      include: {
-        items: { include: { product: true } },
-        warehouse: true,
-        object: true,
-      },
+      where,
+      include: INCLUDE,
+      orderBy: { createdAt: 'desc' },
     });
   }
 
   async findById(id: string) {
     const shipment = await this.prisma.shipment.findUnique({
       where: { id },
-      include: {
-        items: { include: { product: true } },
-        warehouse: true,
-        object: true,
-      },
+      include: INCLUDE,
     });
     if (!shipment) {
       throw new NotFoundException('Shipment not found');
@@ -45,8 +49,9 @@ export class ShipmentService {
         });
 
         if (!stock || stock.quantity < item.quantity) {
+          const product = await tx.product.findUnique({ where: { id: item.productId } });
           throw new BadRequestException(
-            `Insufficient stock for product ${item.productId}`,
+            `Недостаточно товара «${product?.title ?? item.productId}» на складе`,
           );
         }
 
@@ -56,7 +61,7 @@ export class ShipmentService {
         });
       }
 
-      const shipment = await tx.shipment.create({
+      return tx.shipment.create({
         data: {
           warehouseId: dto.warehouseId,
           objectId: dto.objectId,
@@ -67,34 +72,76 @@ export class ShipmentService {
             })),
           },
         },
-        include: {
-          items: { include: { product: true } },
-          warehouse: true,
-          object: true,
-        },
+        include: INCLUDE,
       });
-
-      return shipment;
     });
   }
 
   async updateStatus(id: string, dto: UpdateStatusDto) {
     const shipment = await this.findById(id);
-    return this.prisma.shipment.update({
-      where: { id },
-      data: { status: dto.status as any },
-      include: {
-        items: { include: { product: true } },
-        warehouse: true,
-        object: true,
-      },
+    const newStatus = dto.status;
+    const oldStatus = shipment.status;
+
+    if (oldStatus === newStatus) {
+      return shipment;
+    }
+
+    const movingToCancelled = newStatus === 'CANCELLED';
+    const movingFromCancelled = oldStatus === 'CANCELLED';
+
+    // Stock is decremented at creation and restored on cancellation.
+    // So: cancel restores stock, un-cancel re-decrements stock.
+    const shouldRestoreStock = movingToCancelled && !movingFromCancelled;
+    const shouldDecrementStock = movingFromCancelled && !movingToCancelled;
+
+    return this.prisma.$transaction(async (tx) => {
+      if (shouldRestoreStock || shouldDecrementStock) {
+        for (const item of shipment.items) {
+          const stock = await tx.stockItem.findUnique({
+            where: {
+              productId_warehouseId: {
+                productId: item.productId,
+                warehouseId: shipment.warehouseId,
+              },
+            },
+          });
+
+          if (shouldRestoreStock && stock) {
+            await tx.stockItem.update({
+              where: { id: stock.id },
+              data: { quantity: stock.quantity + item.quantity },
+            });
+          }
+
+          if (shouldDecrementStock) {
+            if (!stock || stock.quantity < item.quantity) {
+              throw new BadRequestException(
+                `Недостаточно товара на складе для возврата отгрузки в работу`,
+              );
+            }
+            await tx.stockItem.update({
+              where: { id: stock.id },
+              data: { quantity: stock.quantity - item.quantity },
+            });
+          }
+        }
+      }
+
+      return tx.shipment.update({
+        where: { id },
+        data: { status: newStatus as any },
+        include: INCLUDE,
+      });
     });
   }
 
   async remove(id: string) {
     const shipment = await this.findById(id);
 
-    if (shipment.status === 'COMPLETED') {
+    // Stock was decremented at creation and is only restored when the
+    // shipment is cancelled. Any non-cancelled shipment still holds stock
+    // reserved, so restore it before deleting.
+    if (shipment.status !== 'CANCELLED') {
       await this.prisma.$transaction(async (tx) => {
         for (const item of shipment.items) {
           const stock = await tx.stockItem.findUnique({
@@ -126,22 +173,14 @@ export class ShipmentService {
   async findByObject(objectId: string) {
     return this.prisma.shipment.findMany({
       where: { objectId },
-      include: {
-        items: { include: { product: true } },
-        warehouse: true,
-        object: true,
-      },
+      include: INCLUDE,
     });
   }
 
   async findByWarehouse(warehouseId: string) {
     return this.prisma.shipment.findMany({
       where: { warehouseId },
-      include: {
-        items: { include: { product: true } },
-        warehouse: true,
-        object: true,
-      },
+      include: INCLUDE,
     });
   }
 }

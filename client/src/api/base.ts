@@ -42,21 +42,22 @@ export const baseQueryWithReauth: BaseQueryFn<
 
   if (result.error && result.error.status === 401) {
     if (!refreshPromise) {
-      refreshPromise = rawBaseQuery(
-        { url: '/auth/refresh-tokens', method: 'POST' },
-        api,
-        extraOptions,
-      )
-        .then((res) => {
+      refreshPromise = (async () => {
+        try {
+          const res = await rawBaseQuery(
+            { url: '/auth/refresh-tokens', method: 'POST' },
+            api,
+            extraOptions,
+          )
           const data = res.data as { accessToken?: string } | undefined
           if (data?.accessToken) {
             accessToken = data.accessToken
           }
           return res
-        })
-        .finally(() => {
+        } finally {
           refreshPromise = null
-        })
+        }
+      })()
     }
 
     const refreshResult = await refreshPromise

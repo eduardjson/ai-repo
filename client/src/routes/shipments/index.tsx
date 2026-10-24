@@ -1,11 +1,21 @@
 import { useState } from 'react'
-import { Box, Typography, Button, Table, TableHead, TableBody, TableRow, TableCell, TableContainer, Paper, IconButton, Chip, Dialog, DialogTitle, DialogContent, DialogActions, TextField, FormControl, InputLabel, Select, MenuItem } from '@mui/material'
-import { Add, Delete } from '@mui/icons-material'
+import {
+  Box, Typography, Button, Table, TableHead, TableBody, TableRow, TableCell,
+  TableContainer, Paper, IconButton, Chip, Dialog, DialogTitle, DialogContent,
+  DialogActions, TextField, FormControl, InputLabel, Select, MenuItem, Tooltip,
+  Divider, CircularProgress,
+} from '@mui/material'
+import { Add, Delete, Visibility } from '@mui/icons-material'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useGetShipmentsQuery, useCreateShipmentMutation, useUpdateShipmentStatusMutation, useGetWarehousesQuery, useGetObjectsQuery } from '../../api/warehouseApi'
+import {
+  useGetShipmentsQuery, useCreateShipmentMutation, useUpdateShipmentStatusMutation,
+  useDeleteShipmentMutation, useGetWarehousesQuery, useGetObjectsQuery,
+} from '../../api/warehouseApi'
 import { useGetProductsQuery } from '../../api/productApi'
+import { ActionModal } from '../../components/ActionModal'
+import type { ShipmentDto } from '@shared/types'
 
 const STATUS_LABELS: Record<string, string> = { PENDING: 'Ожидает', COMPLETED: 'Завершена', CANCELLED: 'Отменена' }
 const STATUS_COLORS: Record<string, 'warning' | 'success' | 'error'> = { PENDING: 'warning', COMPLETED: 'success', CANCELLED: 'error' }
@@ -20,10 +30,14 @@ export function ShipmentListPage() {
   const { data: warehouses } = useGetWarehousesQuery()
   const { data: objects } = useGetObjectsQuery()
   const { data: productsData } = useGetProductsQuery({})
-  const [createShipment] = useCreateShipmentMutation()
+  const [createShipment, { isLoading: creating, error: createError }] = useCreateShipmentMutation()
   const [updateStatus] = useUpdateShipmentStatusMutation()
+  const [deleteShipment] = useDeleteShipmentMutation()
+
   const [dialogOpen, setDialogOpen] = useState(false)
   const [items, setItems] = useState<ItemEntry[]>([])
+  const [detailTarget, setDetailTarget] = useState<ShipmentDto | null>(null)
+  const [deleteTarget, setDeleteTarget] = useState<ShipmentDto | null>(null)
   const { register, handleSubmit: handleShSubmit, reset, formState: { errors } } = useForm<ShipmentFormValues>({ resolver: zodResolver(shipmentSchema) })
 
   const addItem = () => setItems([...items, { productId: '', quantity: 1 }])
@@ -38,11 +52,12 @@ export function ShipmentListPage() {
   }
 
   const products = productsData?.items ?? []
+  const createErrorMsg = (createError as { data?: { message?: string } })?.data?.message
 
   return (
     <Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3, flexWrap: 'wrap', gap: 2 }}>
-        <Typography variant="h4" fontWeight={700}>Отгрузки</Typography>
+        <Typography variant="h4">Отгрузки</Typography>
         <Button variant="contained" startIcon={<Add />} onClick={() => setDialogOpen(true)}>Новая отгрузка</Button>
       </Box>
       <Box sx={{ display: 'flex', gap: 2, mb: 3, flexWrap: 'wrap' }}>
@@ -53,7 +68,7 @@ export function ShipmentListPage() {
         <Table size="small">
           <TableHead><TableRow><TableCell>Склад</TableCell><TableCell>Объект</TableCell><TableCell>Статус</TableCell><TableCell>Позиций</TableCell><TableCell>Дата</TableCell><TableCell align="right">Действия</TableCell></TableRow></TableHead>
           <TableBody>
-            {isLoading && <TableRow><TableCell colSpan={6} align="center" sx={{ py: 4 }}>Загрузка...</TableCell></TableRow>}
+            {isLoading && <TableRow><TableCell colSpan={6} align="center" sx={{ py: 4 }}><CircularProgress size={24} /></TableCell></TableRow>}
             {shipments?.map((s) => (
               <TableRow key={s.id} hover>
                 <TableCell>{s.warehouse?.name ?? '-'}</TableCell>
@@ -62,10 +77,14 @@ export function ShipmentListPage() {
                 <TableCell>{s.items?.length ?? 0}</TableCell>
                 <TableCell>{new Date(s.createdAt).toLocaleDateString('ru-RU')}</TableCell>
                 <TableCell align="right">
-                  {s.status === 'PENDING' && (<>
-                    <Button size="small" color="success" variant="outlined" sx={{ mr: 0.5 }} onClick={() => updateStatus({ id: s.id, data: { status: 'COMPLETED' } })}>Завершить</Button>
-                    <Button size="small" color="error" variant="outlined" onClick={() => updateStatus({ id: s.id, data: { status: 'CANCELLED' } })}>Отменить</Button>
-                  </>)}
+                  <Tooltip title="Просмотр"><IconButton size="small" onClick={() => setDetailTarget(s)}><Visibility fontSize="small" /></IconButton></Tooltip>
+                  {s.status === 'PENDING' && (
+                    <>
+                      <Button size="small" color="success" variant="outlined" sx={{ mr: 0.5, ml: 0.5 }} onClick={() => updateStatus({ id: s.id, data: { status: 'COMPLETED' } })}>Завершить</Button>
+                      <Button size="small" color="error" variant="outlined" sx={{ mr: 0.5 }} onClick={() => updateStatus({ id: s.id, data: { status: 'CANCELLED' } })}>Отменить</Button>
+                    </>
+                  )}
+                  <Tooltip title="Удалить"><IconButton size="small" color="error" onClick={() => setDeleteTarget(s)}><Delete fontSize="small" /></IconButton></Tooltip>
                 </TableCell>
               </TableRow>
             ))}
@@ -73,6 +92,7 @@ export function ShipmentListPage() {
           </TableBody>
         </Table>
       </TableContainer>
+
       <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} maxWidth="sm" fullWidth>
         <form onSubmit={handleShSubmit(onCreate)}>
           <DialogTitle>Новая отгрузка</DialogTitle>
@@ -103,10 +123,50 @@ export function ShipmentListPage() {
               </Box>
             ))}
             <Button size="small" startIcon={<Add />} onClick={addItem}>Добавить товар</Button>
+            {createErrorMsg && <Typography variant="body2" color="error">{createErrorMsg}</Typography>}
           </DialogContent>
-          <DialogActions><Button onClick={() => { setDialogOpen(false); setItems([]) }}>Отмена</Button><Button type="submit" variant="contained">Создать</Button></DialogActions>
+          <DialogActions><Button onClick={() => { setDialogOpen(false); setItems([]) }}>Отмена</Button><Button type="submit" variant="contained" disabled={creating}>Создать</Button></DialogActions>
         </form>
       </Dialog>
+
+      <Dialog open={!!detailTarget} onClose={() => setDetailTarget(null)} maxWidth="sm" fullWidth>
+        <DialogTitle>Отгрузка</DialogTitle>
+        <DialogContent sx={{ mt: 1 }}>
+          {detailTarget && (
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                <Typography variant="body2" color="text.secondary">Склад</Typography>
+                <Typography variant="body2">{detailTarget.warehouse?.name ?? '-'}</Typography>
+              </Box>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                <Typography variant="body2" color="text.secondary">Объект</Typography>
+                <Typography variant="body2">{detailTarget.object?.name ?? '-'}</Typography>
+              </Box>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                <Typography variant="body2" color="text.secondary">Статус</Typography>
+                <Chip label={STATUS_LABELS[detailTarget.status] || detailTarget.status} size="small" color={STATUS_COLORS[detailTarget.status] || 'default'} />
+              </Box>
+              <Divider sx={{ my: 1 }} />
+              <Typography variant="subtitle2">Позиции</Typography>
+              <Table size="small">
+                <TableHead><TableRow><TableCell>Товар</TableCell><TableCell align="right">Кол-во</TableCell></TableRow></TableHead>
+                <TableBody>
+                  {detailTarget.items?.map((it) => (
+                    <TableRow key={it.id}>
+                      <TableCell>{it.product?.title ?? '-'}</TableCell>
+                      <TableCell align="right">{it.quantity}</TableCell>
+                    </TableRow>
+                  ))}
+                  {(!detailTarget.items || detailTarget.items.length === 0) && <TableRow><TableCell colSpan={2} align="center" sx={{ py: 2, color: 'text.secondary' }}>Нет позиций</TableCell></TableRow>}
+                </TableBody>
+              </Table>
+            </Box>
+          )}
+        </DialogContent>
+        <DialogActions><Button onClick={() => setDetailTarget(null)}>Закрыть</Button></DialogActions>
+      </Dialog>
+
+      <ActionModal open={!!deleteTarget} title="Удалить отгрузку" message={`Удалить отгрузку на объект «${deleteTarget?.object?.name ?? ''}»? Остатки будут возвращены на склад.`} onConfirm={async () => { if (deleteTarget) { await deleteShipment(deleteTarget.id).unwrap(); setDeleteTarget(null) } }} onCancel={() => setDeleteTarget(null)} />
     </Box>
   )
 }

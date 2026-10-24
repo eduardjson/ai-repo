@@ -1,4 +1,4 @@
-import { IsEmail, IsString, MinLength, IsOptional } from 'class-validator';
+import { IsEmail, IsString, MinLength, IsOptional, IsArray, IsIn } from 'class-validator';
 
 export class CreateUserDto {
   @IsEmail()
@@ -23,4 +23,9 @@ export class CreateUserDto {
   @IsOptional()
   @IsString()
   phone?: string;
+
+  @IsOptional()
+  @IsArray()
+  @IsIn(['ADMIN', 'USER'], { each: true })
+  role?: string[];
 }

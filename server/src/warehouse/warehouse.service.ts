@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateWarehouseDto } from './dto/create-warehouse.dto';
 import { AddStockDto } from './dto/add-stock.dto';
+import { UpdateStockDto } from './dto/update-stock.dto';
 
 @Injectable()
 export class WarehouseService {
@@ -83,6 +84,18 @@ export class WarehouseService {
     });
   }
 
+  async updateStock(stockId: string, warehouseId: string, dto: UpdateStockDto) {
+    const stock = await this.prisma.stockItem.findUnique({ where: { id: stockId } });
+    if (!stock || stock.warehouseId !== warehouseId) {
+      throw new NotFoundException('Позиция на складе не найдена');
+    }
+    return this.prisma.stockItem.update({
+      where: { id: stockId },
+      data: dto,
+      include: { product: true },
+    });
+  }
+
   async getStock(warehouseId: string) {
     await this.findById(warehouseId);
     return this.prisma.stockItem.findMany({
@@ -92,23 +105,38 @@ export class WarehouseService {
   }
 
   async getGlobalPriceList() {
-    return this.prisma.stockItem.findMany({
+    const items = await this.prisma.stockItem.findMany({
       where: { quantity: { gt: 0 } },
-      include: {
-        product: true,
-        warehouse: true,
-      },
+      include: { product: true, warehouse: true },
     });
+    return items.map((i) => this.toPriceListItem(i));
   }
 
   async getWarehousePriceList(warehouseId: string) {
     await this.findById(warehouseId);
-    return this.prisma.stockItem.findMany({
-      where: {
-        warehouseId,
-        quantity: { gt: 0 },
-      },
-      include: { product: true },
+    const items = await this.prisma.stockItem.findMany({
+      where: { warehouseId, quantity: { gt: 0 } },
+      include: { product: true, warehouse: true },
     });
+    return items.map((i) => this.toPriceListItem(i));
+  }
+
+  private toPriceListItem(i: any) {
+    return {
+      id: i.id,
+      productId: i.productId,
+      productTitle: i.product.title,
+      category: i.product.category,
+      manufacturer: i.product.manufacturer,
+      unit: i.product.unit,
+      quantity: i.quantity,
+      purchasePrice: i.purchasePrice,
+      estimatePrice: i.estimatePrice,
+      salePrice: i.salePrice,
+      discount: i.discount,
+      warehouseId: i.warehouseId,
+      warehouseName: i.warehouse.name,
+      firstArrivedAt: i.createdAt,
+    };
   }
 }

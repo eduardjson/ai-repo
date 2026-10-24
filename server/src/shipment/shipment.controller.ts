@@ -6,6 +6,7 @@ import {
   Delete,
   Param,
   Body,
+  Query,
 } from '@nestjs/common';
 import { ShipmentService } from './shipment.service';
 import { CreateShipmentDto } from './dto/create-shipment.dto';
@@ -26,8 +27,12 @@ export class ShipmentController {
   }
 
   @Get()
-  findAll() {
-    return this.shipmentService.findAll();
+  findAll(
+    @Query('objectId') objectId?: string,
+    @Query('warehouseId') warehouseId?: string,
+    @Query('status') status?: string,
+  ) {
+    return this.shipmentService.findAll({ objectId, warehouseId, status });
   }
 
   @Get(':id')

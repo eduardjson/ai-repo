@@ -1,4 +1,4 @@
-import { IsString, IsEmail, IsOptional } from 'class-validator';
+import { IsString, IsEmail, IsOptional, IsArray, IsIn } from 'class-validator';
 
 export class UpdateUserDto {
   @IsOptional()
@@ -24,4 +24,9 @@ export class UpdateUserDto {
   @IsOptional()
   @IsString()
   avatar?: string;
+
+  @IsOptional()
+  @IsArray()
+  @IsIn(['ADMIN', 'USER'], { each: true })
+  role?: string[];
 }
