@@ -7,10 +7,151 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Item {
-  id          Int      @id @default(autoincrement())
-  name        String
+enum Role {
+  ADMIN
+  USER
+}
+
+enum ShipmentStatus {
+  PENDING
+  COMPLETED
+  CANCELLED
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  username  String?
+  firstName String?
+  lastName  String?
+  phone     String?
+  role      Role[]   @default([USER])
+  avatar    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  tokens   Token[]
+  messages Message[]
+}
+
+model Token {
+  id      String   @id @default(uuid())
+  token   String   @unique
+  expires DateTime
+  userId  String
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Product {
+  id           String   @id @default(uuid())
+  title        String
+  description  String?
+  category     String?
+  manufacturer String?
+  imageUrl     String?
+  unit         String?
+  imageData    Bytes?
+  imageType    String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  images        ProductImage[]
+  stockItems    StockItem[]
+  shipmentItems ShipmentItem[]
+}
+
+model ProductImage {
+  id        String  @id @default(uuid())
+  url       String
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
+model Warehouse {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  address   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  stockItems StockItem[]
+  shipments  Shipment[]
+}
+
+model StockItem {
+  id            String   @id @default(uuid())
+  productId     String
+  warehouseId   String
+  quantity      Float    @default(0)
+  purchasePrice Float?
+  estimatePrice Float?
+  salePrice     Float?
+  discount      Float?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  product   Product   @relation(fields: [productId], references: [id], onDelete: Restrict)
+  warehouse Warehouse @relation(fields: [warehouseId], references: [id], onDelete: Restrict)
+
+  @@unique([productId, warehouseId])
+}
+
+model Object {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  address     String?
   description String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+
+  shipments Shipment[]
+}
+
+model Shipment {
+  id          String         @id @default(uuid())
+  warehouseId String
+  objectId    String
+  status      ShipmentStatus @default(PENDING)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  warehouse Warehouse      @relation(fields: [warehouseId], references: [id], onDelete: Restrict)
+  object    Object         @relation(fields: [objectId], references: [id], onDelete: Restrict)
+  items     ShipmentItem[]
+}
+
+model ShipmentItem {
+  id         String @id @default(uuid())
+  shipmentId String
+  productId  String
+  quantity   Float
+
+  shipment Shipment @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
+  product  Product  @relation(fields: [productId], references: [id], onDelete: Restrict)
+
+  @@unique([shipmentId, productId])
+}
+
+model Message {
+  id        Int      @id @default(autoincrement())
+  userId    String
+  userName  String
+  text      String
+  createdAt DateTime @default(now())
+
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  attachments Attachment[]
+}
+
+model Attachment {
+  id         String   @id @default(uuid())
+  messageId  Int
+  fileName   String
+  fileSize   Int
+  fileType   String
+  filePath   String
+  uploadedAt DateTime @default(now())
+
+  message Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
 }

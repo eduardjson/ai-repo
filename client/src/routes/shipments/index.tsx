@@ -1,0 +1,112 @@
+import { useState } from 'react'
+import { Box, Typography, Button, Table, TableHead, TableBody, TableRow, TableCell, TableContainer, Paper, IconButton, Chip, Dialog, DialogTitle, DialogContent, DialogActions, TextField, FormControl, InputLabel, Select, MenuItem } from '@mui/material'
+import { Add, Delete } from '@mui/icons-material'
+import { useForm } from 'react-hook-form'
+import { z } from 'zod'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useGetShipmentsQuery, useCreateShipmentMutation, useUpdateShipmentStatusMutation, useGetWarehousesQuery, useGetObjectsQuery } from '../../api/warehouseApi'
+import { useGetProductsQuery } from '../../api/productApi'
+
+const STATUS_LABELS: Record<string, string> = { PENDING: 'Ожидает', COMPLETED: 'Завершена', CANCELLED: 'Отменена' }
+const STATUS_COLORS: Record<string, 'warning' | 'success' | 'error'> = { PENDING: 'warning', COMPLETED: 'success', CANCELLED: 'error' }
+const shipmentSchema = z.object({ warehouseId: z.string().min(1, 'Выберите склад'), objectId: z.string().min(1, 'Выберите объект') })
+type ShipmentFormValues = z.infer<typeof shipmentSchema>
+interface ItemEntry { productId: string; quantity: number }
+
+export function ShipmentListPage() {
+  const [objectFilter, setObjectFilter] = useState('')
+  const [warehouseFilter, setWarehouseFilter] = useState('')
+  const { data: shipments, isLoading } = useGetShipmentsQuery({ objectId: objectFilter || undefined, warehouseId: warehouseFilter || undefined })
+  const { data: warehouses } = useGetWarehousesQuery()
+  const { data: objects } = useGetObjectsQuery()
+  const { data: productsData } = useGetProductsQuery({})
+  const [createShipment] = useCreateShipmentMutation()
+  const [updateStatus] = useUpdateShipmentStatusMutation()
+  const [dialogOpen, setDialogOpen] = useState(false)
+  const [items, setItems] = useState<ItemEntry[]>([])
+  const { register, handleSubmit: handleShSubmit, reset, formState: { errors } } = useForm<ShipmentFormValues>({ resolver: zodResolver(shipmentSchema) })
+
+  const addItem = () => setItems([...items, { productId: '', quantity: 1 }])
+  const updateItem = (index: number, field: keyof ItemEntry, value: string | number) => {
+    const newItems = [...items]; newItems[index] = { ...newItems[index], [field]: value }; setItems(newItems)
+  }
+  const removeItem = (index: number) => setItems(items.filter((_, i) => i !== index))
+
+  const onCreate = async (d: ShipmentFormValues) => {
+    await createShipment({ warehouseId: d.warehouseId, objectId: d.objectId, items: items.map((i) => ({ productId: i.productId, quantity: i.quantity })) }).unwrap()
+    setDialogOpen(false); setItems([]); reset()
+  }
+
+  const products = productsData?.items ?? []
+
+  return (
+    <Box>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3, flexWrap: 'wrap', gap: 2 }}>
+        <Typography variant="h4" fontWeight={700}>Отгрузки</Typography>
+        <Button variant="contained" startIcon={<Add />} onClick={() => setDialogOpen(true)}>Новая отгрузка</Button>
+      </Box>
+      <Box sx={{ display: 'flex', gap: 2, mb: 3, flexWrap: 'wrap' }}>
+        <FormControl size="small" sx={{ minWidth: 200 }}><InputLabel>Объект</InputLabel><Select value={objectFilter} label="Объект" onChange={(e) => setObjectFilter(e.target.value)}><MenuItem value="">Все</MenuItem>{objects?.map((o) => <MenuItem key={o.id} value={o.id}>{o.name}</MenuItem>)}</Select></FormControl>
+        <FormControl size="small" sx={{ minWidth: 200 }}><InputLabel>Склад</InputLabel><Select value={warehouseFilter} label="Склад" onChange={(e) => setWarehouseFilter(e.target.value)}><MenuItem value="">Все</MenuItem>{warehouses?.map((w) => <MenuItem key={w.id} value={w.id}>{w.name}</MenuItem>)}</Select></FormControl>
+      </Box>
+      <TableContainer component={Paper} elevation={1}>
+        <Table size="small">
+          <TableHead><TableRow><TableCell>Склад</TableCell><TableCell>Объект</TableCell><TableCell>Статус</TableCell><TableCell>Позиций</TableCell><TableCell>Дата</TableCell><TableCell align="right">Действия</TableCell></TableRow></TableHead>
+          <TableBody>
+            {isLoading && <TableRow><TableCell colSpan={6} align="center" sx={{ py: 4 }}>Загрузка...</TableCell></TableRow>}
+            {shipments?.map((s) => (
+              <TableRow key={s.id} hover>
+                <TableCell>{s.warehouse?.name ?? '-'}</TableCell>
+                <TableCell>{s.object?.name ?? '-'}</TableCell>
+                <TableCell><Chip label={STATUS_LABELS[s.status] || s.status} size="small" color={STATUS_COLORS[s.status] || 'default'} /></TableCell>
+                <TableCell>{s.items?.length ?? 0}</TableCell>
+                <TableCell>{new Date(s.createdAt).toLocaleDateString('ru-RU')}</TableCell>
+                <TableCell align="right">
+                  {s.status === 'PENDING' && (<>
+                    <Button size="small" color="success" variant="outlined" sx={{ mr: 0.5 }} onClick={() => updateStatus({ id: s.id, data: { status: 'COMPLETED' } })}>Завершить</Button>
+                    <Button size="small" color="error" variant="outlined" onClick={() => updateStatus({ id: s.id, data: { status: 'CANCELLED' } })}>Отменить</Button>
+                  </>)}
+                </TableCell>
+              </TableRow>
+            ))}
+            {!isLoading && (!shipments || shipments.length === 0) && <TableRow><TableCell colSpan={6} align="center" sx={{ py: 4, color: 'text.secondary' }}>Нет отгрузок</TableCell></TableRow>}
+          </TableBody>
+        </Table>
+      </TableContainer>
+      <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} maxWidth="sm" fullWidth>
+        <form onSubmit={handleShSubmit(onCreate)}>
+          <DialogTitle>Новая отгрузка</DialogTitle>
+          <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
+            <FormControl fullWidth error={!!errors.warehouseId}>
+              <InputLabel>Склад</InputLabel>
+              <Select label="Склад" {...register('warehouseId')} defaultValue="">
+                <MenuItem value="">Выберите склад</MenuItem>
+                {warehouses?.map((w) => <MenuItem key={w.id} value={w.id}>{w.name}</MenuItem>)}
+              </Select>
+            </FormControl>
+            <FormControl fullWidth error={!!errors.objectId}>
+              <InputLabel>Объект</InputLabel>
+              <Select label="Объект" {...register('objectId')} defaultValue="">
+                <MenuItem value="">Выберите объект</MenuItem>
+                {objects?.map((o) => <MenuItem key={o.id} value={o.id}>{o.name}</MenuItem>)}
+              </Select>
+            </FormControl>
+            <Typography variant="subtitle2" sx={{ mt: 1 }}>Товары</Typography>
+            {items.map((item, i) => (
+              <Box key={i} sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                <Select value={item.productId} onChange={(e) => updateItem(i, 'productId', e.target.value)} size="small" sx={{ flex: 1 }} displayEmpty>
+                  <MenuItem value="">Выберите товар</MenuItem>
+                  {products.map((p) => <MenuItem key={p.id} value={p.id}>{p.title}</MenuItem>)}
+                </Select>
+                <TextField label="Кол-во" type="number" size="small" sx={{ width: 100 }} value={item.quantity} onChange={(e) => updateItem(i, 'quantity', Number(e.target.value))} />
+                <IconButton size="small" color="error" onClick={() => removeItem(i)}><Delete fontSize="small" /></IconButton>
+              </Box>
+            ))}
+            <Button size="small" startIcon={<Add />} onClick={addItem}>Добавить товар</Button>
+          </DialogContent>
+          <DialogActions><Button onClick={() => { setDialogOpen(false); setItems([]) }}>Отмена</Button><Button type="submit" variant="contained">Создать</Button></DialogActions>
+        </form>
+      </Dialog>
+    </Box>
+  )
+}

@@ -1,12 +1,35 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller.js';
-import { AppService } from './app.service.js';
-import { ItemsModule } from './items/items.module.js';
-import { PrismaModule } from './prisma/prisma.module.js';
+import { ConfigModule } from '@nestjs/config';
+import { APP_GUARD } from '@nestjs/core';
+import { PrismaModule } from './prisma/prisma.module';
+import { AuthModule } from './auth/auth.module';
+import { UserModule } from './user/user.module';
+import { ProductModule } from './product/product.module';
+import { WarehouseModule } from './warehouse/warehouse.module';
+import { ObjectModule } from './object/object.module';
+import { ShipmentModule } from './shipment/shipment.module';
+import { ChatModule } from './chat/chat.module';
+import { AttachmentsModule } from './attachments/attachments.module';
+import { JWTAuthGuard } from './auth/jwt-auth.guard';
 
 @Module({
-  imports: [PrismaModule, ItemsModule],
-  controllers: [AppController],
-  providers: [AppService],
+  imports: [
+    ConfigModule.forRoot({ isGlobal: true }),
+    PrismaModule,
+    AuthModule,
+    UserModule,
+    ProductModule,
+    WarehouseModule,
+    ObjectModule,
+    ShipmentModule,
+    ChatModule,
+    AttachmentsModule,
+  ],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: JWTAuthGuard,
+    },
+  ],
 })
 export class AppModule {}
