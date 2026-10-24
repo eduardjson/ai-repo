@@ -15,6 +15,7 @@ const TABS = [
   { label: 'Склады', path: '/warehouses' },
   { label: 'Объекты', path: '/objects' },
   { label: 'Отгрузки', path: '/shipments' },
+  { label: 'Конструктор', path: '/constructor' },
   { label: 'Чат', path: '/chat' },
   { label: 'Сотрудники', path: '/employees' },
 ]

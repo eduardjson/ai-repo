@@ -16,6 +16,7 @@ import { PriceListPage } from './routes/prices/index'
 import { EmployeeListPage } from './routes/employees/index'
 import { EmployeeDetailPage } from './routes/employees/$employeeId'
 import { ChatPage } from './routes/chat/index'
+import { ConstructorPage } from './routes/constructor/index'
 
 import { useAppSelector } from './store/hooks'
 
@@ -131,6 +132,12 @@ const chatRoute = createRoute({
   component: ChatPage,
 })
 
+const constructorRoute = createRoute({
+  getParentRoute: () => privateRoutes,
+  path: '/constructor',
+  component: ConstructorPage,
+})
+
 const routeTree = rootRoute.addChildren([
   authRoutes.addChildren([loginRoute, registerRoute]),
   privateRoutes.addChildren([
@@ -145,6 +152,7 @@ const routeTree = rootRoute.addChildren([
     employeesRoute,
     employeeDetailRoute,
     chatRoute,
+    constructorRoute,
   ]),
 ])
 
