@@ -11,10 +11,15 @@ import {
   Put,
   Query,
   Req,
+  Res,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
-import { Request } from 'express';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { Request, Response } from 'express';
 import { ChatService } from './chat.service';
 import { ChatGateway } from './chat.gateway';
+import { CreateMessageDto } from './dto/create-message.dto';
 import { MessageTextDto } from './dto/message-text.dto';
 
 interface AuthenticatedUser {
@@ -39,12 +44,18 @@ export class ChatController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  async create(@Req() req: Request, @Body() dto: MessageTextDto) {
+  @UseInterceptors(FileInterceptor('file', { limits: { fileSize: 10 * 1024 * 1024 } }))
+  async create(
+    @Req() req: Request,
+    @Body() dto: CreateMessageDto,
+    @UploadedFile() file?: Express.Multer.File,
+  ) {
     const user = req.user as AuthenticatedUser;
     const message = await this.chatService.create(
       user.id,
       this.displayName(user),
-      dto.text,
+      dto.text ?? '',
+      file,
     );
     this.chatGateway.emitMessageCreated(message);
     return message;
@@ -69,6 +80,26 @@ export class ChatController {
     const result = await this.chatService.remove(id, user.id);
     this.chatGateway.emitMessageDeleted(id);
     return result;
+  }
+
+  @Get(':messageId/attachments/:attachmentId')
+  async download(
+    @Param('messageId', ParseIntPipe) messageId: number,
+    @Param('attachmentId') attachmentId: string,
+    @Res() res: Response,
+  ) {
+    const { fileName, mimeType, data } = await this.chatService.getAttachmentFile(
+      messageId,
+      attachmentId,
+    );
+
+    res.setHeader('Content-Type', mimeType || 'application/pdf');
+    res.setHeader(
+      'Content-Disposition',
+      `attachment; filename*=UTF-8''${encodeURIComponent(fileName)}`,
+    );
+    res.setHeader('Content-Length', data.length);
+    res.send(data);
   }
 
   private displayName(user: AuthenticatedUser): string {

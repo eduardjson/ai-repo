@@ -3,7 +3,6 @@ import { authApi } from '../api/authApi'
 import { productApi } from '../api/productApi'
 import { warehouseApi } from '../api/warehouseApi'
 import { chatApi } from '../api/chatApi'
-import { fileApi } from '../api/fileApi'
 import { projectApi } from '../api/projectApi'
 import { transferApi } from '../api/transferApi'
 import authReducer from './authSlice'
@@ -17,7 +16,6 @@ export const store = configureStore({
     [productApi.reducerPath]: productApi.reducer,
     [warehouseApi.reducerPath]: warehouseApi.reducer,
     [chatApi.reducerPath]: chatApi.reducer,
-    [fileApi.reducerPath]: fileApi.reducer,
     [projectApi.reducerPath]: projectApi.reducer,
     [transferApi.reducerPath]: transferApi.reducer,
   },
@@ -27,7 +25,6 @@ export const store = configureStore({
       productApi.middleware,
       warehouseApi.middleware,
       chatApi.middleware,
-      fileApi.middleware,
       projectApi.middleware,
       transferApi.middleware,
     ),

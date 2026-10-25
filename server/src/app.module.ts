@@ -9,7 +9,6 @@ import { WarehouseModule } from './warehouse/warehouse.module';
 import { ObjectModule } from './object/object.module';
 import { ShipmentModule } from './shipment/shipment.module';
 import { ChatModule } from './chat/chat.module';
-import { AttachmentsModule } from './attachments/attachments.module';
 import { ProjectModule } from './project/project.module';
 import { TransferModule } from './transfer/transfer.module';
 import { JWTAuthGuard } from './auth/jwt-auth.guard';
@@ -26,7 +25,6 @@ import { RolesGuard } from './auth/roles.guard';
     ObjectModule,
     ShipmentModule,
     ChatModule,
-    AttachmentsModule,
     ProjectModule,
     TransferModule,
   ],

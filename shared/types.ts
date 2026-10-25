@@ -243,21 +243,22 @@ export interface MessageDto {
   userName: string
   text: string
   createdAt: string
+  user?: {
+    id: string
+    avatar?: string | null
+    firstName?: string | null
+    lastName?: string | null
+    username?: string | null
+  }
   attachments?: AttachmentDto[]
 }
 
 export interface AttachmentDto {
   id: string
-  messageId: number
   fileName: string
   fileSize: number
-  fileType: string
-  filePath: string
+  mimeType: string
   uploadedAt: string
-}
-
-export interface CreateMessageRequest {
-  text: string
 }
 
 export interface UpdateMessageRequest {

@@ -154,8 +154,8 @@ model Attachment {
   messageId  Int
   fileName   String
   fileSize   Int
-  fileType   String
-  filePath   String
+  mimeType   String
+  data       Bytes
   uploadedAt DateTime @default(now())
 
   message Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
