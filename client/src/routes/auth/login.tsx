@@ -2,7 +2,7 @@ import { useNavigate } from '@tanstack/react-router'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { Card, CardContent, TextField, Button, Typography, Link, Alert, Box } from '@mui/material'
+import { Card, CardContent, TextField, Button, Typography, Alert, Box } from '@mui/material'
 import { useLoginMutation } from '../../api/authApi'
 
 const loginSchema = z.object({
@@ -31,9 +31,6 @@ export function LoginPage() {
             {error && <Alert severity="error" sx={{ mt: 1 }}>{(error as { data?: { detail?: string } })?.data?.detail || 'Ошибка входа'}</Alert>}
             <Button type="submit" variant="contained" fullWidth size="large" loading={isLoading} sx={{ mt: 2 }}>Войти</Button>
           </form>
-          <Typography variant="body2" textAlign="center" sx={{ mt: 2 }}>
-            Нет аккаунта? <Link component="button" onClick={() => navigate({ to: '/auth/register' })}>Зарегистрироваться</Link>
-          </Typography>
         </CardContent>
       </Card>
     </Box>

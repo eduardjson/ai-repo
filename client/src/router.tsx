@@ -5,7 +5,6 @@ import { useEffect } from 'react'
 import { AppLayout } from './routes/__root'
 import { DashboardPage } from './routes/index'
 import { LoginPage } from './routes/auth/login'
-import { RegisterPage } from './routes/auth/register'
 import { ProductListPage } from './routes/products/index'
 import { ProductDetailPage } from './routes/products/$productId'
 import { ProductAddPage } from './routes/products/add'
@@ -53,12 +52,6 @@ const loginRoute = createRoute({
   getParentRoute: () => authRoutes,
   path: '/auth/login',
   component: LoginPage,
-})
-
-const registerRoute = createRoute({
-  getParentRoute: () => authRoutes,
-  path: '/auth/register',
-  component: RegisterPage,
 })
 
 const privateRoutes = createRoute({
@@ -146,7 +139,7 @@ const transfersRoute = createRoute({
 })
 
 const routeTree = rootRoute.addChildren([
-  authRoutes.addChildren([loginRoute, registerRoute]),
+  authRoutes.addChildren([loginRoute]),
   privateRoutes.addChildren([
     indexRoute,
     productsRoute,

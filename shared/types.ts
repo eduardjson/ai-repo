@@ -15,16 +15,6 @@ export interface LoginRequest {
   password: string
 }
 
-export interface RegisterRequest {
-  email: string
-  password: string
-  repeatPassword: string
-  username?: string
-  firstName?: string
-  lastName?: string
-  phone?: string
-}
-
 export interface AuthResponse {
   accessToken: string
   user: UserDto

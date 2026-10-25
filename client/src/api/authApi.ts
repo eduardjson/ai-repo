@@ -1,5 +1,5 @@
 import { createApi } from '@reduxjs/toolkit/query/react'
-import type { LoginRequest, RegisterRequest, AuthResponse, UserDto } from '@shared/types'
+import type { LoginRequest, AuthResponse, UserDto } from '@shared/types'
 import { baseQueryWithReauth, setAccessToken } from './base'
 import { setUser, clearUser } from '../store/authSlice'
 
@@ -10,23 +10,6 @@ export const authApi = createApi({
     login: builder.mutation<AuthResponse, LoginRequest>({
       query: (body) => ({
         url: '/auth/login',
-        method: 'POST',
-        body,
-      }),
-      async onQueryStarted(_, { dispatch, queryFulfilled }) {
-        try {
-          const { data } = await queryFulfilled
-          setAccessToken(data.accessToken)
-          dispatch(setUser(data.user))
-        } catch {
-          /* handled by component */
-        }
-      },
-    }),
-
-    register: builder.mutation<AuthResponse, RegisterRequest>({
-      query: (body) => ({
-        url: '/auth/register',
         method: 'POST',
         body,
       }),
@@ -64,7 +47,6 @@ export const authApi = createApi({
 
 export const {
   useLoginMutation,
-  useRegisterMutation,
   useLogoutMutation,
   useGetMeQuery,
 } = authApi

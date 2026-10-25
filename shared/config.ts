@@ -2,7 +2,6 @@ export const API_BASE_URL = '/api'
 
 export const AUTH_ENDPOINTS = {
   LOGIN: '/auth/login',
-  REGISTER: '/auth/register',
   REFRESH: '/auth/refresh-tokens',
   LOGOUT: '/auth/logout',
   ME: '/user/me',

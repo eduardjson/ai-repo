@@ -1,14 +1,20 @@
-import { Controller, Get, Post, Patch, Delete, Param, Body, Req, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Delete, Param, Body, Req, HttpCode, HttpStatus, ForbiddenException } from '@nestjs/common';
 import { Request } from 'express';
 import { Roles } from '../auth/roles.decorator';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 
+interface AuthenticatedUser {
+  id: string;
+  role?: string[];
+}
+
 @Controller('user')
 export class UserController {
   constructor(private userService: UserService) {}
 
+  @Roles('ADMIN')
   @Get('all-users')
   async findAll() {
     return this.userService.findAll();
@@ -16,12 +22,17 @@ export class UserController {
 
   @Get('me')
   async getMe(@Req() req: Request) {
-    const user = req.user as any;
+    const user = req.user as AuthenticatedUser;
     return this.userService.findById(user.id);
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: string) {
+  async findOne(@Req() req: Request, @Param('id') id: string) {
+    const user = req.user as AuthenticatedUser;
+    // Просмотр чужого профиля разрешён только администратору.
+    if (user.id !== id && !user.role?.includes('ADMIN')) {
+      throw new ForbiddenException('Нет доступа к профилю другого пользователя');
+    }
     return this.userService.findById(id);
   }
 

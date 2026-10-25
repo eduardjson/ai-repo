@@ -14,12 +14,15 @@ import {
 } from '@mui/material'
 import { People, Business, CheckCircle, Build } from '@mui/icons-material'
 import { useGetShipmentsQuery, useGetObjectsQuery, useGetUsersQuery } from '../api/warehouseApi'
+import { useAppSelector } from '../store/hooks'
 
 const statusLabel = (status: string) =>
   status === 'COMPLETED' ? 'Завершена' : status === 'CANCELLED' ? 'Отменена' : 'В пути'
 
 export function DashboardPage() {
-  const { data: users } = useGetUsersQuery()
+  const currentUser = useAppSelector((s) => s.auth.user)
+  const isAdmin = currentUser?.role?.includes('ADMIN') ?? false
+  const { data: users } = useGetUsersQuery(undefined, { skip: !isAdmin })
   const { data: objects } = useGetObjectsQuery()
   const { data: shipments } = useGetShipmentsQuery({})
 
@@ -29,7 +32,9 @@ export function DashboardPage() {
   const activeShipments = shipments?.filter((s) => s.status === 'PENDING').length ?? 0
 
   const cards = [
-    { label: 'Сотрудники', value: employeesCount, icon: <People sx={{ fontSize: 40 }} />, color: 'primary.main' },
+    ...(isAdmin
+      ? [{ label: 'Сотрудники', value: employeesCount, icon: <People sx={{ fontSize: 40 }} />, color: 'primary.main' }]
+      : []),
     { label: 'Объекты', value: objectsCount, icon: <Business sx={{ fontSize: 40 }} />, color: 'secondary.main' },
     { label: 'Завершено', value: completedShipments, icon: <CheckCircle sx={{ fontSize: 40 }} />, color: 'success.main' },
     { label: 'Активные', value: activeShipments, icon: <Build sx={{ fontSize: 40 }} />, color: 'warning.main' },

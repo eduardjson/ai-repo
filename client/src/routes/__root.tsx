@@ -18,8 +18,9 @@ const TABS = [
   { label: 'Перемещения', path: '/transfers' },
   { label: 'Конструктор', path: '/constructor' },
   { label: 'Чат', path: '/chat' },
-  { label: 'Сотрудники', path: '/employees' },
 ]
+
+const ADMIN_TABS = [{ label: 'Сотрудники', path: '/employees' }]
 
 export function AppLayout() {
   const location = useLocation()
@@ -37,11 +38,14 @@ export function AppLayout() {
     }
   }, [user, isError, dispatch])
 
-  const currentTab = TABS.findIndex((tab) =>
+  const isAdmin = user?.role?.includes('ADMIN') ?? false
+  const tabs = isAdmin ? [...TABS, ...ADMIN_TABS] : TABS
+
+  const currentTab = tabs.findIndex((tab) =>
     tab.path === '/' ? location.pathname === '/' : location.pathname.startsWith(tab.path)
   )
 
-  const isAuthPage = location.pathname === '/auth/login' || location.pathname === '/auth/register'
+  const isAuthPage = location.pathname === '/auth/login'
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
@@ -58,30 +62,23 @@ export function AppLayout() {
           {isAuthenticated && (
             <Tabs
               value={currentTab >= 0 ? currentTab : 0}
-              onChange={(_e, v) => navigate({ to: TABS[v].path })}
+              onChange={(_e, v) => navigate({ to: tabs[v].path })}
               variant="scrollable"
               scrollButtons="auto"
               sx={{ ml: 2, flex: 1 }}
             >
-              {TABS.map((tab) => (
+              {tabs.map((tab) => (
                 <Tab key={tab.path} label={tab.label} />
               ))}
             </Tabs>
           )}
           <Box sx={{ ml: 'auto', display: 'flex', alignItems: 'center', gap: 1 }}>
             {!isAuthenticated && !isAuthPage && (
-              <>
-                <Tab
-                  label="Войти"
-                  onClick={() => navigate({ to: '/auth/login' })}
-                  sx={{ minWidth: 'auto', px: 2 }}
-                />
-                <Tab
-                  label="Регистрация"
-                  onClick={() => navigate({ to: '/auth/register' })}
-                  sx={{ minWidth: 'auto', px: 2 }}
-                />
-              </>
+              <Tab
+                label="Войти"
+                onClick={() => navigate({ to: '/auth/login' })}
+                sx={{ minWidth: 'auto', px: 2 }}
+              />
             )}
             <Profile />
           </Box>
