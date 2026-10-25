@@ -11,7 +11,7 @@ description: UI/UX conventions and design tokens for the СтройМат fronte
 ## Стек стилей
 
 - **React 19 + MUI v7** (`@mui/material`, `@mui/icons-material`) + Emotion через `sx`.
-- **MUI — единственная система стилей.** Tailwind импортирован, но не используется;
+- **MUI — единственная система стилей.** Tailwind удалён;
   новые стили пиши через `sx` и тему MUI, не через Tailwind-классы.
 - Уведомления — `react-toastify` (bottom-right).
 
