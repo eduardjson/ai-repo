@@ -1,11 +1,12 @@
 import { useState } from 'react'
-import { Box, Typography, Button, Table, TableHead, TableBody, TableRow, TableCell, TableContainer, Paper, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, TextField } from '@mui/material'
-import { Add, Edit, Delete } from '@mui/icons-material'
+import { Box, Typography, Button, Table, TableHead, TableBody, TableRow, TableCell, TableContainer, Paper, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Grid, Tooltip } from '@mui/material'
+import { Add, Edit, Delete, LocationOn } from '@mui/icons-material'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useGetObjectsQuery, useCreateObjectMutation, useUpdateObjectMutation, useDeleteObjectMutation } from '../../api/warehouseApi'
 import { ActionModal } from '../../components/ActionModal'
+import { LocationPicker, type LatLng } from '../../components/LocationPicker'
 import type { ObjectDto } from '@shared/types'
 
 const objectSchema = z.object({ name: z.string().min(1, 'Название обязательно'), address: z.string().optional(), description: z.string().optional() })
@@ -19,14 +20,26 @@ export function ObjectListPage() {
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editTarget, setEditTarget] = useState<ObjectDto | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<ObjectDto | null>(null)
+  const [location, setLocation] = useState<LatLng | null>(null)
 
   const { register, handleSubmit, reset, formState: { errors } } = useForm<ObjectFormValues>({ resolver: zodResolver(objectSchema) })
-  const openCreate = () => { setEditTarget(null); reset({ name: '', address: '', description: '' }); setDialogOpen(true) }
-  const openEdit = (o: ObjectDto) => { setEditTarget(o); reset({ name: o.name, address: o.address || '', description: o.description || '' }); setDialogOpen(true) }
+  const openCreate = () => {
+    setEditTarget(null)
+    setLocation(null)
+    reset({ name: '', address: '', description: '' })
+    setDialogOpen(true)
+  }
+  const openEdit = (o: ObjectDto) => {
+    setEditTarget(o)
+    setLocation(o.latitude != null && o.longitude != null ? { lat: o.latitude, lng: o.longitude } : null)
+    reset({ name: o.name, address: o.address || '', description: o.description || '' })
+    setDialogOpen(true)
+  }
 
   const onSubmit = async (data: ObjectFormValues) => {
-    if (editTarget) { await updateObject({ id: editTarget.id, data }).unwrap() }
-    else { await createObject(data).unwrap() }
+    const payload = { ...data, latitude: location?.lat, longitude: location?.lng }
+    if (editTarget) { await updateObject({ id: editTarget.id, data: payload }).unwrap() }
+    else { await createObject(payload).unwrap() }
     setDialogOpen(false)
   }
 
@@ -42,7 +55,12 @@ export function ObjectListPage() {
           <TableBody>
             {objects?.map((o) => (
               <TableRow key={o.id} hover>
-                <TableCell sx={{ fontWeight: 500 }}>{o.name}</TableCell>
+                <TableCell sx={{ fontWeight: 500 }}>
+                  {o.name}
+                  {o.latitude != null && o.longitude != null && (
+                    <Tooltip title="Есть координаты на карте"><LocationOn fontSize="small" sx={{ ml: 0.5, verticalAlign: 'middle', color: 'primary.main' }} /></Tooltip>
+                  )}
+                </TableCell>
                 <TableCell>{o.address || '-'}</TableCell>
                 <TableCell sx={{ maxWidth: 300, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{o.description || '-'}</TableCell>
                 <TableCell align="right">
@@ -55,17 +73,31 @@ export function ObjectListPage() {
           </TableBody>
         </Table>
       </TableContainer>
-      <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} maxWidth="sm" fullWidth>
+
+      <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} maxWidth="md" fullWidth>
         <form onSubmit={handleSubmit(onSubmit)}>
           <DialogTitle>{editTarget ? 'Редактировать объект' : 'Новый объект'}</DialogTitle>
-          <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
-            <TextField label="Название" fullWidth {...register('name')} error={!!errors.name} helperText={errors.name?.message} />
-            <TextField label="Адрес" fullWidth {...register('address')} />
-            <TextField label="Описание" fullWidth multiline rows={3} {...register('description')} />
+          <DialogContent sx={{ mt: 1 }}>
+            <Grid container spacing={2}>
+              <Grid size={{ xs: 12, md: 6 }} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                <TextField label="Название" fullWidth {...register('name')} error={!!errors.name} helperText={errors.name?.message} />
+                <TextField label="Адрес" fullWidth {...register('address')} />
+                <TextField label="Описание" fullWidth multiline rows={3} {...register('description')} />
+                {location && (
+                  <Button size="small" color="inherit" onClick={() => setLocation(null)} sx={{ alignSelf: 'flex-start' }}>
+                    Сбросить точку на карте
+                  </Button>
+                )}
+              </Grid>
+              <Grid size={{ xs: 12, md: 6 }}>
+                <LocationPicker value={location} onChange={setLocation} />
+              </Grid>
+            </Grid>
           </DialogContent>
           <DialogActions><Button onClick={() => setDialogOpen(false)}>Отмена</Button><Button type="submit" variant="contained">Сохранить</Button></DialogActions>
         </form>
       </Dialog>
+
       <ActionModal open={!!deleteTarget} title="Удалить объект" message={`Удалить "${deleteTarget?.name}"?`} onConfirm={async () => { if (deleteTarget) { await deleteObject(deleteTarget.id).unwrap(); setDeleteTarget(null) } }} onCancel={() => setDeleteTarget(null)} />
     </Box>
   )

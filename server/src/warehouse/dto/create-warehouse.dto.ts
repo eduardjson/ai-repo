@@ -1,4 +1,4 @@
-import { IsString, IsOptional } from 'class-validator';
+import { IsString, IsOptional, IsLatitude, IsLongitude } from 'class-validator';
 
 export class CreateWarehouseDto {
   @IsString()
@@ -7,4 +7,12 @@ export class CreateWarehouseDto {
   @IsOptional()
   @IsString()
   address?: string;
+
+  @IsOptional()
+  @IsLatitude()
+  latitude?: number;
+
+  @IsOptional()
+  @IsLongitude()
+  longitude?: number;
 }

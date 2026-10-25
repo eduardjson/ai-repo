@@ -1,4 +1,4 @@
-import { IsString, IsOptional } from 'class-validator';
+import { IsString, IsOptional, IsLatitude, IsLongitude } from 'class-validator';
 
 export class CreateObjectDto {
   @IsString()
@@ -7,6 +7,14 @@ export class CreateObjectDto {
   @IsOptional()
   @IsString()
   address?: string;
+
+  @IsOptional()
+  @IsLatitude()
+  latitude?: number;
+
+  @IsOptional()
+  @IsLongitude()
+  longitude?: number;
 
   @IsOptional()
   @IsString()

@@ -1,12 +1,13 @@
 import { useState } from 'react'
-import { Box, Typography, Button, Table, TableHead, TableBody, TableRow, TableCell, TableContainer, Paper, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Tooltip, CircularProgress } from '@mui/material'
-import { Add, Edit, Delete, Inventory, Visibility } from '@mui/icons-material'
+import { Box, Typography, Button, Table, TableHead, TableBody, TableRow, TableCell, TableContainer, Paper, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Tooltip, CircularProgress, Grid } from '@mui/material'
+import { Add, Edit, Delete, Inventory, Visibility, LocationOn } from '@mui/icons-material'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useGetWarehousesQuery, useCreateWarehouseMutation, useUpdateWarehouseMutation, useDeleteWarehouseMutation, useAddStockMutation, useGetStockQuery } from '../../api/warehouseApi'
 import { useGetProductsQuery } from '../../api/productApi'
 import { ActionModal } from '../../components/ActionModal'
+import { LocationPicker, type LatLng } from '../../components/LocationPicker'
 import type { WarehouseDto } from '@shared/types'
 
 const warehouseSchema = z.object({ name: z.string().min(1, 'Название обязательно'), address: z.string().optional() })
@@ -28,17 +29,24 @@ export function WarehouseListPage() {
   const [stockDialogOpen, setStockDialogOpen] = useState(false)
   const [stockWarehouseId, setStockWarehouseId] = useState<string | null>(null)
   const [stockViewWarehouseId, setStockViewWarehouseId] = useState<string | null>(null)
+  const [location, setLocation] = useState<LatLng | null>(null)
   const { data: stockItems, isLoading: stockLoading } = useGetStockQuery(stockViewWarehouseId!, { skip: !stockViewWarehouseId })
 
   const { register, handleSubmit: handleWhSubmit, reset, formState: { errors } } = useForm<WarehouseFormValues>({ resolver: zodResolver(warehouseSchema) })
   const { register: regStock, handleSubmit: handleStSubmit, reset: resetStock, formState: { errors: stockErrors } } = useForm<StockFormValues>({ resolver: zodResolver(stockSchema) })
 
-  const openCreate = () => { setEditTarget(null); reset({ name: '', address: '' }); setDialogOpen(true) }
-  const openEdit = (w: WarehouseDto) => { setEditTarget(w); reset({ name: w.name, address: w.address || '' }); setDialogOpen(true) }
+  const openCreate = () => { setEditTarget(null); setLocation(null); reset({ name: '', address: '' }); setDialogOpen(true) }
+  const openEdit = (w: WarehouseDto) => {
+    setEditTarget(w)
+    setLocation(w.latitude != null && w.longitude != null ? { lat: w.latitude, lng: w.longitude } : null)
+    reset({ name: w.name, address: w.address || '' })
+    setDialogOpen(true)
+  }
 
   const onWhSubmit = async (data: WarehouseFormValues) => {
-    if (editTarget) { await updateWarehouse({ id: editTarget.id, data }).unwrap() }
-    else { await createWarehouse(data).unwrap() }
+    const payload = { ...data, latitude: location?.lat, longitude: location?.lng }
+    if (editTarget) { await updateWarehouse({ id: editTarget.id, data: payload }).unwrap() }
+    else { await createWarehouse(payload).unwrap() }
     setDialogOpen(false)
   }
 
@@ -71,7 +79,12 @@ export function WarehouseListPage() {
           <TableBody>
             {warehouses?.map((w) => (
               <TableRow key={w.id} hover>
-                <TableCell sx={{ fontWeight: 500 }}>{w.name}</TableCell>
+                <TableCell sx={{ fontWeight: 500 }}>
+                  {w.name}
+                  {w.latitude != null && w.longitude != null && (
+                    <Tooltip title="Есть координаты на карте"><LocationOn fontSize="small" sx={{ ml: 0.5, verticalAlign: 'middle', color: 'primary.main' }} /></Tooltip>
+                  )}
+                </TableCell>
                 <TableCell>{w.address || '-'}</TableCell>
                 <TableCell align="right">
                   <Tooltip title="Остатки"><IconButton size="small" onClick={() => setStockViewWarehouseId(w.id)}><Visibility fontSize="small" /></IconButton></Tooltip>
@@ -86,12 +99,24 @@ export function WarehouseListPage() {
         </Table>
       </TableContainer>
 
-      <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} maxWidth="sm" fullWidth>
+      <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} maxWidth="md" fullWidth>
         <form onSubmit={handleWhSubmit(onWhSubmit)}>
           <DialogTitle>{editTarget ? 'Редактировать склад' : 'Новый склад'}</DialogTitle>
-          <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
-            <TextField label="Название" fullWidth {...register('name')} error={!!errors.name} helperText={errors.name?.message} />
-            <TextField label="Адрес" fullWidth {...register('address')} />
+          <DialogContent sx={{ mt: 1 }}>
+            <Grid container spacing={2}>
+              <Grid size={{ xs: 12, md: 6 }} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                <TextField label="Название" fullWidth {...register('name')} error={!!errors.name} helperText={errors.name?.message} />
+                <TextField label="Адрес" fullWidth {...register('address')} />
+                {location && (
+                  <Button size="small" color="inherit" onClick={() => setLocation(null)} sx={{ alignSelf: 'flex-start' }}>
+                    Сбросить точку на карте
+                  </Button>
+                )}
+              </Grid>
+              <Grid size={{ xs: 12, md: 6 }}>
+                <LocationPicker value={location} onChange={setLocation} />
+              </Grid>
+            </Grid>
           </DialogContent>
           <DialogActions><Button onClick={() => setDialogOpen(false)}>Отмена</Button><Button type="submit" variant="contained">Сохранить</Button></DialogActions>
         </form>

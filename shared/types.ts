@@ -80,6 +80,8 @@ export interface WarehouseDto {
   id: string
   name: string
   address?: string
+  latitude?: number | null
+  longitude?: number | null
   createdAt: string
   updatedAt: string
 }
@@ -87,6 +89,8 @@ export interface WarehouseDto {
 export interface CreateWarehouseRequest {
   name: string
   address?: string
+  latitude?: number
+  longitude?: number
 }
 
 export type UpdateWarehouseRequest = Partial<CreateWarehouseRequest>
@@ -166,6 +170,8 @@ export interface ObjectDto {
   id: string
   name: string
   address?: string
+  latitude?: number | null
+  longitude?: number | null
   description?: string
   createdAt: string
   updatedAt: string
@@ -174,6 +180,8 @@ export interface ObjectDto {
 export interface CreateObjectRequest {
   name: string
   address?: string
+  latitude?: number
+  longitude?: number
   description?: string
 }
 
