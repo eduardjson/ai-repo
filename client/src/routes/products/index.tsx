@@ -3,11 +3,10 @@ import { useState, useCallback } from 'react'
 import { Box, Typography, Button, TextField, Select, MenuItem, FormControl, InputLabel, Table, TableHead, TableBody, TableRow, TableCell, TableContainer, Paper, IconButton, Chip } from '@mui/material'
 import { Add, Edit, Delete } from '@mui/icons-material'
 import { debounce } from 'lodash'
-import { useGetProductsQuery, useDeleteProductMutation } from '../../api/productApi'
+import { useProductControllerFindAllQuery, useProductControllerRemoveMutation, type ProductDto } from '../../api/generated'
 import { useAppSelector, useAppDispatch } from '../../store/hooks'
 import { setSearch, setCategory, setManufacturer, resetFilters } from '../../store/filterSlice'
 import { ActionModal } from '../../components/ActionModal'
-import type { ProductDto } from '@shared/types'
 
 export function ProductListPage() {
   const navigate = useNavigate()
@@ -16,8 +15,8 @@ export function ProductListPage() {
   const [page, setPage] = useState(1)
   const [deleteTarget, setDeleteTarget] = useState<ProductDto | null>(null)
   const [localSearch, setLocalSearch] = useState(search)
-  const { data, isLoading } = useGetProductsQuery({ page, size: 20, search: search || undefined, category: category || undefined, manufacturer: manufacturer || undefined })
-  const [deleteProduct] = useDeleteProductMutation()
+  const { data, isLoading } = useProductControllerFindAllQuery({ page: String(page), size: '20', search: search || undefined, category: category || undefined, manufacturer: manufacturer || undefined })
+  const [deleteProduct] = useProductControllerRemoveMutation()
   const debouncedSearch = useCallback(debounce((val: string) => dispatch(setSearch(val)), 400), [])
   const categories = [...new Set(data?.items.map((p) => p.category).filter(Boolean) ?? [])]
   const manufacturers = [...new Set(data?.items.map((p) => p.manufacturer).filter(Boolean) ?? [])]
@@ -34,14 +33,14 @@ export function ProductListPage() {
           <InputLabel>Категория</InputLabel>
           <Select value={category} label="Категория" onChange={(e) => dispatch(setCategory(e.target.value))}>
             <MenuItem value="">Все</MenuItem>
-            {categories.map((c) => <MenuItem key={c} value={c!}>{c}</MenuItem>)}
+            {categories.map((c) => <MenuItem key={c!} value={c!}>{c}</MenuItem>)}
           </Select>
         </FormControl>
         <FormControl size="small" sx={{ minWidth: 200 }}>
           <InputLabel>Производитель</InputLabel>
           <Select value={manufacturer} label="Производитель" onChange={(e) => dispatch(setManufacturer(e.target.value))}>
             <MenuItem value="">Все</MenuItem>
-            {manufacturers.map((m) => <MenuItem key={m} value={m!}>{m}</MenuItem>)}
+            {manufacturers.map((m) => <MenuItem key={m!} value={m!}>{m}</MenuItem>)}
           </Select>
         </FormControl>
         <Button size="small" onClick={() => { dispatch(resetFilters()); setLocalSearch('') }}>Сбросить</Button>
@@ -82,7 +81,7 @@ export function ProductListPage() {
           <Button disabled={page >= data.pages} onClick={() => setPage((p) => p + 1)}>Вперёд</Button>
         </Box>
       )}
-      <ActionModal open={!!deleteTarget} title="Удалить позицию" message={`Вы уверены, что хотите удалить "${deleteTarget?.title}"?`} onConfirm={async () => { if (deleteTarget) { await deleteProduct(deleteTarget.id).unwrap(); setDeleteTarget(null) } }} onCancel={() => setDeleteTarget(null)} />
+      <ActionModal open={!!deleteTarget} title="Удалить позицию" message={`Вы уверены, что хотите удалить "${deleteTarget?.title}"?`} onConfirm={async () => { if (deleteTarget) { await deleteProduct({ id: deleteTarget.id }).unwrap(); setDeleteTarget(null) } }} onCancel={() => setDeleteTarget(null)} />
     </Box>
   )
 }

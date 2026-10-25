@@ -3,7 +3,7 @@ import { Box, Card, CardContent, Avatar, Typography, Chip, Divider } from '@mui/
 import { Email, Phone, AlternateEmail, CalendarMonth } from '@mui/icons-material'
 import { format } from 'date-fns'
 import { ru } from 'date-fns/locale'
-import type { UserDto } from '@shared/types'
+import type { UserDto } from '../api/generated'
 
 const ROLE_LABELS: Record<string, string> = {
   ADMIN: 'Администратор',
@@ -37,7 +37,7 @@ export function ProfileCard({ user, actions }: ProfileCardProps) {
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
           <Avatar
             variant="rounded"
-            src={user.avatar}
+            src={user.avatar ?? undefined}
             sx={{ width: 64, height: 64, fontSize: 24, borderRadius: 1 }}
           >
             {fullName[0]?.toUpperCase() || '?'}

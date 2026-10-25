@@ -15,16 +15,30 @@ import {
 } from '@nestjs/common';
 import { FilesInterceptor, FileInterceptor } from '@nestjs/platform-express';
 import { Response } from 'express';
+import {
+  ApiBearerAuth,
+  ApiCreatedResponse,
+  ApiOkResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { Public } from '../auth/public.decorator';
 import { ProductService } from './product.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
+import {
+  ProductDto,
+  ProductImageDto,
+  ProductListResponseDto,
+} from '../dto/product.response';
 
+@ApiTags('products')
+@ApiBearerAuth()
 @Controller('products')
 export class ProductController {
   constructor(private productService: ProductService) {}
 
   @Get()
+  @ApiOkResponse({ type: ProductListResponseDto })
   async findAll(
     @Query('page') page?: string,
     @Query('size') size?: string,
@@ -47,17 +61,20 @@ export class ProductController {
   }
 
   @Get(':id/images')
+  @ApiOkResponse({ type: ProductImageDto, isArray: true })
   getImages(@Param('id') id: string) {
     return this.productService.getImages(id);
   }
 
   @Get(':id')
+  @ApiOkResponse({ type: ProductDto })
   findOne(@Param('id') id: string) {
     return this.productService.findById(id);
   }
 
   @Post()
   @UseInterceptors(FileInterceptor('image', { limits: { fileSize: 5 * 1024 * 1024 } }))
+  @ApiCreatedResponse({ type: ProductDto })
   create(
     @Body() dto: CreateProductDto,
     @UploadedFile() file?: Express.Multer.File,
@@ -68,6 +85,7 @@ export class ProductController {
   @Patch(':id')
   @Put(':id')
   @UseInterceptors(FileInterceptor('image', { limits: { fileSize: 5 * 1024 * 1024 } }))
+  @ApiOkResponse({ type: ProductDto })
   update(
     @Param('id') id: string,
     @Body() dto: UpdateProductDto,
@@ -83,6 +101,7 @@ export class ProductController {
 
   @Post(':id/images')
   @UseInterceptors(FilesInterceptor('files', 20))
+  @ApiCreatedResponse({ type: ProductImageDto, isArray: true })
   uploadImages(
     @Param('id') id: string,
     @UploadedFiles() files: Express.Multer.File[],

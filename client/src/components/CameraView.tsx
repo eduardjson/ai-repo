@@ -2,7 +2,8 @@ import { useEffect, useRef, useState } from 'react'
 import Hls from 'hls.js'
 import { Box, Typography, Button } from '@mui/material'
 import { VideocamOff, Refresh } from '@mui/icons-material'
-import type { CameraType } from '@shared/types'
+
+export type CameraType = 'hls' | 'mjpeg' | 'snapshot'
 
 interface CameraViewProps {
   url: string

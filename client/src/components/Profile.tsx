@@ -3,7 +3,8 @@ import { Avatar, IconButton, Drawer, Box, ListItemButton, ListItemIcon, ListItem
 import { Logout, Person } from '@mui/icons-material'
 import { useNavigate } from '@tanstack/react-router'
 import { useAppSelector, useAppDispatch } from '../store/hooks'
-import { useLogoutMutation } from '../api/authApi'
+import { useAuthControllerLogoutMutation } from '../api/generated'
+import { setAccessToken } from '../api/base'
 import { clearUser } from '../store/authSlice'
 import { ProfileCard } from './ProfileCard'
 
@@ -12,7 +13,7 @@ export function Profile() {
   const user = useAppSelector((s) => s.auth.user)
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
-  const [logout] = useLogoutMutation()
+  const [logout] = useAuthControllerLogoutMutation()
 
   const handleLogout = async () => {
     try {
@@ -20,6 +21,7 @@ export function Profile() {
     } catch {
       /* ignore */
     }
+    setAccessToken(null)
     dispatch(clearUser())
     navigate({ to: '/auth/login' })
   }
@@ -29,7 +31,7 @@ export function Profile() {
   return (
     <>
       <IconButton onClick={() => setOpen(true)} sx={{ ml: 'auto' }}>
-        <Avatar src={user.avatar} sx={{ width: 36, height: 36 }}>
+        <Avatar src={user.avatar ?? undefined} sx={{ width: 36, height: 36 }}>
           {user.firstName?.[0] || user.email[0].toUpperCase()}
         </Avatar>
       </IconButton>

@@ -40,8 +40,7 @@ import { ModuleDrawing } from './ModuleDrawing'
 import { calculateEstimate, exportEstimateCsv, exportEstimatePdf, defaultConfig, type ModuleConfig } from './estimate'
 import { exportDrawingPdf } from './drawing'
 import { ROOF_MATERIALS, WALL_TYPES, FOUNDATIONS, WALL_COLORS, ROOF_COLORS, DEFAULT_RATES, type RateMap, type Option, type ColorOption } from './config'
-import { useGetProjectsQuery, useCreateProjectMutation, useUpdateProjectMutation, useDeleteProjectMutation, type ProjectDto } from '../../api/projectApi'
-import { useGetPriceListQuery } from '../../api/warehouseApi'
+import { useProjectControllerFindAllQuery, useProjectControllerCreateMutation, useProjectControllerUpdateMutation, useProjectControllerRemoveMutation, useWarehouseControllerGetGlobalPriceListQuery, type ProjectDto } from '../../api/generated'
 
 const fmt = (n: number) => n.toLocaleString('ru-RU')
 const fmtQty = (n: number) => (Number.isInteger(n) ? n.toString() : n.toFixed(1).replace('.', ','))
@@ -148,11 +147,11 @@ export function ConstructorPage() {
   const [projectName, setProjectName] = useState('')
   const [editingId, setEditingId] = useState<string | null>(null)
 
-  const { data: projects } = useGetProjectsQuery()
-  const [createProject] = useCreateProjectMutation()
-  const [updateProject] = useUpdateProjectMutation()
-  const [deleteProject] = useDeleteProjectMutation()
-  const { data: priceList } = useGetPriceListQuery({})
+  const { data: projects } = useProjectControllerFindAllQuery()
+  const [createProject] = useProjectControllerCreateMutation()
+  const [updateProject] = useProjectControllerUpdateMutation()
+  const [deleteProject] = useProjectControllerRemoveMutation()
+  const { data: priceList } = useWarehouseControllerGetGlobalPriceListQuery()
 
   const config = useMemo<ModuleConfig>(
     () => ({ length, width, height, windows, doors, partitions, roofType, roofMaterial, wallType, foundation, wallColor, roofColor, margin }),
@@ -171,9 +170,9 @@ export function ConstructorPage() {
   const handleSave = async () => {
     if (!projectName.trim()) return
     if (editingId) {
-      await updateProject({ id: editingId, name: projectName.trim(), config })
+      await updateProject({ id: editingId, updateProjectDto: { name: projectName.trim(), config } })
     } else {
-      const created = await createProject({ name: projectName.trim(), config }).unwrap()
+      const created = await createProject({ createProjectDto: { name: projectName.trim(), config } }).unwrap()
       setEditingId(created.id)
     }
     setSaveOpen(false)
@@ -387,7 +386,7 @@ export function ConstructorPage() {
             <List>
               {projects.map((p) => (
                 <ListItem key={p.id} disablePadding secondaryAction={
-                  <Tooltip title="Удалить"><IconButton edge="end" onClick={() => deleteProject(p.id)}><Delete fontSize="small" /></IconButton></Tooltip>
+                  <Tooltip title="Удалить"><IconButton edge="end" onClick={() => deleteProject({ id: p.id })}><Delete fontSize="small" /></IconButton></Tooltip>
                 }>
                   <ListItemButton onClick={() => handleLoad(p)}>
                     <ListItemText primary={p.name} secondary={`Обновлён: ${new Date(p.updatedAt).toLocaleString('ru-RU')}`} />

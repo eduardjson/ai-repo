@@ -33,6 +33,25 @@ const rawBaseQuery = fetchBaseQuery({
 // never fire multiple parallel token rotations.
 let refreshPromise: Promise<any> | null = null
 
+/** Скачивание вложения (PDF) с авторизацией и сохранением под оригинальным именем. */
+export async function downloadAttachment(messageId: number, attachmentId: string, fileName: string) {
+  const res = await fetch(`/api/chat/messages/${messageId}/attachments/${attachmentId}`, {
+    headers: { Authorization: `Bearer ${getAccessToken()}` },
+  })
+  if (!res.ok) {
+    throw new Error(`Не удалось скачать файл (${res.status})`)
+  }
+  const blob = await res.blob()
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = fileName
+  document.body.appendChild(a)
+  a.click()
+  a.remove()
+  URL.revokeObjectURL(url)
+}
+
 export const baseQueryWithReauth: BaseQueryFn<
   string | FetchArgs,
   unknown,

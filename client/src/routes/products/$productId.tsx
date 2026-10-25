@@ -2,15 +2,15 @@ import { useParams, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
 import { Box, Typography, Card, CardContent, CardMedia, Grid, Button, Divider, IconButton, CircularProgress } from '@mui/material'
 import { Edit, Delete, ArrowBack } from '@mui/icons-material'
-import { useGetProductQuery, useDeleteProductMutation } from '../../api/productApi'
+import { useProductControllerFindOneQuery, useProductControllerRemoveMutation } from '../../api/generated'
 import { ActionModal } from '../../components/ActionModal'
 
 export function ProductDetailPage() {
   const params = useParams({ from: '/_private/products/$productId' })
   const productId = params.productId
   const navigate = useNavigate()
-  const { data: product, isLoading } = useGetProductQuery(productId)
-  const [deleteProduct] = useDeleteProductMutation()
+  const { data: product, isLoading } = useProductControllerFindOneQuery({ id: productId })
+  const [deleteProduct] = useProductControllerRemoveMutation()
   const [showDelete, setShowDelete] = useState(false)
 
   if (isLoading) return <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}><CircularProgress /></Box>
@@ -50,7 +50,7 @@ export function ProductDetailPage() {
           </Card>
         </Grid>
       </Grid>
-      <ActionModal open={showDelete} title="Удалить позицию" message={`Вы уверены, что хотите удалить "${product.title}"?`} onConfirm={async () => { await deleteProduct(productId).unwrap(); navigate({ to: '/products' }) }} onCancel={() => setShowDelete(false)} />
+      <ActionModal open={showDelete} title="Удалить позицию" message={`Вы уверены, что хотите удалить "${product.title}"?`} onConfirm={async () => { await deleteProduct({ id: productId }).unwrap(); navigate({ to: '/products' }) }} onCancel={() => setShowDelete(false)} />
     </Box>
   )
 }

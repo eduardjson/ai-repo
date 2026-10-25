@@ -7,11 +7,14 @@ import {
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
+import { ApiBearerAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { Request, Response } from 'express';
 import { AuthService } from './auth.service';
 import { Public } from './public.decorator';
 import { LoginDto } from './dto/login.dto';
+import { AuthResponseDto } from '../dto/auth.response';
 
+@ApiTags('auth')
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
@@ -19,6 +22,7 @@ export class AuthController {
   @Public()
   @Post('login')
   @HttpCode(HttpStatus.OK)
+  @ApiOkResponse({ type: AuthResponseDto })
   async login(
     @Body() dto: LoginDto,
     @Res({ passthrough: true }) res: Response,
@@ -28,8 +32,10 @@ export class AuthController {
     return { accessToken: result.accessToken, user: result.user };
   }
 
+  @ApiBearerAuth()
   @Post('logout')
   @HttpCode(HttpStatus.OK)
+  @ApiOkResponse({ description: 'Logged out' })
   async logout(
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
@@ -42,6 +48,7 @@ export class AuthController {
 
   @Public()
   @Post('refresh-tokens')
+  @ApiOkResponse({ type: AuthResponseDto })
   async refreshTokens(
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,

@@ -13,7 +13,11 @@ import {
   Paper,
 } from '@mui/material'
 import { People, Business, CheckCircle, Build } from '@mui/icons-material'
-import { useGetShipmentsQuery, useGetObjectsQuery, useGetUsersQuery } from '../api/warehouseApi'
+import {
+  useShipmentControllerFindAllQuery,
+  useObjectControllerFindAllQuery,
+  useUserControllerFindAllQuery,
+} from '../api/generated'
 import { useAppSelector } from '../store/hooks'
 
 const statusLabel = (status: string) =>
@@ -22,9 +26,9 @@ const statusLabel = (status: string) =>
 export function DashboardPage() {
   const currentUser = useAppSelector((s) => s.auth.user)
   const isAdmin = currentUser?.role?.includes('ADMIN') ?? false
-  const { data: users } = useGetUsersQuery(undefined, { skip: !isAdmin })
-  const { data: objects } = useGetObjectsQuery()
-  const { data: shipments } = useGetShipmentsQuery({})
+  const { data: users } = useUserControllerFindAllQuery(undefined, { skip: !isAdmin })
+  const { data: objects } = useObjectControllerFindAllQuery()
+  const { data: shipments } = useShipmentControllerFindAllQuery({})
 
   const employeesCount = users?.length ?? 0
   const objectsCount = objects?.length ?? 0

@@ -17,10 +17,17 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Request, Response } from 'express';
+import {
+  ApiBearerAuth,
+  ApiCreatedResponse,
+  ApiOkResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { ChatService } from './chat.service';
 import { ChatGateway } from './chat.gateway';
 import { CreateMessageDto } from './dto/create-message.dto';
 import { MessageTextDto } from './dto/message-text.dto';
+import { MessageDto } from '../dto/chat.response';
 
 interface AuthenticatedUser {
   id: string;
@@ -29,6 +36,8 @@ interface AuthenticatedUser {
   username?: string;
 }
 
+@ApiTags('chat')
+@ApiBearerAuth()
 @Controller('chat/messages')
 export class ChatController {
   constructor(
@@ -37,6 +46,7 @@ export class ChatController {
   ) {}
 
   @Get()
+  @ApiOkResponse({ type: MessageDto, isArray: true })
   findAll(@Query('limit') limit?: string) {
     const parsed = limit ? Math.min(500, Math.max(1, parseInt(limit, 10))) : 100;
     return this.chatService.findAll(parsed);
@@ -45,6 +55,7 @@ export class ChatController {
   @Post()
   @HttpCode(HttpStatus.CREATED)
   @UseInterceptors(FileInterceptor('file', { limits: { fileSize: 10 * 1024 * 1024 } }))
+  @ApiCreatedResponse({ type: MessageDto })
   async create(
     @Req() req: Request,
     @Body() dto: CreateMessageDto,
@@ -62,6 +73,7 @@ export class ChatController {
   }
 
   @Put(':id')
+  @ApiOkResponse({ type: MessageDto })
   async update(
     @Req() req: Request,
     @Param('id', ParseIntPipe) id: number,

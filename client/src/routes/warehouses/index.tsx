@@ -4,11 +4,18 @@ import { Add, Edit, Delete, Inventory, Visibility, LocationOn } from '@mui/icons
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useGetWarehousesQuery, useCreateWarehouseMutation, useUpdateWarehouseMutation, useDeleteWarehouseMutation, useAddStockMutation, useGetStockQuery } from '../../api/warehouseApi'
-import { useGetProductsQuery } from '../../api/productApi'
+import {
+  useWarehouseControllerFindAllQuery,
+  useWarehouseControllerCreateMutation,
+  useWarehouseControllerUpdateMutation,
+  useWarehouseControllerRemoveMutation,
+  useWarehouseControllerAddStockMutation,
+  useWarehouseControllerGetStockQuery,
+  useProductControllerFindAllQuery,
+  type WarehouseDto,
+} from '../../api/generated'
 import { ActionModal } from '../../components/ActionModal'
 import { LocationPicker, type LatLng } from '../../components/LocationPicker'
-import type { WarehouseDto } from '@shared/types'
 
 const warehouseSchema = z.object({ name: z.string().min(1, 'Название обязательно'), address: z.string().optional() })
 type WarehouseFormValues = z.infer<typeof warehouseSchema>
@@ -16,12 +23,12 @@ const stockSchema = z.object({ productId: z.string().min(1, 'Выберите т
 type StockFormValues = z.infer<typeof stockSchema>
 
 export function WarehouseListPage() {
-  const { data: warehouses } = useGetWarehousesQuery()
-  const { data: products } = useGetProductsQuery({})
-  const [createWarehouse] = useCreateWarehouseMutation()
-  const [updateWarehouse] = useUpdateWarehouseMutation()
-  const [deleteWarehouse] = useDeleteWarehouseMutation()
-  const [addStock] = useAddStockMutation()
+  const { data: warehouses } = useWarehouseControllerFindAllQuery()
+  const { data: products } = useProductControllerFindAllQuery({})
+  const [createWarehouse] = useWarehouseControllerCreateMutation()
+  const [updateWarehouse] = useWarehouseControllerUpdateMutation()
+  const [deleteWarehouse] = useWarehouseControllerRemoveMutation()
+  const [addStock] = useWarehouseControllerAddStockMutation()
 
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editTarget, setEditTarget] = useState<WarehouseDto | null>(null)
@@ -30,7 +37,7 @@ export function WarehouseListPage() {
   const [stockWarehouseId, setStockWarehouseId] = useState<string | null>(null)
   const [stockViewWarehouseId, setStockViewWarehouseId] = useState<string | null>(null)
   const [location, setLocation] = useState<LatLng | null>(null)
-  const { data: stockItems, isLoading: stockLoading } = useGetStockQuery(stockViewWarehouseId!, { skip: !stockViewWarehouseId })
+  const { data: stockItems, isLoading: stockLoading } = useWarehouseControllerGetStockQuery({ id: stockViewWarehouseId! }, { skip: !stockViewWarehouseId })
 
   const { register, handleSubmit: handleWhSubmit, reset, formState: { errors } } = useForm<WarehouseFormValues>({ resolver: zodResolver(warehouseSchema) })
   const { register: regStock, handleSubmit: handleStSubmit, reset: resetStock, formState: { errors: stockErrors } } = useForm<StockFormValues>({ resolver: zodResolver(stockSchema) })
@@ -45,16 +52,16 @@ export function WarehouseListPage() {
 
   const onWhSubmit = async (data: WarehouseFormValues) => {
     const payload = { ...data, latitude: location?.lat, longitude: location?.lng }
-    if (editTarget) { await updateWarehouse({ id: editTarget.id, data: payload }).unwrap() }
-    else { await createWarehouse(payload).unwrap() }
+    if (editTarget) { await updateWarehouse({ id: editTarget.id, updateWarehouseDto: payload }).unwrap() }
+    else { await createWarehouse({ createWarehouseDto: payload }).unwrap() }
     setDialogOpen(false)
   }
 
   const onStSubmit = async (data: StockFormValues) => {
     if (!stockWarehouseId) return
     await addStock({
-      warehouseId: stockWarehouseId,
-      data: {
+      id: stockWarehouseId,
+      addStockDto: {
         productId: data.productId,
         quantity: Number(data.quantity),
         purchasePrice: data.purchasePrice ? Number(data.purchasePrice) : undefined,
@@ -166,7 +173,7 @@ export function WarehouseListPage() {
         <DialogActions><Button onClick={() => setStockViewWarehouseId(null)}>Закрыть</Button></DialogActions>
       </Dialog>
 
-      <ActionModal open={!!deleteTarget} title="Удалить склад" message={`Удалить "${deleteTarget?.name}"?`} onConfirm={async () => { if (deleteTarget) { await deleteWarehouse(deleteTarget.id).unwrap(); setDeleteTarget(null) } }} onCancel={() => setDeleteTarget(null)} />
+      <ActionModal open={!!deleteTarget} title="Удалить склад" message={`Удалить "${deleteTarget?.name}"?`} onConfirm={async () => { if (deleteTarget) { await deleteWarehouse({ id: deleteTarget.id }).unwrap(); setDeleteTarget(null) } }} onCancel={() => setDeleteTarget(null)} />
     </Box>
   )
 }

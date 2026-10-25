@@ -13,15 +13,14 @@ import {
 import { Send, Edit, Delete, AttachFile, PictureAsPdf, Close, Download } from '@mui/icons-material'
 import { io } from 'socket.io-client'
 import {
-  useGetMessagesQuery,
-  useCreateMessageMutation,
-  useUpdateMessageMutation,
-  useDeleteMessageMutation,
-  chatApi,
-  downloadAttachment,
-} from '../../api/chatApi'
+  useChatControllerFindAllQuery,
+  useChatControllerUpdateMutation,
+  useChatControllerRemoveMutation,
+} from '../../api/generated'
+import { emptySplitApi } from '../../api/emptyApi'
+import { getAccessToken, downloadAttachment } from '../../api/base'
+import { uploadFormData } from '../../api/upload'
 import { useAppSelector, useAppDispatch } from '../../store/hooks'
-import { getAccessToken } from '../../api/base'
 import { ActionModal } from '../../components/ActionModal'
 
 const fmtTime = (d: string) =>
@@ -33,12 +32,12 @@ const fmtSize = (n: number) =>
 export function ChatPage() {
   const user = useAppSelector((s) => s.auth.user)
   const dispatch = useAppDispatch()
-  const { data: messages, isLoading } = useGetMessagesQuery({ limit: 100 })
-  const [createMessage, { isLoading: sending }] = useCreateMessageMutation()
-  const [updateMessage] = useUpdateMessageMutation()
-  const [deleteMessage] = useDeleteMessageMutation()
+  const { data: messages, isLoading } = useChatControllerFindAllQuery({ limit: '100' })
+  const [updateMessage] = useChatControllerUpdateMutation()
+  const [deleteMessage] = useChatControllerRemoveMutation()
 
   const [text, setText] = useState('')
+  const [sending, setSending] = useState(false)
   const [file, setFile] = useState<File | null>(null)
   const [editingId, setEditingId] = useState<number | null>(null)
   const [editText, setEditText] = useState('')
@@ -52,7 +51,7 @@ export function ChatPage() {
       transports: ['websocket', 'polling'],
     })
 
-    const refresh = () => dispatch(chatApi.util.invalidateTags(['Message']))
+    const refresh = () => dispatch(emptySplitApi.util.invalidateTags(['chat']))
     socket.on('message:new', refresh)
     socket.on('message:updated', refresh)
     socket.on('message:deleted', refresh)
@@ -73,13 +72,16 @@ export function ChatPage() {
     const formData = new FormData()
     if (text.trim()) formData.append('text', text.trim())
     if (file) formData.append('file', file)
+    setSending(true)
     try {
-      await createMessage(formData).unwrap()
+      await uploadFormData('/chat/messages', 'POST', formData)
       setText('')
       setFile(null)
       if (fileInputRef.current) fileInputRef.current.value = ''
     } catch {
-      /* handled by RTK */
+      /* handled */
+    } finally {
+      setSending(false)
     }
   }
 
@@ -93,21 +95,21 @@ export function ChatPage() {
   const handleEdit = async () => {
     if (editingId === null) return
     try {
-      await updateMessage({ id: editingId, data: { text: editText } }).unwrap()
+      await updateMessage({ id: editingId, messageTextDto: { text: editText } }).unwrap()
       setEditingId(null)
       setEditText('')
     } catch {
-      /* handled by RTK */
+      /* handled */
     }
   }
 
   const handleDelete = async () => {
     if (deleteTarget === null) return
     try {
-      await deleteMessage(deleteTarget).unwrap()
+      await deleteMessage({ id: deleteTarget }).unwrap()
       setDeleteTarget(null)
     } catch {
-      /* handled by RTK */
+      /* handled */
     }
   }
 
@@ -141,7 +143,6 @@ export function ChatPage() {
                 boxShadow: 1,
               }}
             >
-              {/* Шапка: аватар + имя */}
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
                 <Avatar
                   src={msg.user?.avatar ?? undefined}
@@ -152,7 +153,6 @@ export function ChatPage() {
                 <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>{msg.userName}</Typography>
               </Box>
 
-              {/* Тело сообщения */}
               {editingId === msg.id ? (
                 <Box sx={{ display: 'flex', gap: 1 }}>
                   <TextField
@@ -177,7 +177,6 @@ export function ChatPage() {
                 )
               )}
 
-              {/* Вложение */}
               {msg.attachments?.map((a) => (
                 <Box
                   key={a.id}
@@ -204,7 +203,6 @@ export function ChatPage() {
                 </Box>
               ))}
 
-              {/* Низ: время + действия */}
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 0.5, mt: 0.5 }}>
                 <Typography variant="caption" sx={{ opacity: 0.75 }}>{fmtTime(msg.createdAt)}</Typography>
                 {canModify && (
@@ -229,7 +227,6 @@ export function ChatPage() {
         <div ref={messagesEndRef} />
       </Paper>
 
-      {/* Ввод */}
       <Paper elevation={1} sx={{ p: 1 }}>
         {file && (
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, px: 1, pb: 1 }}>

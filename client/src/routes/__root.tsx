@@ -5,7 +5,7 @@ import { useLocation, useNavigate } from '@tanstack/react-router'
 import { ThemeToggle } from '../components/ThemeToggle'
 import { Profile } from '../components/Profile'
 import { useAppDispatch, useAppSelector } from '../store/hooks'
-import { useGetMeQuery } from '../api/authApi'
+import { useUserControllerGetMeQuery } from '../api/generated'
 import { setUser, setLoading } from '../store/authSlice'
 
 const TABS = [
@@ -27,8 +27,10 @@ export function AppLayout() {
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
   const isAuthenticated = useAppSelector((s) => s.auth.isAuthenticated)
+  const authUser = useAppSelector((s) => s.auth.user)
 
-  const { data: user, isError } = useGetMeQuery()
+  // Гидратация авторизации при загрузке страницы (по refresh-cookie).
+  const { data: user, isError } = useUserControllerGetMeQuery()
 
   useEffect(() => {
     if (user) {
@@ -38,7 +40,7 @@ export function AppLayout() {
     }
   }, [user, isError, dispatch])
 
-  const isAdmin = user?.role?.includes('ADMIN') ?? false
+  const isAdmin = authUser?.role?.includes('ADMIN') ?? false
   const tabs = isAdmin ? [...TABS, ...ADMIN_TABS] : TABS
 
   const currentTab = tabs.findIndex((tab) =>

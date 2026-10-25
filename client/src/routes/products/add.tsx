@@ -4,7 +4,8 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Box, Typography, Card, CardContent, TextField, Button, IconButton, CircularProgress } from '@mui/material'
 import { ArrowBack, CloudUpload } from '@mui/icons-material'
-import { useCreateProductMutation, useGetProductQuery, useUpdateProductMutation } from '../../api/productApi'
+import { useProductControllerCreateMutation, useProductControllerUpdateMutation, useProductControllerFindOneQuery } from '../../api/generated'
+import { uploadFormData } from '../../api/upload'
 import { useRef, useEffect, useState } from 'react'
 
 const productSchema = z.object({
@@ -26,9 +27,9 @@ export function ProductAddPage() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
 
-  const { data: existingProduct, isLoading: isLoadingProduct } = useGetProductQuery(editId!, { skip: !isEdit })
-  const [createProduct, { isLoading: isCreating }] = useCreateProductMutation()
-  const [updateProduct, { isLoading: isUpdating }] = useUpdateProductMutation()
+  const { data: existingProduct, isLoading: isLoadingProduct } = useProductControllerFindOneQuery({ id: editId! }, { skip: !isEdit })
+  const [createProduct, { isLoading: isCreating }] = useProductControllerCreateMutation()
+  const [updateProduct, { isLoading: isUpdating }] = useProductControllerUpdateMutation()
 
   const { register, handleSubmit, reset, formState: { errors } } = useForm<ProductFormValues>({
     resolver: zodResolver(productSchema),
@@ -69,9 +70,9 @@ export function ProductAddPage() {
           const formData = new FormData()
           Object.entries(data).forEach(([key, value]) => { if (value) formData.append(key, value) })
           formData.append('image', selectedFile)
-          await updateProduct({ id: editId!, data: formData }).unwrap()
+          await uploadFormData(`/products/${editId}`, 'PATCH', formData)
         } else {
-          await updateProduct({ id: editId!, data }).unwrap()
+          await updateProduct({ id: editId!, updateProductDto: data }).unwrap()
         }
         navigate({ to: `/products/${editId}` })
       } else {
@@ -79,9 +80,9 @@ export function ProductAddPage() {
           const formData = new FormData()
           Object.entries(data).forEach(([key, value]) => { if (value) formData.append(key, value) })
           formData.append('image', selectedFile)
-          await createProduct(formData).unwrap()
+          await uploadFormData('/products', 'POST', formData)
         } else {
-          await createProduct(data).unwrap()
+          await createProduct({ createProductDto: data }).unwrap()
         }
         navigate({ to: '/products' })
       }

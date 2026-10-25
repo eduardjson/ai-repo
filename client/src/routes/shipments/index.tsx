@@ -10,12 +10,16 @@ import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
-  useGetShipmentsQuery, useCreateShipmentMutation, useUpdateShipmentStatusMutation,
-  useDeleteShipmentMutation, useGetWarehousesQuery, useGetObjectsQuery,
-} from '../../api/warehouseApi'
-import { useGetProductsQuery } from '../../api/productApi'
+  useShipmentControllerFindAllQuery,
+  useShipmentControllerCreateMutation,
+  useShipmentControllerUpdateStatusMutation,
+  useShipmentControllerRemoveMutation,
+  useWarehouseControllerFindAllQuery,
+  useObjectControllerFindAllQuery,
+  useProductControllerFindAllQuery,
+  type ShipmentDto,
+} from '../../api/generated'
 import { ActionModal } from '../../components/ActionModal'
-import type { ShipmentDto } from '@shared/types'
 
 const STATUS_LABELS: Record<string, string> = { PENDING: 'Ожидает', COMPLETED: 'Завершена', CANCELLED: 'Отменена' }
 const STATUS_COLORS: Record<string, 'warning' | 'success' | 'error'> = { PENDING: 'warning', COMPLETED: 'success', CANCELLED: 'error' }
@@ -26,13 +30,13 @@ interface ItemEntry { productId: string; quantity: number }
 export function ShipmentListPage() {
   const [objectFilter, setObjectFilter] = useState('')
   const [warehouseFilter, setWarehouseFilter] = useState('')
-  const { data: shipments, isLoading } = useGetShipmentsQuery({ objectId: objectFilter || undefined, warehouseId: warehouseFilter || undefined })
-  const { data: warehouses } = useGetWarehousesQuery()
-  const { data: objects } = useGetObjectsQuery()
-  const { data: productsData } = useGetProductsQuery({})
-  const [createShipment, { isLoading: creating, error: createError }] = useCreateShipmentMutation()
-  const [updateStatus] = useUpdateShipmentStatusMutation()
-  const [deleteShipment] = useDeleteShipmentMutation()
+  const { data: shipments, isLoading } = useShipmentControllerFindAllQuery({ objectId: objectFilter || undefined, warehouseId: warehouseFilter || undefined })
+  const { data: warehouses } = useWarehouseControllerFindAllQuery()
+  const { data: objects } = useObjectControllerFindAllQuery()
+  const { data: productsData } = useProductControllerFindAllQuery({})
+  const [createShipment, { isLoading: creating, error: createError }] = useShipmentControllerCreateMutation()
+  const [updateStatus] = useShipmentControllerUpdateStatusMutation()
+  const [deleteShipment] = useShipmentControllerRemoveMutation()
 
   const [dialogOpen, setDialogOpen] = useState(false)
   const [items, setItems] = useState<ItemEntry[]>([])
@@ -47,7 +51,7 @@ export function ShipmentListPage() {
   const removeItem = (index: number) => setItems(items.filter((_, i) => i !== index))
 
   const onCreate = async (d: ShipmentFormValues) => {
-    await createShipment({ warehouseId: d.warehouseId, objectId: d.objectId, items: items.map((i) => ({ productId: i.productId, quantity: i.quantity })) }).unwrap()
+    await createShipment({ createShipmentDto: { warehouseId: d.warehouseId, objectId: d.objectId, items: items.map((i) => ({ productId: i.productId, quantity: i.quantity })) } }).unwrap()
     setDialogOpen(false); setItems([]); reset()
   }
 
@@ -80,8 +84,8 @@ export function ShipmentListPage() {
                   <Tooltip title="Просмотр"><IconButton size="small" onClick={() => setDetailTarget(s)}><Visibility fontSize="small" /></IconButton></Tooltip>
                   {s.status === 'PENDING' && (
                     <>
-                      <Button size="small" color="success" variant="outlined" sx={{ mr: 0.5, ml: 0.5 }} onClick={() => updateStatus({ id: s.id, data: { status: 'COMPLETED' } })}>Завершить</Button>
-                      <Button size="small" color="error" variant="outlined" sx={{ mr: 0.5 }} onClick={() => updateStatus({ id: s.id, data: { status: 'CANCELLED' } })}>Отменить</Button>
+                      <Button size="small" color="success" variant="outlined" sx={{ mr: 0.5, ml: 0.5 }} onClick={() => updateStatus({ id: s.id, updateStatusDto: { status: 'COMPLETED' } })}>Завершить</Button>
+                      <Button size="small" color="error" variant="outlined" sx={{ mr: 0.5 }} onClick={() => updateStatus({ id: s.id, updateStatusDto: { status: 'CANCELLED' } })}>Отменить</Button>
                     </>
                   )}
                   <Tooltip title="Удалить"><IconButton size="small" color="error" onClick={() => setDeleteTarget(s)}><Delete fontSize="small" /></IconButton></Tooltip>
@@ -166,7 +170,7 @@ export function ShipmentListPage() {
         <DialogActions><Button onClick={() => setDetailTarget(null)}>Закрыть</Button></DialogActions>
       </Dialog>
 
-      <ActionModal open={!!deleteTarget} title="Удалить отгрузку" message={`Удалить отгрузку на объект «${deleteTarget?.object?.name ?? ''}»? Остатки будут возвращены на склад.`} onConfirm={async () => { if (deleteTarget) { await deleteShipment(deleteTarget.id).unwrap(); setDeleteTarget(null) } }} onCancel={() => setDeleteTarget(null)} />
+      <ActionModal open={!!deleteTarget} title="Удалить отгрузку" message={`Удалить отгрузку на объект «${deleteTarget?.object?.name ?? ''}»? Остатки будут возвращены на склад.`} onConfirm={async () => { if (deleteTarget) { await deleteShipment({ id: deleteTarget.id }).unwrap(); setDeleteTarget(null) } }} onCancel={() => setDeleteTarget(null)} />
     </Box>
   )
 }

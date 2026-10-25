@@ -1,13 +1,13 @@
 import { useParams, useNavigate } from '@tanstack/react-router'
 import { Box, Typography, IconButton, CircularProgress } from '@mui/material'
 import { ArrowBack } from '@mui/icons-material'
-import { useGetUserQuery } from '../../api/warehouseApi'
+import { useUserControllerFindOneQuery } from '../../api/generated'
 import { ProfileCard } from '../../components/ProfileCard'
 
 export function EmployeeDetailPage() {
   const params = useParams({ from: '/_private/employees/$employeeId' })
   const navigate = useNavigate()
-  const { data: user, isLoading } = useGetUserQuery(params.employeeId)
+  const { data: user, isLoading } = useUserControllerFindOneQuery({ id: params.employeeId })
 
   if (isLoading) return <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}><CircularProgress /></Box>
   if (!user) return <Typography>Пользователь не найден</Typography>

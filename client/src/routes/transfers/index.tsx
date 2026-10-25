@@ -23,17 +23,18 @@ import {
 } from '@mui/material'
 import { Add } from '@mui/icons-material'
 import { format } from 'date-fns'
-import { useGetTransfersQuery, useCreateTransferMutation } from '../../api/transferApi'
-import { useGetWarehousesQuery, warehouseApi } from '../../api/warehouseApi'
-import { useGetProductsQuery } from '../../api/productApi'
-import { useAppDispatch } from '../../store/hooks'
+import {
+  useTransferControllerFindAllQuery,
+  useTransferControllerCreateMutation,
+  useWarehouseControllerFindAllQuery,
+  useProductControllerFindAllQuery,
+} from '../../api/generated'
 
 export function TransferListPage() {
-  const dispatch = useAppDispatch()
-  const { data: transfers } = useGetTransfersQuery()
-  const { data: warehouses } = useGetWarehousesQuery()
-  const { data: productsData } = useGetProductsQuery({})
-  const [createTransfer, { isLoading, error }] = useCreateTransferMutation()
+  const { data: transfers } = useTransferControllerFindAllQuery()
+  const { data: warehouses } = useWarehouseControllerFindAllQuery()
+  const { data: productsData } = useProductControllerFindAllQuery({})
+  const [createTransfer, { isLoading, error }] = useTransferControllerCreateMutation()
 
   const [open, setOpen] = useState(false)
   const [productId, setProductId] = useState('')
@@ -53,12 +54,13 @@ export function TransferListPage() {
   const handleSubmit = async () => {
     try {
       await createTransfer({
-        productId,
-        fromWarehouseId,
-        toWarehouseId,
-        quantity: Number(quantity),
+        createTransferDto: {
+          productId,
+          fromWarehouseId,
+          toWarehouseId,
+          quantity: Number(quantity),
+        },
       }).unwrap()
-      dispatch(warehouseApi.util.invalidateTags(['Stock', 'PriceList']))
       setOpen(false)
       reset()
     } catch {

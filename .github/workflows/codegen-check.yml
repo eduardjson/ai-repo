@@ -1,0 +1,54 @@
+name: Codegen drift check
+
+# Перегенерирует openapi.json и клиентский API и падает, если они
+# расходятся с закоммиченным состоянием (защита от дрейфа контрактов).
+
+on:
+  pull_request:
+  push:
+    branches: [main, master]
+
+jobs:
+  codegen:
+    runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/mydb?schema=public
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      # --- Бэкенд: перегенерировать openapi.json ---
+      - name: Install server dependencies
+        working-directory: server
+        run: npm ci
+
+      - name: Generate Prisma client
+        working-directory: server
+        run: npx prisma generate
+
+      - name: Regenerate OpenAPI spec
+        working-directory: server
+        run: npm run generate:openapi
+
+      # --- Фронтенд: перегенерировать API-клиент + типы ---
+      - name: Install client dependencies
+        working-directory: client
+        run: npm ci
+
+      - name: Regenerate API client
+        working-directory: client
+        run: npm run generate:api
+
+      # --- Упасть, если сгенерированные артефакты разъехались ---
+      - name: Check for codegen drift
+        run: |
+          if ! git diff --quiet -- openapi.json client/src/api/generated.ts; then
+            echo "::error::Сгенерированный код устарел. Выполните:"
+            echo "::error::  cd server && npm run generate:openapi"
+            echo "::error::  cd client && npm run generate:api"
+            git diff -- openapi.json client/src/api/generated.ts
+            exit 1
+          fi

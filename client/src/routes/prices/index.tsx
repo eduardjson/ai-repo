@@ -5,16 +5,24 @@ import {
   DialogActions, TextField, Button, Tooltip,
 } from '@mui/material'
 import { Edit } from '@mui/icons-material'
-import { useGetPriceListQuery, useGetWarehousesQuery, useUpdateStockMutation } from '../../api/warehouseApi'
-import type { PriceListItemDto } from '@shared/types'
+import {
+  useWarehouseControllerGetGlobalPriceListQuery,
+  useWarehouseControllerGetWarehousePriceListQuery,
+  useWarehouseControllerFindAllQuery,
+  useWarehouseControllerUpdateStockMutation,
+  type PriceListItemDto,
+} from '../../api/generated'
 
 export function PriceListPage() {
   const [warehouseFilter, setWarehouseFilter] = useState('')
   const [categoryFilter, setCategoryFilter] = useState('')
   const [manufacturerFilter, setManufacturerFilter] = useState('')
-  const { data: items } = useGetPriceListQuery(warehouseFilter ? { warehouseId: warehouseFilter } : undefined)
-  const { data: warehouses } = useGetWarehousesQuery()
-  const [updateStock] = useUpdateStockMutation()
+  const { data: globalItems } = useWarehouseControllerGetGlobalPriceListQuery()
+  const { data: warehouseItems } = useWarehouseControllerGetWarehousePriceListQuery({ id: warehouseFilter }, { skip: !warehouseFilter })
+  const { data: warehouses } = useWarehouseControllerFindAllQuery()
+  const [updateStock] = useWarehouseControllerUpdateStockMutation()
+
+  const items = warehouseFilter ? (warehouseItems ?? []) : (globalItems ?? [])
 
   const [editTarget, setEditTarget] = useState<PriceListItemDto | null>(null)
   const [purchase, setPurchase] = useState('')
@@ -33,9 +41,9 @@ export function PriceListPage() {
   const saveEdit = async () => {
     if (!editTarget) return
     await updateStock({
-      warehouseId: editTarget.warehouseId,
+      id: editTarget.warehouseId,
       stockId: editTarget.id,
-      data: {
+      updateStockDto: {
         purchasePrice: purchase === '' ? undefined : Number(purchase),
         estimatePrice: estimate === '' ? undefined : Number(estimate),
         salePrice: sale === '' ? undefined : Number(sale),
@@ -45,10 +53,10 @@ export function PriceListPage() {
     setEditTarget(null)
   }
 
-  const categories = [...new Set(items?.map((i) => i.category).filter(Boolean) ?? [])]
-  const manufacturers = [...new Set(items?.map((i) => i.manufacturer).filter(Boolean) ?? [])]
+  const categories = [...new Set(items.map((i) => i.category).filter(Boolean))]
+  const manufacturers = [...new Set(items.map((i) => i.manufacturer).filter(Boolean))]
 
-  const filteredItems = (items ?? []).filter(
+  const filteredItems = items.filter(
     (i) => (!categoryFilter || i.category === categoryFilter) && (!manufacturerFilter || i.manufacturer === manufacturerFilter),
   )
 
@@ -57,8 +65,8 @@ export function PriceListPage() {
       <Typography variant="h4" sx={{ mb: 3 }}>Прайс-лист</Typography>
       <Box sx={{ display: 'flex', gap: 2, mb: 3, flexWrap: 'wrap' }}>
         <FormControl size="small" sx={{ minWidth: 180 }}><InputLabel>Склад</InputLabel><Select value={warehouseFilter} label="Склад" onChange={(e) => setWarehouseFilter(e.target.value)}><MenuItem value="">Все</MenuItem>{warehouses?.map((w) => <MenuItem key={w.id} value={w.id}>{w.name}</MenuItem>)}</Select></FormControl>
-        <FormControl size="small" sx={{ minWidth: 180 }}><InputLabel>Категория</InputLabel><Select value={categoryFilter} label="Категория" onChange={(e) => setCategoryFilter(e.target.value)}><MenuItem value="">Все</MenuItem>{categories.map((c) => <MenuItem key={c} value={c!}>{c}</MenuItem>)}</Select></FormControl>
-        <FormControl size="small" sx={{ minWidth: 200 }}><InputLabel>Производитель</InputLabel><Select value={manufacturerFilter} label="Производитель" onChange={(e) => setManufacturerFilter(e.target.value)}><MenuItem value="">Все</MenuItem>{manufacturers.map((m) => <MenuItem key={m} value={m!}>{m}</MenuItem>)}</Select></FormControl>
+        <FormControl size="small" sx={{ minWidth: 180 }}><InputLabel>Категория</InputLabel><Select value={categoryFilter} label="Категория" onChange={(e) => setCategoryFilter(e.target.value)}><MenuItem value="">Все</MenuItem>{categories.map((c) => <MenuItem key={c!} value={c!}>{c}</MenuItem>)}</Select></FormControl>
+        <FormControl size="small" sx={{ minWidth: 200 }}><InputLabel>Производитель</InputLabel><Select value={manufacturerFilter} label="Производитель" onChange={(e) => setManufacturerFilter(e.target.value)}><MenuItem value="">Все</MenuItem>{manufacturers.map((m) => <MenuItem key={m!} value={m!}>{m}</MenuItem>)}</Select></FormControl>
       </Box>
       <TableContainer component={Paper} elevation={1}>
         <Table size="small">

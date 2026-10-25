@@ -4,11 +4,16 @@ import { Add, Edit, Delete, LocationOn, Videocam } from '@mui/icons-material'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useGetObjectsQuery, useCreateObjectMutation, useUpdateObjectMutation, useDeleteObjectMutation } from '../../api/warehouseApi'
+import {
+  useObjectControllerFindAllQuery,
+  useObjectControllerCreateMutation,
+  useObjectControllerUpdateMutation,
+  useObjectControllerRemoveMutation,
+  type ObjectDto,
+} from '../../api/generated'
 import { ActionModal } from '../../components/ActionModal'
 import { LocationPicker, type LatLng } from '../../components/LocationPicker'
-import { CameraView } from '../../components/CameraView'
-import type { ObjectDto, CameraType } from '@shared/types'
+import { CameraView, type CameraType } from '../../components/CameraView'
 
 const DEMO_CAMERA_URL = 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8'
 
@@ -22,10 +27,10 @@ const objectSchema = z.object({
 type ObjectFormValues = z.infer<typeof objectSchema>
 
 export function ObjectListPage() {
-  const { data: objects } = useGetObjectsQuery()
-  const [createObject] = useCreateObjectMutation()
-  const [updateObject] = useUpdateObjectMutation()
-  const [deleteObject] = useDeleteObjectMutation()
+  const { data: objects } = useObjectControllerFindAllQuery()
+  const [createObject] = useObjectControllerCreateMutation()
+  const [updateObject] = useObjectControllerUpdateMutation()
+  const [deleteObject] = useObjectControllerRemoveMutation()
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editTarget, setEditTarget] = useState<ObjectDto | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<ObjectDto | null>(null)
@@ -56,8 +61,8 @@ export function ObjectListPage() {
       cameraUrl: data.cameraUrl?.trim() || undefined,
       cameraType: (data.cameraType || undefined) as CameraType | undefined,
     }
-    if (editTarget) { await updateObject({ id: editTarget.id, data: payload }).unwrap() }
-    else { await createObject(payload).unwrap() }
+    if (editTarget) { await updateObject({ id: editTarget.id, updateObjectDto: payload }).unwrap() }
+    else { await createObject({ createObjectDto: payload }).unwrap() }
     setDialogOpen(false)
   }
 
@@ -161,7 +166,7 @@ export function ObjectListPage() {
         <DialogActions><Button onClick={() => setCameraTarget(null)}>Закрыть</Button></DialogActions>
       </Dialog>
 
-      <ActionModal open={!!deleteTarget} title="Удалить объект" message={`Удалить "${deleteTarget?.name}"?`} onConfirm={async () => { if (deleteTarget) { await deleteObject(deleteTarget.id).unwrap(); setDeleteTarget(null) } }} onCancel={() => setDeleteTarget(null)} />
+      <ActionModal open={!!deleteTarget} title="Удалить объект" message={`Удалить "${deleteTarget?.name}"?`} onConfirm={async () => { if (deleteTarget) { await deleteObject({ id: deleteTarget.id }).unwrap(); setDeleteTarget(null) } }} onCancel={() => setDeleteTarget(null)} />
     </Box>
   )
 }

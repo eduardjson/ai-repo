@@ -4,6 +4,7 @@ import * as cookieParser from 'cookie-parser';
 import { AppModule } from './app.module';
 import { PrismaService } from './prisma/prisma.service';
 import { seedAdmin } from './seed';
+import { setupSwagger } from './swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -16,6 +17,9 @@ async function bootstrap() {
   app.use(cookieParser());
   app.setGlobalPrefix('api');
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
+
+  // Swagger UI на /api/docs, raw JSON на /api/docs-json.
+  setupSwagger(app);
 
   // Создаём администратора при первом старте (если его ещё нет).
   await seedAdmin(app.get(PrismaService));

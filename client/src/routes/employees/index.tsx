@@ -8,10 +8,15 @@ import {
 } from '@mui/material'
 import { Add, Edit, Delete } from '@mui/icons-material'
 import { format } from 'date-fns'
-import { useGetUsersQuery, useCreateUserMutation, useUpdateUserMutation, useDeleteUserMutation } from '../../api/warehouseApi'
+import {
+  useUserControllerFindAllQuery,
+  useUserControllerCreateMutation,
+  useUserControllerUpdateMutation,
+  useUserControllerRemoveMutation,
+  type UserDto,
+} from '../../api/generated'
 import { useAppSelector } from '../../store/hooks'
 import { ActionModal } from '../../components/ActionModal'
-import type { UserDto } from '@shared/types'
 
 const ROLE_LABELS: Record<string, string> = { ADMIN: 'Администратор', USER: 'Сотрудник' }
 
@@ -40,10 +45,10 @@ export function EmployeeListPage() {
   const currentUser = useAppSelector((s) => s.auth.user)
   const isAdmin = currentUser?.role?.includes('ADMIN') ?? false
 
-  const { data: users } = useGetUsersQuery()
-  const [createUser, { isLoading: creating, error: createError }] = useCreateUserMutation()
-  const [updateUser, { isLoading: updating, error: updateError }] = useUpdateUserMutation()
-  const [deleteUser] = useDeleteUserMutation()
+  const { data: users } = useUserControllerFindAllQuery()
+  const [createUser, { isLoading: creating, error: createError }] = useUserControllerCreateMutation()
+  const [updateUser, { isLoading: updating, error: updateError }] = useUserControllerUpdateMutation()
+  const [deleteUser] = useUserControllerRemoveMutation()
 
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editTarget, setEditTarget] = useState<UserDto | null>(null)
@@ -74,27 +79,30 @@ export function EmployeeListPage() {
     setForm((f) => ({ ...f, [field]: value }))
 
   const handleSubmit = async () => {
+    const role = form.role as ('ADMIN' | 'USER')[]
     if (editTarget) {
       await updateUser({
         id: editTarget.id,
-        data: {
+        updateUserDto: {
           email: form.email,
           firstName: form.firstName,
           lastName: form.lastName,
           username: form.username,
           phone: form.phone,
-          role: form.role,
+          role,
         },
       }).unwrap()
     } else {
       await createUser({
-        email: form.email,
-        password: form.password,
-        firstName: form.firstName,
-        lastName: form.lastName,
-        username: form.username,
-        phone: form.phone,
-        role: form.role,
+        createUserDto: {
+          email: form.email,
+          password: form.password,
+          firstName: form.firstName,
+          lastName: form.lastName,
+          username: form.username,
+          phone: form.phone,
+          role,
+        },
       }).unwrap()
     }
     setDialogOpen(false)
@@ -132,7 +140,7 @@ export function EmployeeListPage() {
               <TableRow key={u.id} hover sx={{ cursor: 'pointer' }} onClick={() => navigate({ to: `/employees/${u.id}` })}>
                 <TableCell>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                    <Avatar src={u.avatar} sx={{ width: 36, height: 36 }}>{u.firstName?.[0] || u.email[0].toUpperCase()}</Avatar>
+                    <Avatar src={u.avatar ?? undefined} sx={{ width: 36, height: 36 }}>{u.firstName?.[0] || u.email[0].toUpperCase()}</Avatar>
                     <Typography variant="body2" fontWeight={500}>{u.firstName || u.username || u.email}</Typography>
                   </Box>
                 </TableCell>
@@ -207,7 +215,7 @@ export function EmployeeListPage() {
         open={!!deleteTarget}
         title="Удалить сотрудника"
         message={`Удалить сотрудника «${deleteTarget?.email}»? Это действие необратимо.`}
-        onConfirm={async () => { if (deleteTarget) { await deleteUser(deleteTarget.id).unwrap(); setDeleteTarget(null) } }}
+        onConfirm={async () => { if (deleteTarget) { await deleteUser({ id: deleteTarget.id }).unwrap(); setDeleteTarget(null) } }}
         onCancel={() => setDeleteTarget(null)}
       />
     </Box>
