@@ -166,6 +166,8 @@ export interface UpdateUserRequest {
 }
 
 // ── Object (Construction Site) ──
+export type CameraType = 'hls' | 'mjpeg' | 'snapshot'
+
 export interface ObjectDto {
   id: string
   name: string
@@ -173,6 +175,8 @@ export interface ObjectDto {
   latitude?: number | null
   longitude?: number | null
   description?: string
+  cameraUrl?: string | null
+  cameraType?: CameraType | null
   createdAt: string
   updatedAt: string
 }
@@ -183,6 +187,8 @@ export interface CreateObjectRequest {
   latitude?: number
   longitude?: number
   description?: string
+  cameraUrl?: string
+  cameraType?: CameraType
 }
 
 export type UpdateObjectRequest = Partial<CreateObjectRequest>

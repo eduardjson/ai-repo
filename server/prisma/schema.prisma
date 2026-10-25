@@ -111,6 +111,8 @@ model Object {
   latitude    Float?
   longitude   Float?
   description String?
+  cameraUrl   String?
+  cameraType  String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
