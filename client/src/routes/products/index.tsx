@@ -82,6 +82,7 @@ export function ProductListPage() {
         <Table size="small">
           <TableHead>
             <TableRow>
+              <TableCell sx={{ width: 52 }}>Фото</TableCell>
               <TableCell>Название / Артикул</TableCell>
               <TableCell>Штрихкод</TableCell>
               <TableCell>Категория</TableCell>
@@ -93,9 +94,24 @@ export function ProductListPage() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {isLoading && <TableRow><TableCell colSpan={8} align="center" sx={{ py: 4 }}>Загрузка...</TableCell></TableRow>}
+            {isLoading && <TableRow><TableCell colSpan={9} align="center" sx={{ py: 4 }}>Загрузка...</TableCell></TableRow>}
             {data?.items.map((product) => (
               <TableRow key={product.id} hover sx={{ opacity: product.isActive ? 1 : 0.55 }}>
+                <TableCell>
+                  {product.imageType || product.imageUrl ? (
+                    <Box
+                      component="img"
+                      src={product.imageType ? `/api/products/${product.id}/image` : product.imageUrl!}
+                      alt={product.title}
+                      loading="lazy"
+                      sx={{ width: 40, height: 40, objectFit: 'cover', borderRadius: 1, bgcolor: 'grey.100', display: 'block' }}
+                    />
+                  ) : (
+                    <Box sx={{ width: 40, height: 40, borderRadius: 1, bgcolor: 'grey.200', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <Typography variant="caption" color="text.secondary">{product.title.charAt(0).toUpperCase()}</Typography>
+                    </Box>
+                  )}
+                </TableCell>
                 <TableCell sx={{ cursor: 'pointer' }} onClick={() => navigate({ to: `/products/${product.id}` })}>
                   <Box sx={{ fontWeight: 500 }}>{product.title}</Box>
                   <Typography variant="caption" color="text.secondary">{product.sku}</Typography>
@@ -119,7 +135,7 @@ export function ProductListPage() {
               </TableRow>
             ))}
             {!isLoading && (!data?.items || data.items.length === 0) && (
-              <TableRow><TableCell colSpan={8} align="center" sx={{ py: 4, color: 'text.secondary' }}>Позиции не найдены</TableCell></TableRow>
+              <TableRow><TableCell colSpan={9} align="center" sx={{ py: 4, color: 'text.secondary' }}>Позиции не найдены</TableCell></TableRow>
             )}
           </TableBody>
         </Table>

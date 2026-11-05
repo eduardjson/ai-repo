@@ -1,5 +1,5 @@
 import { useNavigate, useSearch } from '@tanstack/react-router'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -8,16 +8,18 @@ import {
   CircularProgress, Select, MenuItem, FormControl, InputLabel, FormHelperText,
   Switch, FormControlLabel, Chip, Stack,
 } from '@mui/material'
-import { ArrowBack, Add, Delete } from '@mui/icons-material'
+import { ArrowBack, Add, Delete, CloudUpload } from '@mui/icons-material'
 import {
   useProductControllerCreateMutation,
   useProductControllerUpdateMutation,
+  useProductControllerRemoveImageMutation,
   useProductControllerFindOneQuery,
   useCategoryControllerFindAllQuery,
   useManufacturerControllerFindAllQuery,
   useUnitControllerFindAllQuery,
   type CreateProductDto,
 } from '../../api/generated'
+import { uploadFormData } from '../../api/upload'
 import { flattenCategories, VAT_RATES, BARCODE_TYPES } from '../../lib/catalog'
 
 const num = (v?: string) => (v === '' || v == null ? undefined : Number(v))
@@ -47,7 +49,6 @@ const productSchema = z.object({
   gost: z.string().optional(),
   country: z.string().optional(),
   minStock: z.string().optional(),
-  imageUrl: z.string().optional(),
 })
 type ProductFormValues = z.infer<typeof productSchema>
 
@@ -58,7 +59,7 @@ const emptyDefaults: ProductFormValues = {
   baseUnitId: '', purchaseUnitId: '', purchaseToBase: '', saleUnitId: '', saleToBase: '',
   purchasePrice: '', estimatePrice: '', salePrice: '', vatRate: 'VAT20',
   weightKg: '', lengthMm: '', widthMm: '', heightMm: '', volumeM3: '',
-  grade: '', material: '', gost: '', country: '', minStock: '', imageUrl: '',
+  grade: '', material: '', gost: '', country: '', minStock: '',
 }
 
 export function ProductAddPage() {
@@ -76,9 +77,15 @@ export function ProductAddPage() {
 
   const [createProduct, { isLoading: isCreating }] = useProductControllerCreateMutation()
   const [updateProduct, { isLoading: isUpdating }] = useProductControllerUpdateMutation()
+  const [removeImageMutation] = useProductControllerRemoveImageMutation()
 
   const [barcodes, setBarcodes] = useState<BarcodeRow[]>([])
   const [isActive, setIsActive] = useState(true)
+
+  const fileRef = useRef<HTMLInputElement>(null)
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+  const [removeImage, setRemoveImage] = useState(false)
 
   const { register, handleSubmit, reset, formState: { errors } } = useForm<ProductFormValues>({
     resolver: zodResolver(productSchema),
@@ -102,7 +109,6 @@ export function ProductAddPage() {
         volumeM3: existing.volumeM3?.toString() ?? '',
         grade: existing.grade ?? '', material: existing.material ?? '', gost: existing.gost ?? '',
         country: existing.country ?? '', minStock: existing.minStock?.toString() ?? '',
-        imageUrl: existing.imageUrl ?? '',
       })
       setBarcodes(
         (existing.barcodes ?? [])
@@ -111,8 +117,42 @@ export function ProductAddPage() {
           .map((b) => ({ value: b.value, type: b.type as BarcodeRow['type'] })),
       )
       setIsActive(existing.isActive)
+      if (existing.imageType) {
+        setPreviewUrl(`/api/products/${existing.id}/image`)
+      } else if (existing.imageUrl) {
+        setPreviewUrl(existing.imageUrl)
+      }
     }
   }, [existing, reset])
+
+  // Освобождаем objectURL при размонтировании.
+  useEffect(() => {
+    return () => {
+      if (previewUrl && !previewUrl.startsWith('/api') && !previewUrl.startsWith('http')) {
+        URL.revokeObjectURL(previewUrl)
+      }
+    }
+  }, [previewUrl])
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setSelectedFile(file)
+    setRemoveImage(false)
+    if (previewUrl && !previewUrl.startsWith('/api') && !previewUrl.startsWith('http')) {
+      URL.revokeObjectURL(previewUrl)
+    }
+    setPreviewUrl(URL.createObjectURL(file))
+  }
+
+  const handleRemoveImage = () => {
+    setSelectedFile(null)
+    setRemoveImage(true)
+    if (previewUrl && !previewUrl.startsWith('/api') && !previewUrl.startsWith('http')) {
+      URL.revokeObjectURL(previewUrl)
+    }
+    setPreviewUrl(null)
+  }
 
   const catOptions = flattenCategories(categories)
 
@@ -143,20 +183,30 @@ export function ProductAddPage() {
       country: data.country || undefined,
       minStock: num(data.minStock),
       isActive,
-      imageUrl: data.imageUrl || undefined,
       barcodes: barcodes
         .filter((b) => b.value.trim())
         .map((b, i) => ({ value: b.value.trim(), type: b.type, isPrimary: i === 0 })),
     }
 
     try {
+      let productId: string
       if (isEdit) {
-        await updateProduct({ id: editId!, updateProductDto: payload }).unwrap()
-        navigate({ to: `/products/${editId}` })
+        const updated = await updateProduct({ id: editId!, updateProductDto: payload }).unwrap()
+        productId = updated.id
       } else {
-        await createProduct({ createProductDto: payload }).unwrap()
-        navigate({ to: '/products' })
+        const created = await createProduct({ createProductDto: payload }).unwrap()
+        productId = created.id
       }
+
+      if (selectedFile) {
+        const formData = new FormData()
+        formData.append('image', selectedFile)
+        await uploadFormData(`/products/${productId}/image`, 'PUT', formData)
+      } else if (isEdit && removeImage) {
+        await removeImageMutation({ id: productId }).unwrap()
+      }
+
+      navigate({ to: isEdit ? `/products/${productId}` : '/products' })
     } catch { /* handled */ }
   }
 
@@ -283,10 +333,41 @@ export function ProductAddPage() {
 
         <Card elevation={2} sx={{ mb: 3 }}>
           <CardContent sx={{ p: 3 }}>
+            <Typography variant="h6" sx={{ mb: 2 }}>Изображение</Typography>
+            <Box sx={{ display: 'flex', gap: 3, alignItems: 'flex-start', flexWrap: 'wrap' }}>
+              <Box
+                sx={{
+                  width: 160, height: 160, border: 1, borderColor: 'divider',
+                  borderRadius: 1, overflow: 'hidden', bgcolor: 'grey.100',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                }}
+              >
+                {previewUrl ? (
+                  <Box component="img" src={previewUrl} alt="Превью" sx={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                ) : (
+                  <Typography variant="caption" color="text.secondary">Нет изображения</Typography>
+                )}
+              </Box>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                <Button variant="outlined" startIcon={<CloudUpload />} onClick={() => fileRef.current?.click()}>
+                  {previewUrl ? 'Заменить изображение' : 'Загрузить изображение'}
+                </Button>
+                <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/webp,image/gif" hidden onChange={handleFileChange} />
+                {selectedFile && <Typography variant="body2" color="text.secondary">{selectedFile.name}</Typography>}
+                {isEdit && previewUrl && !selectedFile && (
+                  <Button size="small" color="error" onClick={handleRemoveImage}>Удалить изображение</Button>
+                )}
+                <Typography variant="caption" color="text.secondary">JPEG, PNG, WebP или GIF, до 5 МБ</Typography>
+              </Box>
+            </Box>
+          </CardContent>
+        </Card>
+
+        <Card elevation={2} sx={{ mb: 3 }}>
+          <CardContent sx={{ p: 3 }}>
             <Typography variant="h6" sx={{ mb: 2 }}>Управление запасами</Typography>
             <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr 1fr 1fr' }, gap: 2 }}>
               {field('Минимальный остаток', 'minStock', {})}
-              {field('URL изображения', 'imageUrl', { span: 2 })}
               <FormControlLabel
                 control={<Switch checked={isActive} onChange={(e) => setIsActive(e.target.checked)} />}
                 label={isActive ? 'Активна' : 'В архиве'}

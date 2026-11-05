@@ -49,6 +49,19 @@ export function ProductDetailPage() {
         </Box>
       </Box>
 
+      {(product.imageType || product.imageUrl) && (
+        <Card elevation={2} sx={{ mb: 3 }}>
+          <CardContent sx={{ p: 3, display: 'flex', justifyContent: 'center' }}>
+            <Box
+              component="img"
+              src={product.imageType ? `/api/products/${product.id}/image` : product.imageUrl!}
+              alt={product.title}
+              sx={{ maxWidth: '100%', maxHeight: 360, objectFit: 'contain', borderRadius: 1, bgcolor: 'grey.100' }}
+            />
+          </CardContent>
+        </Card>
+      )}
+
       <Card elevation={2} sx={{ mb: 3 }}>
         <CardContent sx={{ p: 3 }}>
           <Typography variant="subtitle2" color="text.secondary" gutterBottom>Штрихкоды</Typography>

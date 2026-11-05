@@ -278,6 +278,26 @@ const injectedRtkApi = api
         query: (queryArg) => ({ url: `/products/${queryArg.id}/image` }),
         providesTags: ["products"],
       }),
+      productControllerSetImage: build.mutation<
+        ProductControllerSetImageApiResponse,
+        ProductControllerSetImageApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/products/${queryArg.id}/image`,
+          method: "PUT",
+        }),
+        invalidatesTags: ["products"],
+      }),
+      productControllerRemoveImage: build.mutation<
+        ProductControllerRemoveImageApiResponse,
+        ProductControllerRemoveImageApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/products/${queryArg.id}/image`,
+          method: "DELETE",
+        }),
+        invalidatesTags: ["products"],
+      }),
       productControllerGetImages: build.query<
         ProductControllerGetImagesApiResponse,
         ProductControllerGetImagesApiArg
@@ -869,6 +889,16 @@ export type ProductControllerFindByBarcodeApiArg = {
 };
 export type ProductControllerGetImageApiResponse = unknown;
 export type ProductControllerGetImageApiArg = {
+  id: string;
+};
+export type ProductControllerSetImageApiResponse =
+  /** status 200  */ ProductDto;
+export type ProductControllerSetImageApiArg = {
+  id: string;
+};
+export type ProductControllerRemoveImageApiResponse =
+  /** status 200  */ ProductDto;
+export type ProductControllerRemoveImageApiArg = {
   id: string;
 };
 export type ProductControllerGetImagesApiResponse =
@@ -1582,6 +1612,8 @@ export const {
   useProductControllerCreateMutation,
   useProductControllerFindByBarcodeQuery,
   useProductControllerGetImageQuery,
+  useProductControllerSetImageMutation,
+  useProductControllerRemoveImageMutation,
   useProductControllerGetImagesQuery,
   useProductControllerUploadImagesMutation,
   useProductControllerFindOneQuery,

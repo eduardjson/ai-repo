@@ -31,6 +31,8 @@ const INCLUDE = {
   barcodes: { orderBy: { isPrimary: 'desc' as const } },
 };
 
+const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+
 @Injectable()
 export class ProductService {
   constructor(private prisma: PrismaService) {}
@@ -99,15 +101,11 @@ export class ProductService {
     return barcode.product;
   }
 
-  async create(dto: CreateProductDto, file?: Express.Multer.File, userId?: string) {
+  async create(dto: CreateProductDto, userId?: string) {
     await this.validateUnits(dto.baseUnitId, dto.purchaseUnitId, dto.saleUnitId);
 
     const sku = dto.sku?.trim() || (await this.generateUniqueSku());
     const data: any = { ...this.sanitizeDto(dto), sku };
-    if (file) {
-      data.imageData = Buffer.isBuffer(file.buffer) ? file.buffer : Buffer.from(file.buffer);
-      data.imageType = file.mimetype;
-    }
     if (userId) data.createdById = userId;
 
     const product = await this.prisma.product.create({
@@ -121,7 +119,7 @@ export class ProductService {
     return this.findById(product.id);
   }
 
-  async update(id: string, dto: UpdateProductDto, file?: Express.Multer.File) {
+  async update(id: string, dto: UpdateProductDto) {
     await this.findById(id);
     if (dto.baseUnitId || dto.purchaseUnitId || dto.saleUnitId) {
       const current = await this.prisma.product.findUnique({ where: { id } });
@@ -134,10 +132,6 @@ export class ProductService {
 
     const data: any = { ...this.sanitizeDto(dto) };
     if (dto.sku) data.sku = dto.sku.trim();
-    if (file) {
-      data.imageData = Buffer.isBuffer(file.buffer) ? file.buffer : Buffer.from(file.buffer);
-      data.imageType = file.mimetype;
-    }
 
     await this.prisma.product.update({ where: { id }, data });
 
@@ -168,6 +162,33 @@ export class ProductService {
       throw new NotFoundException('Image not found');
     }
     return { buffer: product.imageData, type: product.imageType || 'image/png' };
+  }
+
+  /** Загружает/заменяет основное изображение позиции. */
+  async setImage(id: string, file?: Express.Multer.File) {
+    if (!file) {
+      throw new BadRequestException('Файл изображения не передан');
+    }
+    if (!ALLOWED_IMAGE_TYPES.includes(file.mimetype)) {
+      throw new BadRequestException('Поддерживаются только изображения JPEG, PNG, WebP или GIF');
+    }
+    await this.findById(id);
+    const imageData = Uint8Array.from(file.buffer);
+    await this.prisma.product.update({
+      where: { id },
+      data: { imageData, imageType: file.mimetype },
+    });
+    return this.findById(id);
+  }
+
+  /** Удаляет основное изображение позиции. */
+  async removeImage(id: string) {
+    await this.findById(id);
+    await this.prisma.product.update({
+      where: { id },
+      data: { imageData: null, imageType: null },
+    });
+    return this.findById(id);
   }
 
   async uploadImages(id: string, files: Express.Multer.File[]) {

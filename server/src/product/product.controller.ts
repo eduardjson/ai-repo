@@ -75,6 +75,19 @@ export class ProductController {
     res.send(buffer);
   }
 
+  @Put(':id/image')
+  @UseInterceptors(FileInterceptor('image', { limits: { fileSize: 5 * 1024 * 1024 } }))
+  @ApiOkResponse({ type: ProductDto })
+  setImage(@Param('id') id: string, @UploadedFile() file?: Express.Multer.File) {
+    return this.productService.setImage(id, file);
+  }
+
+  @Delete(':id/image')
+  @ApiOkResponse({ type: ProductDto })
+  removeImage(@Param('id') id: string) {
+    return this.productService.removeImage(id);
+  }
+
   @Get(':id/images')
   @ApiOkResponse({ type: ProductImageDto, isArray: true })
   getImages(@Param('id') id: string) {
@@ -88,27 +101,17 @@ export class ProductController {
   }
 
   @Post()
-  @UseInterceptors(FileInterceptor('image', { limits: { fileSize: 5 * 1024 * 1024 } }))
   @ApiCreatedResponse({ type: ProductDto })
-  create(
-    @Body() dto: CreateProductDto,
-    @Req() req: Request,
-    @UploadedFile() file?: Express.Multer.File,
-  ) {
+  create(@Body() dto: CreateProductDto, @Req() req: Request) {
     const userId = (req as any).user?.id;
-    return this.productService.create(dto, file, userId);
+    return this.productService.create(dto, userId);
   }
 
   @Patch(':id')
   @Put(':id')
-  @UseInterceptors(FileInterceptor('image', { limits: { fileSize: 5 * 1024 * 1024 } }))
   @ApiOkResponse({ type: ProductDto })
-  update(
-    @Param('id') id: string,
-    @Body() dto: UpdateProductDto,
-    @UploadedFile() file?: Express.Multer.File,
-  ) {
-    return this.productService.update(id, dto, file);
+  update(@Param('id') id: string, @Body() dto: UpdateProductDto) {
+    return this.productService.update(id, dto);
   }
 
   @Delete(':id')
