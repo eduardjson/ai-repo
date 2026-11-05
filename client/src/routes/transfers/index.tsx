@@ -90,7 +90,7 @@ export function TransferListPage() {
           </TableHead>
           <TableBody>
             {transfers?.map((t) => (
-              <TableRow key={t.id}>
+              <TableRow key={t.id} hover>
                 <TableCell>{format(new Date(t.createdAt), 'dd.MM.yyyy HH:mm')}</TableCell>
                 <TableCell sx={{ fontWeight: 500 }}>{t.product?.title ?? '-'}</TableCell>
                 <TableCell>{t.fromWarehouse?.name ?? '-'}</TableCell>

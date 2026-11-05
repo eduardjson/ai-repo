@@ -24,12 +24,32 @@ const typography = {
   h6: { fontWeight: 600 },
 }
 
+// Единый вид таблиц во всём приложении: одинаковая высота строк, отступы и ховер.
+const components = {
+  MuiTableRow: {
+    styleOverrides: {
+      root: {
+        height: '52px',
+      },
+    },
+  },
+  MuiTableCell: {
+    styleOverrides: {
+      sizeSmall: {
+        padding: '6px 16px',
+      },
+    },
+  },
+}
+
 export const lightTheme = createTheme({
   palette: { mode: 'light', ...lightPalette },
   typography,
+  components,
 })
 
 export const darkTheme = createTheme({
   palette: { mode: 'dark', ...darkPalette },
   typography,
+  components,
 })
