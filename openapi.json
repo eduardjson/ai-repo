@@ -2464,6 +2464,32 @@
         ]
       }
     },
+    "/dashboard": {
+      "get": {
+        "operationId": "DashboardController_getSummary",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DashboardSummaryDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "dashboard"
+        ]
+      }
+    },
     "/chat/messages": {
       "get": {
         "operationId": "ChatController_findAll",
@@ -4551,6 +4577,181 @@
           "page",
           "size",
           "pages"
+        ]
+      },
+      "WarehouseStockDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "stockValue": {
+            "type": "number"
+          },
+          "skuCount": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "stockValue",
+          "skuCount"
+        ]
+      },
+      "MovementTrendPointDto": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string"
+          },
+          "incoming": {
+            "type": "number"
+          },
+          "outgoing": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "date",
+          "incoming",
+          "outgoing"
+        ]
+      },
+      "TopProductDto": {
+        "type": "object",
+        "properties": {
+          "productId": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "sku": {
+            "type": "string"
+          },
+          "unit": {
+            "type": "string"
+          },
+          "movedQty": {
+            "type": "number"
+          },
+          "movedValue": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "productId",
+          "title",
+          "sku",
+          "unit",
+          "movedQty",
+          "movedValue"
+        ]
+      },
+      "LowStockItemDto": {
+        "type": "object",
+        "properties": {
+          "productId": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "sku": {
+            "type": "string"
+          },
+          "unit": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "number"
+          },
+          "minStock": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "productId",
+          "title",
+          "sku",
+          "unit",
+          "quantity",
+          "minStock"
+        ]
+      },
+      "DashboardSummaryDto": {
+        "type": "object",
+        "properties": {
+          "inventoryValue": {
+            "type": "number"
+          },
+          "activeProducts": {
+            "type": "number"
+          },
+          "inStockProducts": {
+            "type": "number"
+          },
+          "lowStockCount": {
+            "type": "number"
+          },
+          "outOfStockCount": {
+            "type": "number"
+          },
+          "pendingShipments": {
+            "type": "number"
+          },
+          "draftReceipts": {
+            "type": "number"
+          },
+          "warehousesCount": {
+            "type": "number"
+          },
+          "objectsCount": {
+            "type": "number"
+          },
+          "warehouses": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WarehouseStockDto"
+            }
+          },
+          "movementTrend": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MovementTrendPointDto"
+            }
+          },
+          "topProducts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TopProductDto"
+            }
+          },
+          "lowStock": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LowStockItemDto"
+            }
+          }
+        },
+        "required": [
+          "inventoryValue",
+          "activeProducts",
+          "inStockProducts",
+          "lowStockCount",
+          "outOfStockCount",
+          "pendingShipments",
+          "draftReceipts",
+          "warehousesCount",
+          "objectsCount",
+          "warehouses",
+          "movementTrend",
+          "topProducts",
+          "lowStock"
         ]
       },
       "MessageUserDto": {

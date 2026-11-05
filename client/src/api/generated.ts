@@ -11,6 +11,7 @@ export const addTagTypes = [
   "shipments",
   "receipts",
   "journal",
+  "dashboard",
   "chat",
   "projects",
   "transfers",
@@ -671,6 +672,13 @@ const injectedRtkApi = api
         }),
         providesTags: ["journal"],
       }),
+      dashboardControllerGetSummary: build.query<
+        DashboardControllerGetSummaryApiResponse,
+        DashboardControllerGetSummaryApiArg
+      >({
+        query: () => ({ url: `/dashboard` }),
+        providesTags: ["dashboard"],
+      }),
       chatControllerFindAll: build.query<
         ChatControllerFindAllApiResponse,
         ChatControllerFindAllApiArg
@@ -1113,6 +1121,9 @@ export type JournalControllerFindAllApiArg = {
   from?: string;
   to?: string;
 };
+export type DashboardControllerGetSummaryApiResponse =
+  /** status 200  */ DashboardSummaryDto;
+export type DashboardControllerGetSummaryApiArg = void;
 export type ChatControllerFindAllApiResponse = /** status 200  */ MessageDto[];
 export type ChatControllerFindAllApiArg = {
   limit?: string;
@@ -1581,6 +1592,48 @@ export type StockMovementListResponseDto = {
   size: number;
   pages: number;
 };
+export type WarehouseStockDto = {
+  id: string;
+  name: string;
+  stockValue: number;
+  skuCount: number;
+};
+export type MovementTrendPointDto = {
+  date: string;
+  incoming: number;
+  outgoing: number;
+};
+export type TopProductDto = {
+  productId: string;
+  title: string;
+  sku: string;
+  unit: string;
+  movedQty: number;
+  movedValue: number;
+};
+export type LowStockItemDto = {
+  productId: string;
+  title: string;
+  sku: string;
+  unit: string;
+  quantity: number;
+  minStock: number;
+};
+export type DashboardSummaryDto = {
+  inventoryValue: number;
+  activeProducts: number;
+  inStockProducts: number;
+  lowStockCount: number;
+  outOfStockCount: number;
+  pendingShipments: number;
+  draftReceipts: number;
+  warehousesCount: number;
+  objectsCount: number;
+  warehouses: WarehouseStockDto[];
+  movementTrend: MovementTrendPointDto[];
+  topProducts: TopProductDto[];
+  lowStock: LowStockItemDto[];
+};
 export type MessageUserDto = {
   id: string;
   avatar?: string | null;
@@ -1713,6 +1766,7 @@ export const {
   useReceiptControllerPostMutation,
   useReceiptControllerCancelMutation,
   useJournalControllerFindAllQuery,
+  useDashboardControllerGetSummaryQuery,
   useChatControllerFindAllQuery,
   useChatControllerCreateMutation,
   useChatControllerUpdateMutation,

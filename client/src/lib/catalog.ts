@@ -41,6 +41,14 @@ export function formatMoney(n?: number | null): string {
   return `${n.toLocaleString('ru-RU', { maximumFractionDigits: 2 })} ₽`
 }
 
+export function formatCompactMoney(n?: number | null): string {
+  if (n == null) return '-'
+  const abs = Math.abs(n)
+  if (abs >= 1_000_000) return `${(n / 1_000_000).toLocaleString('ru-RU', { maximumFractionDigits: 1 })} млн ₽`
+  if (abs >= 1_000) return `${(n / 1_000).toLocaleString('ru-RU', { maximumFractionDigits: 1 })} тыс ₽`
+  return `${n.toLocaleString('ru-RU', { maximumFractionDigits: 0 })} ₽`
+}
+
 export function formatQty(n?: number | null): string {
   if (n == null) return '-'
   return n.toLocaleString('ru-RU', { maximumFractionDigits: 3 })
