@@ -4,7 +4,7 @@ import {
   Box, Typography, Card, CardContent, Grid, Button, Divider, IconButton,
   CircularProgress, Chip, Stack,
 } from '@mui/material'
-import { Edit, ArrowBack, Delete } from '@mui/icons-material'
+import { Edit, ArrowBack, Delete, ImageNotSupported } from '@mui/icons-material'
 import { useProductControllerFindOneQuery, useProductControllerRemoveMutation } from '../../api/generated'
 import { ActionModal } from '../../components/ActionModal'
 import { VAT_LABELS, formatMoney } from '../../lib/catalog'
@@ -29,6 +29,8 @@ export function ProductDetailPage() {
   if (isLoading) return <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}><CircularProgress /></Box>
   if (!product) return <Typography>Позиция не найдена</Typography>
 
+  const hasImage = !!(product.imageType || product.imageUrl)
+
   return (
     <Box>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3, flexWrap: 'wrap' }}>
@@ -49,101 +51,118 @@ export function ProductDetailPage() {
         </Box>
       </Box>
 
-      {(product.imageType || product.imageUrl) && (
-        <Card elevation={2} sx={{ mb: 3 }}>
-          <CardContent sx={{ p: 3, display: 'flex', justifyContent: 'center' }}>
+      {/* «Газетная» верстка: изображение фиксированным блоком слева, карточки обтекают его. */}
+      <Box sx={{ display: 'flow-root' }}>
+        <Box
+          sx={{
+            float: { xs: 'none', md: 'left' },
+            width: { xs: '100%', md: 220 },
+            height: 220,
+            mr: { md: 3 },
+            mb: { xs: 3, md: 2 },
+            borderRadius: 1,
+            border: 1,
+            borderColor: 'divider',
+            bgcolor: 'grey.100',
+            overflow: 'hidden',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          {hasImage ? (
             <Box
               component="img"
               src={product.imageType ? `/api/products/${product.id}/image` : product.imageUrl!}
               alt={product.title}
-              sx={{ maxWidth: '100%', maxHeight: 360, objectFit: 'contain', borderRadius: 1, bgcolor: 'grey.100' }}
+              sx={{ width: '100%', height: '100%', objectFit: 'contain' }}
             />
+          ) : (
+            <Box sx={{ textAlign: 'center', px: 2 }}>
+              <ImageNotSupported sx={{ fontSize: 44, color: 'text.disabled' }} />
+              <Typography variant="body2" color="text.secondary">Изображение отсутствует</Typography>
+            </Box>
+          )}
+        </Box>
+
+        <Card elevation={2} sx={{ overflow: 'hidden', mb: 3 }}>
+          <CardContent sx={{ p: 3 }}>
+            <Typography variant="subtitle2" color="text.secondary" gutterBottom>Штрихкоды</Typography>
+            <Stack direction="row" gap={1} flexWrap="wrap">
+              {product.barcodes?.length ? product.barcodes.map((b) => (
+                <Chip
+                  key={b.id}
+                  label={`${b.value} (${b.type})`}
+                  color={b.isPrimary ? 'primary' : 'default'}
+                  variant={b.isPrimary ? 'filled' : 'outlined'}
+                  size="small"
+                  sx={{ fontFamily: 'monospace' }}
+                />
+              )) : <Typography variant="body2" color="text.secondary">—</Typography>}
+            </Stack>
+            {product.description && (
+              <>
+                <Divider sx={{ my: 2 }} />
+                <Typography variant="body1">{product.description}</Typography>
+              </>
+            )}
           </CardContent>
         </Card>
-      )}
 
-      <Card elevation={2} sx={{ mb: 3 }}>
-        <CardContent sx={{ p: 3 }}>
-          <Typography variant="subtitle2" color="text.secondary" gutterBottom>Штрихкоды</Typography>
-          <Stack direction="row" gap={1} flexWrap="wrap">
-            {product.barcodes?.length ? product.barcodes.map((b) => (
-              <Chip
-                key={b.id}
-                label={`${b.value} (${b.type})`}
-                color={b.isPrimary ? 'primary' : 'default'}
-                variant={b.isPrimary ? 'filled' : 'outlined'}
-                size="small"
-                sx={{ fontFamily: 'monospace' }}
-              />
-            )) : <Typography variant="body2" color="text.secondary">—</Typography>}
-          </Stack>
-          {product.description && <><Divider sx={{ my: 2 }} /><Typography variant="body1">{product.description}</Typography></>}
-        </CardContent>
-      </Card>
+        <Card elevation={2} sx={{ overflow: 'hidden', mb: 3 }}>
+          <CardContent sx={{ p: 3 }}>
+            <Typography variant="h6" sx={{ mb: 2 }}>Классификация и единицы</Typography>
+            <Grid container spacing={2}>
+              <Field label="Категория" value={product.category?.name} />
+              <Field label="Производитель" value={product.manufacturer?.name} />
+              <Field label="Страна" value={product.country} />
+              <Field label="Базовая единица" value={product.baseUnit?.symbol} />
+              <Field label="Закупочная единица" value={product.purchaseUnit ? `${product.purchaseUnit.symbol} (1 = ${product.purchaseToBase} ${product.baseUnit?.symbol})` : undefined} />
+              <Field label="Единица продажи" value={product.saleUnit ? `${product.saleUnit.symbol} (1 = ${product.saleToBase} ${product.baseUnit?.symbol})` : undefined} />
+            </Grid>
+          </CardContent>
+        </Card>
 
-      <Grid container spacing={3}>
-        <Grid size={{ xs: 12, md: 6 }}>
-          <Card elevation={2}>
-            <CardContent sx={{ p: 3 }}>
-              <Typography variant="h6" sx={{ mb: 2 }}>Классификация и единицы</Typography>
-              <Grid container spacing={2}>
-                <Field label="Категория" value={product.category?.name} />
-                <Field label="Производитель" value={product.manufacturer?.name} />
-                <Field label="Страна" value={product.country} />
-                <Field label="Базовая единица" value={product.baseUnit?.symbol} />
-                <Field label="Закупочная единица" value={product.purchaseUnit ? `${product.purchaseUnit.symbol} (1 = ${product.purchaseToBase} ${product.baseUnit?.symbol})` : undefined} />
-                <Field label="Единица продажи" value={product.saleUnit ? `${product.saleUnit.symbol} (1 = ${product.saleToBase} ${product.baseUnit?.symbol})` : undefined} />
-              </Grid>
-            </CardContent>
-          </Card>
-        </Grid>
+        <Card elevation={2} sx={{ overflow: 'hidden', mb: 3 }}>
+          <CardContent sx={{ p: 3 }}>
+            <Typography variant="h6" sx={{ mb: 2 }}>Цены</Typography>
+            <Grid container spacing={2}>
+              <Field label="Закупочная" value={formatMoney(product.purchasePrice)} />
+              <Field label="Сметная" value={formatMoney(product.estimatePrice)} />
+              <Field label="Продажная" value={formatMoney(product.salePrice)} />
+              <Field label="НДС" value={VAT_LABELS[product.vatRate]} />
+            </Grid>
+          </CardContent>
+        </Card>
 
-        <Grid size={{ xs: 12, md: 6 }}>
-          <Card elevation={2}>
-            <CardContent sx={{ p: 3 }}>
-              <Typography variant="h6" sx={{ mb: 2 }}>Цены</Typography>
-              <Grid container spacing={2}>
-                <Field label="Закупочная" value={formatMoney(product.purchasePrice)} />
-                <Field label="Сметная" value={formatMoney(product.estimatePrice)} />
-                <Field label="Продажная" value={formatMoney(product.salePrice)} />
-                <Field label="НДС" value={VAT_LABELS[product.vatRate]} />
-              </Grid>
-            </CardContent>
-          </Card>
-        </Grid>
+        <Card elevation={2} sx={{ overflow: 'hidden', mb: 3 }}>
+          <CardContent sx={{ p: 3 }}>
+            <Typography variant="h6" sx={{ mb: 2 }}>Характеристики</Typography>
+            <Grid container spacing={2}>
+              <Field label="Вес, кг" value={product.weightKg} />
+              <Field label="Длина, мм" value={product.lengthMm} />
+              <Field label="Ширина, мм" value={product.widthMm} />
+              <Field label="Высота, мм" value={product.heightMm} />
+              <Field label="Объём, м³" value={product.volumeM3} />
+              <Field label="Сорт" value={product.grade} />
+              <Field label="Материал" value={product.material} />
+              <Field label="ГОСТ/ТУ" value={product.gost} />
+            </Grid>
+          </CardContent>
+        </Card>
 
-        <Grid size={{ xs: 12, md: 6 }}>
-          <Card elevation={2}>
-            <CardContent sx={{ p: 3 }}>
-              <Typography variant="h6" sx={{ mb: 2 }}>Характеристики</Typography>
-              <Grid container spacing={2}>
-                <Field label="Вес, кг" value={product.weightKg} />
-                <Field label="Длина, мм" value={product.lengthMm} />
-                <Field label="Ширина, мм" value={product.widthMm} />
-                <Field label="Высота, мм" value={product.heightMm} />
-                <Field label="Объём, м³" value={product.volumeM3} />
-                <Field label="Сорт" value={product.grade} />
-                <Field label="Материал" value={product.material} />
-                <Field label="ГОСТ/ТУ" value={product.gost} />
-              </Grid>
-            </CardContent>
-          </Card>
-        </Grid>
-
-        <Grid size={{ xs: 12, md: 6 }}>
-          <Card elevation={2}>
-            <CardContent sx={{ p: 3 }}>
-              <Typography variant="h6" sx={{ mb: 2 }}>Запасы</Typography>
-              <Grid container spacing={2}>
-                <Field label="Мин. остаток" value={product.minStock} />
-                <Field label="Статус" value={product.isActive ? 'Активна' : 'В архиве'} />
-                <Field label="Создана" value={new Date(product.createdAt).toLocaleDateString('ru-RU')} />
-                <Field label="Обновлена" value={new Date(product.updatedAt).toLocaleDateString('ru-RU')} />
-              </Grid>
-            </CardContent>
-          </Card>
-        </Grid>
-      </Grid>
+        <Card elevation={2} sx={{ overflow: 'hidden', mb: 3 }}>
+          <CardContent sx={{ p: 3 }}>
+            <Typography variant="h6" sx={{ mb: 2 }}>Запасы</Typography>
+            <Grid container spacing={2}>
+              <Field label="Мин. остаток" value={product.minStock} />
+              <Field label="Статус" value={product.isActive ? 'Активна' : 'В архиве'} />
+              <Field label="Создана" value={new Date(product.createdAt).toLocaleDateString('ru-RU')} />
+              <Field label="Обновлена" value={new Date(product.updatedAt).toLocaleDateString('ru-RU')} />
+            </Grid>
+          </CardContent>
+        </Card>
+      </Box>
 
       <ActionModal
         open={showArchive}
