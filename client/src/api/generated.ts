@@ -10,6 +10,7 @@ export const addTagTypes = [
   "objects",
   "shipments",
   "receipts",
+  "journal",
   "chat",
   "projects",
   "transfers",
@@ -652,6 +653,24 @@ const injectedRtkApi = api
         }),
         invalidatesTags: ["receipts", "warehouses"],
       }),
+      journalControllerFindAll: build.query<
+        JournalControllerFindAllApiResponse,
+        JournalControllerFindAllApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/journal`,
+          params: {
+            page: queryArg.page,
+            size: queryArg.size,
+            type: queryArg["type"],
+            search: queryArg.search,
+            warehouseId: queryArg.warehouseId,
+            from: queryArg["from"],
+            to: queryArg.to,
+          },
+        }),
+        providesTags: ["journal"],
+      }),
       chatControllerFindAll: build.query<
         ChatControllerFindAllApiResponse,
         ChatControllerFindAllApiArg
@@ -1082,6 +1101,17 @@ export type ReceiptControllerCancelApiResponse =
   /** status 200  */ GoodsReceiptDto;
 export type ReceiptControllerCancelApiArg = {
   id: string;
+};
+export type JournalControllerFindAllApiResponse =
+  /** status 200  */ StockMovementListResponseDto;
+export type JournalControllerFindAllApiArg = {
+  page?: string;
+  size?: string;
+  type?: string;
+  search?: string;
+  warehouseId?: string;
+  from?: string;
+  to?: string;
 };
 export type ChatControllerFindAllApiResponse = /** status 200  */ MessageDto[];
 export type ChatControllerFindAllApiArg = {
@@ -1520,6 +1550,37 @@ export type UpdateReceiptItemDto = {
   unitId?: string;
   purchasePrice?: number;
 };
+export type StockMovementDto = {
+  id: string;
+  type:
+    | "RECEIPT"
+    | "RECEIPT_CANCEL"
+    | "SHIPMENT"
+    | "SHIPMENT_CANCEL"
+    | "TRANSFER_IN"
+    | "TRANSFER_OUT"
+    | "ADJUSTMENT_IN"
+    | "ADJUSTMENT_OUT";
+  quantity: number;
+  productId: string;
+  warehouseId: string;
+  objectId?: string | null;
+  userId?: string | null;
+  referenceId?: string | null;
+  referenceNumber?: string | null;
+  createdAt: string;
+  product?: ProductDto | null;
+  warehouse?: WarehouseDto | null;
+  object?: ObjectDto | null;
+  user?: UserDto | null;
+};
+export type StockMovementListResponseDto = {
+  items: StockMovementDto[];
+  total: number;
+  page: number;
+  size: number;
+  pages: number;
+};
 export type MessageUserDto = {
   id: string;
   avatar?: string | null;
@@ -1651,6 +1712,7 @@ export const {
   useReceiptControllerRemoveItemMutation,
   useReceiptControllerPostMutation,
   useReceiptControllerCancelMutation,
+  useJournalControllerFindAllQuery,
   useChatControllerFindAllQuery,
   useChatControllerCreateMutation,
   useChatControllerUpdateMutation,

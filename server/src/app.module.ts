@@ -12,6 +12,7 @@ import { WarehouseModule } from './warehouse/warehouse.module';
 import { ObjectModule } from './object/object.module';
 import { ShipmentModule } from './shipment/shipment.module';
 import { ReceiptModule } from './receipt/receipt.module';
+import { JournalModule } from './journal/journal.module';
 import { ChatModule } from './chat/chat.module';
 import { ProjectModule } from './project/project.module';
 import { TransferModule } from './transfer/transfer.module';
@@ -32,6 +33,7 @@ import { RolesGuard } from './auth/roles.guard';
     ObjectModule,
     ShipmentModule,
     ReceiptModule,
+    JournalModule,
     ChatModule,
     ProjectModule,
     TransferModule,

@@ -6,6 +6,7 @@ import {
   Delete,
   Param,
   Body,
+  Req,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -13,6 +14,7 @@ import {
   ApiOkResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { Request } from 'express';
 import { WarehouseService } from './warehouse.service';
 import { CreateWarehouseDto } from './dto/create-warehouse.dto';
 import { UpdateWarehouseDto } from './dto/update-warehouse.dto';
@@ -63,8 +65,9 @@ export class WarehouseController {
 
   @Post(':id/stock')
   @ApiCreatedResponse({ type: StockItemDto })
-  addStock(@Param('id') id: string, @Body() dto: AddStockDto) {
-    return this.warehouseService.addStock(id, dto);
+  addStock(@Param('id') id: string, @Body() dto: AddStockDto, @Req() req: Request) {
+    const userId = (req as any).user?.id;
+    return this.warehouseService.addStock(id, dto, userId);
   }
 
   @Patch(':id/stock/:stockId')

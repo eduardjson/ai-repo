@@ -2381,6 +2381,89 @@
         ]
       }
     },
+    "/journal": {
+      "get": {
+        "operationId": "JournalController_findAll",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "size",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "type",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "warehouseId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "from",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "to",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StockMovementListResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "journal"
+        ]
+      }
+    },
     "/chat/messages": {
       "get": {
         "operationId": "ChatController_findAll",
@@ -4346,6 +4429,129 @@
             "minimum": 0
           }
         }
+      },
+      "StockMovementDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "RECEIPT",
+              "RECEIPT_CANCEL",
+              "SHIPMENT",
+              "SHIPMENT_CANCEL",
+              "TRANSFER_IN",
+              "TRANSFER_OUT",
+              "ADJUSTMENT_IN",
+              "ADJUSTMENT_OUT"
+            ]
+          },
+          "quantity": {
+            "type": "number"
+          },
+          "productId": {
+            "type": "string"
+          },
+          "warehouseId": {
+            "type": "string"
+          },
+          "objectId": {
+            "type": "string",
+            "nullable": true
+          },
+          "userId": {
+            "type": "string",
+            "nullable": true
+          },
+          "referenceId": {
+            "type": "string",
+            "nullable": true
+          },
+          "referenceNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "product": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ProductDto"
+              }
+            ]
+          },
+          "warehouse": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/WarehouseDto"
+              }
+            ]
+          },
+          "object": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ObjectDto"
+              }
+            ]
+          },
+          "user": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/UserDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "type",
+          "quantity",
+          "productId",
+          "warehouseId",
+          "createdAt"
+        ]
+      },
+      "StockMovementListResponseDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StockMovementDto"
+            }
+          },
+          "total": {
+            "type": "number"
+          },
+          "page": {
+            "type": "number"
+          },
+          "size": {
+            "type": "number"
+          },
+          "pages": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "page",
+          "size",
+          "pages"
+        ]
       },
       "MessageUserDto": {
         "type": "object",

@@ -1,6 +1,7 @@
 import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateTransferDto } from './dto/create-transfer.dto';
+import { MovementType } from '../generated/prisma/client';
 
 @Injectable()
 export class TransferService {
@@ -13,7 +14,7 @@ export class TransferService {
     });
   }
 
-  async create(dto: CreateTransferDto) {
+  async create(dto: CreateTransferDto, userId?: string) {
     if (dto.fromWarehouseId === dto.toWarehouseId) {
       throw new BadRequestException('Склады отправитель и получатель должны отличаться');
     }
@@ -71,7 +72,7 @@ export class TransferService {
         });
       }
 
-      return tx.stockTransfer.create({
+      const transfer = await tx.stockTransfer.create({
         data: {
           productId: dto.productId,
           quantity: dto.quantity,
@@ -80,6 +81,29 @@ export class TransferService {
         },
         include: { product: true, fromWarehouse: true, toWarehouse: true },
       });
+
+      await tx.stockMovement.createMany({
+        data: [
+          {
+            type: MovementType.TRANSFER_OUT,
+            quantity: dto.quantity,
+            productId: dto.productId,
+            warehouseId: dto.fromWarehouseId,
+            userId,
+            referenceId: transfer.id,
+          },
+          {
+            type: MovementType.TRANSFER_IN,
+            quantity: dto.quantity,
+            productId: dto.productId,
+            warehouseId: dto.toWarehouseId,
+            userId,
+            referenceId: transfer.id,
+          },
+        ],
+      });
+
+      return transfer;
     });
   }
 }

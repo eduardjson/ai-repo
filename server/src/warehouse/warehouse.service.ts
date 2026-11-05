@@ -3,6 +3,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreateWarehouseDto } from './dto/create-warehouse.dto';
 import { AddStockDto } from './dto/add-stock.dto';
 import { UpdateStockDto } from './dto/update-stock.dto';
+import { MovementType } from '../generated/prisma/client';
 
 @Injectable()
 export class WarehouseService {
@@ -46,7 +47,7 @@ export class WarehouseService {
     return this.prisma.warehouse.delete({ where: { id } });
   }
 
-  async addStock(warehouseId: string, dto: AddStockDto) {
+  async addStock(warehouseId: string, dto: AddStockDto, userId?: string) {
     await this.findById(warehouseId);
 
     const existing = await this.prisma.stockItem.findUnique({
@@ -58,30 +59,47 @@ export class WarehouseService {
       },
     });
 
-    if (existing) {
-      return this.prisma.stockItem.update({
-        where: { id: existing.id },
+    const result = await this.prisma.$transaction(async (tx) => {
+      let stock;
+      if (existing) {
+        stock = await tx.stockItem.update({
+          where: { id: existing.id },
+          data: {
+            quantity: existing.quantity + dto.quantity,
+            purchasePrice: dto.purchasePrice ?? existing.purchasePrice,
+            estimatePrice: dto.estimatePrice ?? existing.estimatePrice,
+            salePrice: dto.salePrice ?? existing.salePrice,
+            discount: dto.discount ?? existing.discount,
+          },
+        });
+      } else {
+        stock = await tx.stockItem.create({
+          data: {
+            productId: dto.productId,
+            warehouseId,
+            quantity: dto.quantity,
+            purchasePrice: dto.purchasePrice,
+            estimatePrice: dto.estimatePrice,
+            salePrice: dto.salePrice,
+            discount: dto.discount,
+          },
+        });
+      }
+
+      await tx.stockMovement.create({
         data: {
-          quantity: existing.quantity + dto.quantity,
-          purchasePrice: dto.purchasePrice ?? existing.purchasePrice,
-          estimatePrice: dto.estimatePrice ?? existing.estimatePrice,
-          salePrice: dto.salePrice ?? existing.salePrice,
-          discount: dto.discount ?? existing.discount,
+          type: dto.quantity >= 0 ? MovementType.ADJUSTMENT_IN : MovementType.ADJUSTMENT_OUT,
+          quantity: Math.abs(dto.quantity),
+          productId: dto.productId,
+          warehouseId,
+          userId,
         },
       });
-    }
 
-    return this.prisma.stockItem.create({
-      data: {
-        productId: dto.productId,
-        warehouseId,
-        quantity: dto.quantity,
-        purchasePrice: dto.purchasePrice,
-        estimatePrice: dto.estimatePrice,
-        salePrice: dto.salePrice,
-        discount: dto.discount,
-      },
+      return stock;
     });
+
+    return result;
   }
 
   async updateStock(stockId: string, warehouseId: string, dto: UpdateStockDto) {

@@ -19,6 +19,23 @@ export const RECEIPT_STATUS_LABELS: Record<string, string> = {
   CANCELLED: 'Отменено',
 }
 
+export interface MovementMeta {
+  label: string
+  direction: 'in' | 'out'
+  color: 'success' | 'error' | 'info' | 'default'
+}
+
+export const MOVEMENT_TYPES: Record<string, MovementMeta> = {
+  RECEIPT: { label: 'Приёмка', direction: 'in', color: 'success' },
+  RECEIPT_CANCEL: { label: 'Отмена приёмки', direction: 'out', color: 'error' },
+  SHIPMENT: { label: 'Отгрузка', direction: 'out', color: 'info' },
+  SHIPMENT_CANCEL: { label: 'Возврат отгрузки', direction: 'in', color: 'success' },
+  TRANSFER_IN: { label: 'Перемещение (приход)', direction: 'in', color: 'info' },
+  TRANSFER_OUT: { label: 'Перемещение (расход)', direction: 'out', color: 'info' },
+  ADJUSTMENT_IN: { label: 'Корректировка (приход)', direction: 'in', color: 'default' },
+  ADJUSTMENT_OUT: { label: 'Корректировка (расход)', direction: 'out', color: 'default' },
+}
+
 export function formatMoney(n?: number | null): string {
   if (n == null) return '-'
   return `${n.toLocaleString('ru-RU', { maximumFractionDigits: 2 })} ₽`

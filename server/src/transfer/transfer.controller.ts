@@ -1,10 +1,11 @@
-import { Controller, Get, Post, Body, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Body, HttpCode, HttpStatus, Req } from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiCreatedResponse,
   ApiOkResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { Request } from 'express';
 import { TransferService } from './transfer.service';
 import { CreateTransferDto } from './dto/create-transfer.dto';
 import { StockTransferDto } from '../dto/transfer.response';
@@ -24,7 +25,8 @@ export class TransferController {
   @Post()
   @HttpCode(HttpStatus.CREATED)
   @ApiCreatedResponse({ type: StockTransferDto })
-  create(@Body() dto: CreateTransferDto) {
-    return this.transferService.create(dto);
+  create(@Body() dto: CreateTransferDto, @Req() req: Request) {
+    const userId = (req as any).user?.id;
+    return this.transferService.create(dto, userId);
   }
 }

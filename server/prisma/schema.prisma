@@ -39,6 +39,17 @@ enum ReceiptStatus {
   CANCELLED
 }
 
+enum MovementType {
+  RECEIPT
+  RECEIPT_CANCEL
+  SHIPMENT
+  SHIPMENT_CANCEL
+  TRANSFER_IN
+  TRANSFER_OUT
+  ADJUSTMENT_IN
+  ADJUSTMENT_OUT
+}
+
 model User {
   id        String   @id @default(uuid())
   email     String   @unique
@@ -57,6 +68,7 @@ model User {
   projects      Project[]
   products      Product[]      @relation("ProductCreatedBy")
   goodsReceipts GoodsReceipt[] @relation("ReceiptCreatedBy")
+  stockMovements StockMovement[]
 }
 
 model Token {
@@ -149,6 +161,7 @@ model Product {
   shipmentItems  ShipmentItem[]
   stockTransfers StockTransfer[]
   receiptItems   GoodsReceiptItem[]
+  stockMovements StockMovement[]
 }
 
 model Barcode {
@@ -181,6 +194,7 @@ model Warehouse {
   transfersFrom  StockTransfer[] @relation("FromWarehouse")
   transfersTo    StockTransfer[] @relation("ToWarehouse")
   goodsReceipts  GoodsReceipt[]
+  stockMovements StockMovement[]
 }
 
 model StockItem {
@@ -214,6 +228,7 @@ model Object {
   updatedAt   DateTime @updatedAt
 
   shipments Shipment[]
+  stockMovements StockMovement[]
 }
 
 model Shipment {
@@ -323,4 +338,26 @@ model StockTransfer {
   product       Product   @relation(fields: [productId], references: [id], onDelete: Restrict)
   fromWarehouse Warehouse @relation("FromWarehouse", fields: [fromWarehouseId], references: [id], onDelete: Restrict)
   toWarehouse   Warehouse @relation("ToWarehouse", fields: [toWarehouseId], references: [id], onDelete: Restrict)
+}
+
+model StockMovement {
+  id             String       @id @default(uuid())
+  type           MovementType
+  quantity       Float
+  productId      String
+  warehouseId    String
+  objectId       String?
+  userId         String?
+  referenceId    String?
+  referenceNumber String?
+  createdAt      DateTime     @default(now())
+
+  product   Product   @relation(fields: [productId], references: [id], onDelete: Restrict)
+  warehouse Warehouse @relation(fields: [warehouseId], references: [id], onDelete: Restrict)
+  object    Object?   @relation(fields: [objectId], references: [id], onDelete: SetNull)
+  user      User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([createdAt])
+  @@index([productId])
+  @@index([warehouseId])
 }

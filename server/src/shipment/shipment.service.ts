@@ -2,6 +2,7 @@ import { Injectable, NotFoundException, BadRequestException } from '@nestjs/comm
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateShipmentDto } from './dto/create-shipment.dto';
 import { UpdateStatusDto } from './dto/update-status.dto';
+import { MovementType } from '../generated/prisma/client';
 
 const INCLUDE = {
   items: { include: { product: true } },
@@ -36,7 +37,7 @@ export class ShipmentService {
     return shipment;
   }
 
-  async create(dto: CreateShipmentDto) {
+  async create(dto: CreateShipmentDto, userId?: string) {
     return this.prisma.$transaction(async (tx) => {
       for (const item of dto.items) {
         const stock = await tx.stockItem.findUnique({
@@ -61,7 +62,7 @@ export class ShipmentService {
         });
       }
 
-      return tx.shipment.create({
+      const shipment = await tx.shipment.create({
         data: {
           warehouseId: dto.warehouseId,
           objectId: dto.objectId,
@@ -74,10 +75,24 @@ export class ShipmentService {
         },
         include: INCLUDE,
       });
+
+      await tx.stockMovement.createMany({
+        data: dto.items.map((item) => ({
+          type: MovementType.SHIPMENT,
+          quantity: item.quantity,
+          productId: item.productId,
+          warehouseId: dto.warehouseId,
+          objectId: dto.objectId,
+          userId,
+          referenceId: shipment.id,
+        })),
+      });
+
+      return shipment;
     });
   }
 
-  async updateStatus(id: string, dto: UpdateStatusDto) {
+  async updateStatus(id: string, dto: UpdateStatusDto, userId?: string) {
     const shipment = await this.findById(id);
     const newStatus = dto.status;
     const oldStatus = shipment.status;
@@ -125,6 +140,18 @@ export class ShipmentService {
             });
           }
         }
+
+        await tx.stockMovement.createMany({
+          data: shipment.items.map((item) => ({
+            type: shouldRestoreStock ? MovementType.SHIPMENT_CANCEL : MovementType.SHIPMENT,
+            quantity: item.quantity,
+            productId: item.productId,
+            warehouseId: shipment.warehouseId,
+            objectId: shipment.objectId,
+            userId,
+            referenceId: shipment.id,
+          })),
+        });
       }
 
       return tx.shipment.update({
@@ -135,7 +162,7 @@ export class ShipmentService {
     });
   }
 
-  async remove(id: string) {
+  async remove(id: string, userId?: string) {
     const shipment = await this.findById(id);
 
     // Stock was decremented at creation and is only restored when the
@@ -160,6 +187,18 @@ export class ShipmentService {
             });
           }
         }
+
+        await tx.stockMovement.createMany({
+          data: shipment.items.map((item) => ({
+            type: MovementType.SHIPMENT_CANCEL,
+            quantity: item.quantity,
+            productId: item.productId,
+            warehouseId: shipment.warehouseId,
+            objectId: shipment.objectId,
+            userId,
+            referenceId: shipment.id,
+          })),
+        });
 
         await tx.shipment.delete({ where: { id } });
       });

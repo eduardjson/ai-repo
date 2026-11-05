@@ -7,6 +7,7 @@ import {
   Param,
   Body,
   Query,
+  Req,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -14,6 +15,7 @@ import {
   ApiOkResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { Request } from 'express';
 import { ShipmentService } from './shipment.service';
 import { CreateShipmentDto } from './dto/create-shipment.dto';
 import { UpdateStatusDto } from './dto/update-status.dto';
@@ -55,18 +57,21 @@ export class ShipmentController {
 
   @Post()
   @ApiCreatedResponse({ type: ShipmentDto })
-  create(@Body() dto: CreateShipmentDto) {
-    return this.shipmentService.create(dto);
+  create(@Body() dto: CreateShipmentDto, @Req() req: Request) {
+    const userId = (req as any).user?.id;
+    return this.shipmentService.create(dto, userId);
   }
 
   @Patch(':id/status')
   @ApiOkResponse({ type: ShipmentDto })
-  updateStatus(@Param('id') id: string, @Body() dto: UpdateStatusDto) {
-    return this.shipmentService.updateStatus(id, dto);
+  updateStatus(@Param('id') id: string, @Body() dto: UpdateStatusDto, @Req() req: Request) {
+    const userId = (req as any).user?.id;
+    return this.shipmentService.updateStatus(id, dto, userId);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.shipmentService.remove(id);
+  remove(@Param('id') id: string, @Req() req: Request) {
+    const userId = (req as any).user?.id;
+    return this.shipmentService.remove(id, userId);
   }
 }

@@ -11,6 +11,7 @@ import { ProductAddPage } from './routes/products/add'
 import { ReceiptListPage } from './routes/receipts/index'
 import { ReceiptAddPage } from './routes/receipts/add'
 import { ReceiptDetailPage } from './routes/receipts/$receiptId'
+import { JournalPage } from './routes/journal/index'
 import { ReferencePage } from './routes/reference/index'
 import { WarehouseListPage } from './routes/warehouses/index'
 import { ObjectListPage } from './routes/objects/index'
@@ -118,6 +119,12 @@ const referenceRoute = createRoute({
   component: ReferencePage,
 })
 
+const journalRoute = createRoute({
+  getParentRoute: () => privateRoutes,
+  path: '/journal',
+  component: JournalPage,
+})
+
 const objectsRoute = createRoute({
   getParentRoute: () => privateRoutes,
   path: '/objects',
@@ -177,6 +184,7 @@ const routeTree = rootRoute.addChildren([
     receiptsRoute,
     receiptAddRoute,
     receiptDetailRoute,
+    journalRoute,
     referenceRoute,
     objectsRoute,
     shipmentsRoute,

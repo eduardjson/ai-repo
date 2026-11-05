@@ -78,14 +78,16 @@ export class ReceiptController {
 
   @Post(':id/post')
   @ApiOkResponse({ type: GoodsReceiptDto })
-  post(@Param('id') id: string) {
-    return this.receiptService.post(id);
+  post(@Param('id') id: string, @Req() req: Request) {
+    const userId = (req as any).user?.id;
+    return this.receiptService.post(id, userId);
   }
 
   @Post(':id/cancel')
   @ApiOkResponse({ type: GoodsReceiptDto })
-  cancel(@Param('id') id: string) {
-    return this.receiptService.cancel(id);
+  cancel(@Param('id') id: string, @Req() req: Request) {
+    const userId = (req as any).user?.id;
+    return this.receiptService.cancel(id, userId);
   }
 
   @Delete(':id')

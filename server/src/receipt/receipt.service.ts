@@ -9,7 +9,7 @@ import { CreateReceiptDto } from './dto/create-receipt.dto';
 import { AddReceiptItemDto } from './dto/add-receipt-item.dto';
 import { UpdateReceiptDto } from './dto/update-receipt.dto';
 import { UpdateReceiptItemDto } from './dto/update-receipt-item.dto';
-import { ReceiptStatus } from '../generated/prisma/client';
+import { ReceiptStatus, MovementType } from '../generated/prisma/client';
 
 const INCLUDE = {
   warehouse: true,
@@ -189,7 +189,7 @@ export class ReceiptService {
   }
 
   /** Проводит поступление: приходует товар на склад. */
-  async post(id: string) {
+  async post(id: string, userId?: string) {
     const receipt = await this.findById(id);
     if (receipt.status === 'POSTED') return receipt;
     if (receipt.status === 'CANCELLED') {
@@ -234,6 +234,18 @@ export class ReceiptService {
         }
       }
 
+      await tx.stockMovement.createMany({
+        data: receipt.items.map((item) => ({
+          type: MovementType.RECEIPT,
+          quantity: item.quantity,
+          productId: item.productId,
+          warehouseId: receipt.warehouseId,
+          userId,
+          referenceId: receipt.id,
+          referenceNumber: receipt.number,
+        })),
+      });
+
       await tx.goodsReceipt.update({ where: { id }, data: { status: ReceiptStatus.POSTED } });
     });
 
@@ -241,7 +253,7 @@ export class ReceiptService {
   }
 
   /** Отменяет поступление; если было проведено — возвращает остаток обратно. */
-  async cancel(id: string) {
+  async cancel(id: string, userId?: string) {
     const receipt = await this.findById(id);
     if (receipt.status === 'CANCELLED') return receipt;
 
@@ -260,6 +272,17 @@ export class ReceiptService {
             });
           }
         }
+        await tx.stockMovement.createMany({
+          data: receipt.items.map((item) => ({
+            type: MovementType.RECEIPT_CANCEL,
+            quantity: item.quantity,
+            productId: item.productId,
+            warehouseId: receipt.warehouseId,
+            userId,
+            referenceId: receipt.id,
+            referenceNumber: receipt.number,
+          })),
+        });
         await tx.goodsReceipt.update({ where: { id }, data: { status: ReceiptStatus.CANCELLED } });
       });
     } else {
