@@ -10,9 +10,10 @@ import { setUser, setLoading } from '../store/authSlice'
 
 const TABS = [
   { label: 'Главная', path: '/' },
-  { label: 'Позиции', path: '/products' },
+  { label: 'Номенклатура', path: '/products' },
   { label: 'Цены', path: '/prices' },
   { label: 'Склады', path: '/warehouses' },
+  { label: 'Поступления', path: '/receipts' },
   { label: 'Объекты', path: '/objects' },
   { label: 'Отгрузки', path: '/shipments' },
   { label: 'Перемещения', path: '/transfers' },
@@ -20,7 +21,10 @@ const TABS = [
   { label: 'Чат', path: '/chat' },
 ]
 
-const ADMIN_TABS = [{ label: 'Сотрудники', path: '/employees' }]
+const ADMIN_TABS = [
+  { label: 'Сотрудники', path: '/employees' },
+  { label: 'Справочники', path: '/reference' },
+]
 
 export function AppLayout() {
   const location = useLocation()

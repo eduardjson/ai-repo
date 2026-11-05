@@ -100,14 +100,14 @@ export class WarehouseService {
     await this.findById(warehouseId);
     return this.prisma.stockItem.findMany({
       where: { warehouseId },
-      include: { product: true },
+      include: { product: { include: { baseUnit: true } } },
     });
   }
 
   async getGlobalPriceList() {
     const items = await this.prisma.stockItem.findMany({
       where: { quantity: { gt: 0 } },
-      include: { product: true, warehouse: true },
+      include: { product: { include: { category: true, manufacturer: true, baseUnit: true } }, warehouse: true },
     });
     return items.map((i) => this.toPriceListItem(i));
   }
@@ -116,7 +116,7 @@ export class WarehouseService {
     await this.findById(warehouseId);
     const items = await this.prisma.stockItem.findMany({
       where: { warehouseId, quantity: { gt: 0 } },
-      include: { product: true, warehouse: true },
+      include: { product: { include: { category: true, manufacturer: true, baseUnit: true } }, warehouse: true },
     });
     return items.map((i) => this.toPriceListItem(i));
   }
@@ -126,9 +126,9 @@ export class WarehouseService {
       id: i.id,
       productId: i.productId,
       productTitle: i.product.title,
-      category: i.product.category,
-      manufacturer: i.product.manufacturer,
-      unit: i.product.unit,
+      category: i.product.category?.name ?? null,
+      manufacturer: i.product.manufacturer?.name ?? null,
+      unit: i.product.baseUnit?.symbol ?? null,
       quantity: i.quantity,
       purchasePrice: i.purchasePrice,
       estimatePrice: i.estimatePrice,

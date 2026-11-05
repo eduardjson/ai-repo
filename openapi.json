@@ -267,6 +267,507 @@
         ]
       }
     },
+    "/categories": {
+      "get": {
+        "operationId": "CategoryController_findAll",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CategoryDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "categories"
+        ]
+      },
+      "post": {
+        "operationId": "CategoryController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCategoryDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CategoryDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "categories"
+        ]
+      }
+    },
+    "/categories/{id}": {
+      "get": {
+        "operationId": "CategoryController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CategoryDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "categories"
+        ]
+      },
+      "patch": {
+        "operationId": "CategoryController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCategoryDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CategoryDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "categories"
+        ]
+      },
+      "delete": {
+        "operationId": "CategoryController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "categories"
+        ]
+      }
+    },
+    "/manufacturers": {
+      "get": {
+        "operationId": "ManufacturerController_findAll",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ManufacturerDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "manufacturers"
+        ]
+      },
+      "post": {
+        "operationId": "ManufacturerController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateManufacturerDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ManufacturerDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "manufacturers"
+        ]
+      }
+    },
+    "/manufacturers/{id}": {
+      "get": {
+        "operationId": "ManufacturerController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ManufacturerDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "manufacturers"
+        ]
+      },
+      "patch": {
+        "operationId": "ManufacturerController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateManufacturerDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ManufacturerDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "manufacturers"
+        ]
+      },
+      "delete": {
+        "operationId": "ManufacturerController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "manufacturers"
+        ]
+      }
+    },
+    "/units": {
+      "get": {
+        "operationId": "UnitController_findAll",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/UnitDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "units"
+        ]
+      },
+      "post": {
+        "operationId": "UnitController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateUnitDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnitDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "units"
+        ]
+      }
+    },
+    "/units/{id}": {
+      "get": {
+        "operationId": "UnitController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnitDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "units"
+        ]
+      },
+      "patch": {
+        "operationId": "UnitController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateUnitDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnitDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "units"
+        ]
+      },
+      "delete": {
+        "operationId": "UnitController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "units"
+        ]
+      }
+    },
     "/products": {
       "get": {
         "operationId": "ProductController_findAll",
@@ -296,7 +797,7 @@
             }
           },
           {
-            "name": "category",
+            "name": "categoryId",
             "required": false,
             "in": "query",
             "schema": {
@@ -304,7 +805,15 @@
             }
           },
           {
-            "name": "manufacturer",
+            "name": "manufacturerId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "includeInactive",
             "required": false,
             "in": "query",
             "schema": {
@@ -348,6 +857,41 @@
         },
         "responses": {
           "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "products"
+        ]
+      }
+    },
+    "/products/barcode/{value}": {
+      "get": {
+        "operationId": "ProductController_findByBarcode",
+        "parameters": [
+          {
+            "name": "value",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
             "description": "",
             "content": {
               "application/json": {
@@ -561,7 +1105,14 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -1379,6 +1930,391 @@
         ]
       }
     },
+    "/receipts": {
+      "get": {
+        "operationId": "ReceiptController_findAll",
+        "parameters": [
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GoodsReceiptDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "receipts"
+        ]
+      },
+      "post": {
+        "operationId": "ReceiptController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateReceiptDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GoodsReceiptDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "receipts"
+        ]
+      }
+    },
+    "/receipts/{id}": {
+      "get": {
+        "operationId": "ReceiptController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GoodsReceiptDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "receipts"
+        ]
+      },
+      "patch": {
+        "operationId": "ReceiptController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateReceiptDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GoodsReceiptDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "receipts"
+        ]
+      },
+      "delete": {
+        "operationId": "ReceiptController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "receipts"
+        ]
+      }
+    },
+    "/receipts/{id}/items": {
+      "post": {
+        "operationId": "ReceiptController_addItem",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddReceiptItemDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GoodsReceiptDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "receipts"
+        ]
+      }
+    },
+    "/receipts/{id}/items/{itemId}": {
+      "patch": {
+        "operationId": "ReceiptController_updateItem",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "itemId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateReceiptItemDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GoodsReceiptDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "receipts"
+        ]
+      },
+      "delete": {
+        "operationId": "ReceiptController_removeItem",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "itemId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GoodsReceiptDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "receipts"
+        ]
+      }
+    },
+    "/receipts/{id}/post": {
+      "post": {
+        "operationId": "ReceiptController_post",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GoodsReceiptDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "receipts"
+        ]
+      }
+    },
+    "/receipts/{id}/cancel": {
+      "post": {
+        "operationId": "ReceiptController_cancel",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GoodsReceiptDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "receipts"
+        ]
+      }
+    },
     "/chat/messages": {
       "get": {
         "operationId": "ChatController_findAll",
@@ -1964,6 +2900,165 @@
           "password"
         ]
       },
+      "CategoryDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "parentId": {
+            "type": "string",
+            "nullable": true
+          },
+          "children": {
+            "nullable": true,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CategoryDto"
+            }
+          },
+          "createdAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "createdAt"
+        ]
+      },
+      "CreateCategoryDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "parentId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "UpdateCategoryDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "parentId": {
+            "type": "string"
+          }
+        }
+      },
+      "ManufacturerDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "country": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "createdAt"
+        ]
+      },
+      "CreateManufacturerDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "country": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "UpdateManufacturerDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "country": {
+            "type": "string"
+          }
+        }
+      },
+      "UnitDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "symbol": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "code",
+          "name",
+          "symbol"
+        ]
+      },
+      "CreateUnitDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "symbol": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "name",
+          "symbol"
+        ]
+      },
+      "UpdateUnitDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "symbol": {
+            "type": "string"
+          }
+        }
+      },
       "ProductImageDto": {
         "type": "object",
         "properties": {
@@ -1983,10 +3078,46 @@
           "url"
         ]
       },
+      "BarcodeDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "productId": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "EAN13",
+              "CODE128",
+              "UPC",
+              "QR"
+            ]
+          },
+          "isPrimary": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "productId",
+          "value",
+          "type",
+          "isPrimary"
+        ]
+      },
       "ProductDto": {
         "type": "object",
         "properties": {
           "id": {
+            "type": "string"
+          },
+          "sku": {
             "type": "string"
           },
           "title": {
@@ -1996,23 +3127,145 @@
             "type": "string",
             "nullable": true
           },
+          "categoryId": {
+            "type": "string",
+            "nullable": true
+          },
           "category": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CategoryDto"
+              }
+            ]
+          },
+          "manufacturerId": {
             "type": "string",
             "nullable": true
           },
           "manufacturer": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ManufacturerDto"
+              }
+            ]
+          },
+          "baseUnitId": {
+            "type": "string"
+          },
+          "baseUnit": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/UnitDto"
+              }
+            ]
+          },
+          "purchaseUnitId": {
             "type": "string",
             "nullable": true
+          },
+          "purchaseUnit": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/UnitDto"
+              }
+            ]
+          },
+          "purchaseToBase": {
+            "type": "number"
+          },
+          "saleUnitId": {
+            "type": "string",
+            "nullable": true
+          },
+          "saleUnit": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/UnitDto"
+              }
+            ]
+          },
+          "saleToBase": {
+            "type": "number"
+          },
+          "purchasePrice": {
+            "type": "number",
+            "nullable": true
+          },
+          "estimatePrice": {
+            "type": "number",
+            "nullable": true
+          },
+          "salePrice": {
+            "type": "number",
+            "nullable": true
+          },
+          "vatRate": {
+            "type": "string",
+            "enum": [
+              "NONE",
+              "VAT0",
+              "VAT10",
+              "VAT20"
+            ]
+          },
+          "weightKg": {
+            "type": "number",
+            "nullable": true
+          },
+          "lengthMm": {
+            "type": "number",
+            "nullable": true
+          },
+          "widthMm": {
+            "type": "number",
+            "nullable": true
+          },
+          "heightMm": {
+            "type": "number",
+            "nullable": true
+          },
+          "volumeM3": {
+            "type": "number",
+            "nullable": true
+          },
+          "grade": {
+            "type": "string",
+            "nullable": true
+          },
+          "material": {
+            "type": "string",
+            "nullable": true
+          },
+          "gost": {
+            "type": "string",
+            "nullable": true
+          },
+          "country": {
+            "type": "string",
+            "nullable": true
+          },
+          "minStock": {
+            "type": "number",
+            "nullable": true
+          },
+          "isActive": {
+            "type": "boolean"
           },
           "imageUrl": {
             "type": "string",
             "nullable": true
           },
           "imageType": {
-            "type": "string",
-            "nullable": true
-          },
-          "unit": {
             "type": "string",
             "nullable": true
           },
@@ -2027,14 +3280,27 @@
             "items": {
               "$ref": "#/components/schemas/ProductImageDto"
             }
+          },
+          "barcodes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BarcodeDto"
+            }
           }
         },
         "required": [
           "id",
+          "sku",
           "title",
+          "baseUnitId",
+          "purchaseToBase",
+          "saleToBase",
+          "vatRate",
+          "isActive",
           "createdAt",
           "updatedAt",
-          "images"
+          "images",
+          "barcodes"
         ]
       },
       "ProductListResponseDto": {
@@ -2067,30 +3333,137 @@
           "pages"
         ]
       },
+      "BarcodeInputDto": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "EAN13",
+              "CODE128",
+              "UPC",
+              "QR"
+            ]
+          },
+          "isPrimary": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "value"
+        ]
+      },
       "CreateProductDto": {
         "type": "object",
         "properties": {
           "title": {
             "type": "string"
           },
+          "sku": {
+            "type": "string"
+          },
           "description": {
             "type": "string"
           },
-          "category": {
+          "categoryId": {
             "type": "string"
           },
-          "manufacturer": {
+          "manufacturerId": {
             "type": "string"
+          },
+          "baseUnitId": {
+            "type": "string"
+          },
+          "purchaseUnitId": {
+            "type": "string"
+          },
+          "purchaseToBase": {
+            "type": "number",
+            "minimum": 0.000001
+          },
+          "saleUnitId": {
+            "type": "string"
+          },
+          "saleToBase": {
+            "type": "number",
+            "minimum": 0.000001
+          },
+          "purchasePrice": {
+            "type": "number",
+            "minimum": 0
+          },
+          "estimatePrice": {
+            "type": "number",
+            "minimum": 0
+          },
+          "salePrice": {
+            "type": "number",
+            "minimum": 0
+          },
+          "vatRate": {
+            "type": "string",
+            "enum": [
+              "NONE",
+              "VAT0",
+              "VAT10",
+              "VAT20"
+            ]
+          },
+          "weightKg": {
+            "type": "number",
+            "minimum": 0
+          },
+          "lengthMm": {
+            "type": "number",
+            "minimum": 0
+          },
+          "widthMm": {
+            "type": "number",
+            "minimum": 0
+          },
+          "heightMm": {
+            "type": "number",
+            "minimum": 0
+          },
+          "volumeM3": {
+            "type": "number",
+            "minimum": 0
+          },
+          "grade": {
+            "type": "string"
+          },
+          "material": {
+            "type": "string"
+          },
+          "gost": {
+            "type": "string"
+          },
+          "country": {
+            "type": "string"
+          },
+          "minStock": {
+            "type": "number",
+            "minimum": 0
+          },
+          "isActive": {
+            "type": "boolean"
           },
           "imageUrl": {
             "type": "string"
           },
-          "unit": {
-            "type": "string"
+          "barcodes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BarcodeInputDto"
+            }
           }
         },
         "required": [
-          "title"
+          "title",
+          "baseUnitId"
         ]
       },
       "UpdateProductDto": {
@@ -2099,20 +3472,103 @@
           "title": {
             "type": "string"
           },
+          "sku": {
+            "type": "string"
+          },
           "description": {
             "type": "string"
           },
-          "category": {
+          "categoryId": {
             "type": "string"
           },
-          "manufacturer": {
+          "manufacturerId": {
             "type": "string"
+          },
+          "baseUnitId": {
+            "type": "string"
+          },
+          "purchaseUnitId": {
+            "type": "string"
+          },
+          "purchaseToBase": {
+            "type": "number",
+            "minimum": 0.000001
+          },
+          "saleUnitId": {
+            "type": "string"
+          },
+          "saleToBase": {
+            "type": "number",
+            "minimum": 0.000001
+          },
+          "purchasePrice": {
+            "type": "number",
+            "minimum": 0
+          },
+          "estimatePrice": {
+            "type": "number",
+            "minimum": 0
+          },
+          "salePrice": {
+            "type": "number",
+            "minimum": 0
+          },
+          "vatRate": {
+            "type": "string",
+            "enum": [
+              "NONE",
+              "VAT0",
+              "VAT10",
+              "VAT20"
+            ]
+          },
+          "weightKg": {
+            "type": "number",
+            "minimum": 0
+          },
+          "lengthMm": {
+            "type": "number",
+            "minimum": 0
+          },
+          "widthMm": {
+            "type": "number",
+            "minimum": 0
+          },
+          "heightMm": {
+            "type": "number",
+            "minimum": 0
+          },
+          "volumeM3": {
+            "type": "number",
+            "minimum": 0
+          },
+          "grade": {
+            "type": "string"
+          },
+          "material": {
+            "type": "string"
+          },
+          "gost": {
+            "type": "string"
+          },
+          "country": {
+            "type": "string"
+          },
+          "minStock": {
+            "type": "number",
+            "minimum": 0
+          },
+          "isActive": {
+            "type": "boolean"
           },
           "imageUrl": {
             "type": "string"
           },
-          "unit": {
-            "type": "string"
+          "barcodes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BarcodeInputDto"
+            }
           }
         }
       },
@@ -2581,6 +4037,249 @@
         "required": [
           "status"
         ]
+      },
+      "GoodsReceiptItemDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "receiptId": {
+            "type": "string"
+          },
+          "productId": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "number"
+          },
+          "unitId": {
+            "type": "string"
+          },
+          "unitQuantity": {
+            "type": "number"
+          },
+          "unitFactor": {
+            "type": "number"
+          },
+          "purchasePrice": {
+            "type": "number",
+            "nullable": true
+          },
+          "product": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ProductDto"
+              }
+            ]
+          },
+          "unit": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/UnitDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "receiptId",
+          "productId",
+          "quantity",
+          "unitId",
+          "unitQuantity",
+          "unitFactor"
+        ]
+      },
+      "GoodsReceiptDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "number": {
+            "type": "string"
+          },
+          "warehouseId": {
+            "type": "string"
+          },
+          "supplier": {
+            "type": "string",
+            "nullable": true
+          },
+          "receiptDate": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "DRAFT",
+              "POSTED",
+              "CANCELLED"
+            ]
+          },
+          "comment": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdById": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdBy": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/UserDto"
+              }
+            ]
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          },
+          "warehouse": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/WarehouseDto"
+              }
+            ]
+          },
+          "items": {
+            "nullable": true,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GoodsReceiptItemDto"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "number",
+          "warehouseId",
+          "receiptDate",
+          "status",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "CreateReceiptItemDto": {
+        "type": "object",
+        "properties": {
+          "productId": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "number",
+            "minimum": 0.000001
+          },
+          "unitId": {
+            "type": "string",
+            "description": "Единица, в которой указано количество. По умолчанию — закупочная (или базовая) единица товара."
+          },
+          "purchasePrice": {
+            "type": "number",
+            "description": "Цена за единицу приёмки (unitId).",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "productId",
+          "quantity"
+        ]
+      },
+      "CreateReceiptDto": {
+        "type": "object",
+        "properties": {
+          "warehouseId": {
+            "type": "string"
+          },
+          "supplier": {
+            "type": "string"
+          },
+          "comment": {
+            "type": "string"
+          },
+          "receiptDate": {
+            "type": "string"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CreateReceiptItemDto"
+            }
+          }
+        },
+        "required": [
+          "warehouseId"
+        ]
+      },
+      "UpdateReceiptDto": {
+        "type": "object",
+        "properties": {
+          "warehouseId": {
+            "type": "string"
+          },
+          "supplier": {
+            "type": "string"
+          },
+          "comment": {
+            "type": "string"
+          },
+          "receiptDate": {
+            "type": "string"
+          }
+        }
+      },
+      "AddReceiptItemDto": {
+        "type": "object",
+        "properties": {
+          "productId": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "number",
+            "minimum": 0.000001
+          },
+          "unitId": {
+            "type": "string",
+            "description": "Единица, в которой указано количество. По умолчанию — закупочная (или базовая) единица товара."
+          },
+          "purchasePrice": {
+            "type": "number",
+            "description": "Цена за единицу приёмки (unitId).",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "productId",
+          "quantity"
+        ]
+      },
+      "UpdateReceiptItemDto": {
+        "type": "object",
+        "properties": {
+          "quantity": {
+            "type": "number",
+            "minimum": 0.000001
+          },
+          "unitId": {
+            "type": "string"
+          },
+          "purchasePrice": {
+            "type": "number",
+            "minimum": 0
+          }
+        }
       },
       "MessageUserDto": {
         "type": "object",

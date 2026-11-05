@@ -3,7 +3,7 @@ import { ValidationPipe } from '@nestjs/common';
 import * as cookieParser from 'cookie-parser';
 import { AppModule } from './app.module';
 import { PrismaService } from './prisma/prisma.service';
-import { seedAdmin } from './seed';
+import { seedAdmin, seedCatalog } from './seed';
 import { setupSwagger } from './swagger';
 
 async function bootstrap() {
@@ -21,8 +21,10 @@ async function bootstrap() {
   // Swagger UI на /api/docs, raw JSON на /api/docs-json.
   setupSwagger(app);
 
-  // Создаём администратора при первом старте (если его ещё нет).
-  await seedAdmin(app.get(PrismaService));
+  // Создаём администратора и справочники/номенклатуру при первом старте.
+  const prisma = app.get(PrismaService);
+  await seedAdmin(prisma);
+  await seedCatalog(prisma);
 
   const port = process.env.PORT || 8000;
   await app.listen(port);

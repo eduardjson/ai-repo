@@ -19,6 +19,26 @@ enum ShipmentStatus {
   CANCELLED
 }
 
+enum VatRate {
+  NONE
+  VAT0
+  VAT10
+  VAT20
+}
+
+enum BarcodeType {
+  EAN13
+  CODE128
+  UPC
+  QR
+}
+
+enum ReceiptStatus {
+  DRAFT
+  POSTED
+  CANCELLED
+}
+
 model User {
   id        String   @id @default(uuid())
   email     String   @unique
@@ -32,9 +52,11 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  tokens   Token[]
-  messages Message[]
-  projects Project[]
+  tokens        Token[]
+  messages      Message[]
+  projects      Project[]
+  products      Product[]      @relation("ProductCreatedBy")
+  goodsReceipts GoodsReceipt[] @relation("ReceiptCreatedBy")
 }
 
 model Token {
@@ -45,23 +67,97 @@ model Token {
   user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
-model Product {
-  id           String   @id @default(uuid())
-  title        String
-  description  String?
-  category     String?
-  manufacturer String?
-  imageUrl     String?
-  unit         String?
-  imageData    Bytes?
-  imageType    String?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+model Category {
+  id        String     @id @default(uuid())
+  name      String     @unique
+  parentId  String?
+  parent    Category?  @relation("CategoryTree", fields: [parentId], references: [id], onDelete: SetNull)
+  children  Category[] @relation("CategoryTree")
+  products  Product[]
+  createdAt DateTime   @default(now())
+}
 
-  images        ProductImage[]
-  stockItems    StockItem[]
-  shipmentItems ShipmentItem[]
+model Manufacturer {
+  id        String    @id @default(uuid())
+  name      String    @unique
+  country   String?
+  products  Product[]
+  createdAt DateTime  @default(now())
+}
+
+model Unit {
+  id        String   @id @default(uuid())
+  code      String   @unique
+  name      String
+  symbol    String   @unique
+
+  productsBase     Product[]          @relation("BaseUnit")
+  productsPurchase Product[]          @relation("PurchaseUnit")
+  productsSale     Product[]          @relation("SaleUnit")
+  receiptItems     GoodsReceiptItem[] @relation("ReceiptUnit")
+}
+
+model Product {
+  id            String   @id @default(uuid())
+  sku           String   @unique
+  title         String
+  description   String?
+  categoryId    String?
+  category      Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  manufacturerId String?
+  manufacturer  Manufacturer? @relation(fields: [manufacturerId], references: [id], onDelete: SetNull)
+
+  baseUnitId     String
+  baseUnit       Unit    @relation("BaseUnit", fields: [baseUnitId], references: [id], onDelete: Restrict)
+  purchaseUnitId String?
+  purchaseUnit   Unit?   @relation("PurchaseUnit", fields: [purchaseUnitId], references: [id], onDelete: SetNull)
+  purchaseToBase Float   @default(1)
+  saleUnitId     String?
+  saleUnit       Unit?   @relation("SaleUnit", fields: [saleUnitId], references: [id], onDelete: SetNull)
+  saleToBase     Float   @default(1)
+
+  purchasePrice Float?
+  estimatePrice Float?
+  salePrice     Float?
+  vatRate       VatRate @default(VAT20)
+
+  weightKg Float?
+  lengthMm Float?
+  widthMm  Float?
+  heightMm Float?
+  volumeM3 Float?
+  grade    String?
+  material String?
+  gost     String?
+  country  String?
+
+  minStock Float?
+  isActive Boolean @default(true)
+
+  imageUrl  String?
+  imageData Bytes?
+  imageType String?
+
+  createdById String?
+  createdBy   User?  @relation("ProductCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  images         ProductImage[]
+  barcodes       Barcode[]
+  stockItems     StockItem[]
+  shipmentItems  ShipmentItem[]
   stockTransfers StockTransfer[]
+  receiptItems   GoodsReceiptItem[]
+}
+
+model Barcode {
+  id        String      @id @default(uuid())
+  productId String
+  product   Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
+  value     String      @unique
+  type      BarcodeType @default(EAN13)
+  isPrimary Boolean     @default(false)
 }
 
 model ProductImage {
@@ -80,10 +176,11 @@ model Warehouse {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  stockItems    StockItem[]
-  shipments     Shipment[]
-  transfersFrom StockTransfer[] @relation("FromWarehouse")
-  transfersTo   StockTransfer[] @relation("ToWarehouse")
+  stockItems     StockItem[]
+  shipments      Shipment[]
+  transfersFrom  StockTransfer[] @relation("FromWarehouse")
+  transfersTo    StockTransfer[] @relation("ToWarehouse")
+  goodsReceipts  GoodsReceipt[]
 }
 
 model StockItem {
@@ -142,6 +239,44 @@ model ShipmentItem {
   product  Product  @relation(fields: [productId], references: [id], onDelete: Restrict)
 
   @@unique([shipmentId, productId])
+}
+
+model GoodsReceipt {
+  id          String        @id @default(uuid())
+  number      String        @unique
+  warehouseId String
+  supplier    String?
+  receiptDate DateTime      @default(now())
+  status      ReceiptStatus @default(DRAFT)
+  comment     String?
+  createdById String?
+  createdBy   User?         @relation("ReceiptCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  warehouse Warehouse         @relation(fields: [warehouseId], references: [id], onDelete: Restrict)
+  items     GoodsReceiptItem[]
+}
+
+model GoodsReceiptItem {
+  id        String  @id @default(uuid())
+  receiptId String
+  productId String
+  // Количество в базовой единице хранения (для остатка).
+  quantity Float
+  // Единица, в которой физически приняли товар, и её количество (для отображения строки).
+  unitId       String
+  unitQuantity Float
+  // Снимок коэффициента пересчёта: сколько базовых единиц в одной единице приёмки.
+  unitFactor Float
+  // Цена за единицу приёмки (unitId).
+  purchasePrice Float?
+
+  receipt GoodsReceipt @relation(fields: [receiptId], references: [id], onDelete: Cascade)
+  product Product       @relation(fields: [productId], references: [id], onDelete: Restrict)
+  unit    Unit          @relation("ReceiptUnit", fields: [unitId], references: [id], onDelete: Restrict)
+
+  @@unique([receiptId, productId])
 }
 
 model Message {

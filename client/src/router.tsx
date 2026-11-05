@@ -8,6 +8,10 @@ import { LoginPage } from './routes/auth/login'
 import { ProductListPage } from './routes/products/index'
 import { ProductDetailPage } from './routes/products/$productId'
 import { ProductAddPage } from './routes/products/add'
+import { ReceiptListPage } from './routes/receipts/index'
+import { ReceiptAddPage } from './routes/receipts/add'
+import { ReceiptDetailPage } from './routes/receipts/$receiptId'
+import { ReferencePage } from './routes/reference/index'
 import { WarehouseListPage } from './routes/warehouses/index'
 import { ObjectListPage } from './routes/objects/index'
 import { ShipmentListPage } from './routes/shipments/index'
@@ -90,6 +94,30 @@ const warehousesRoute = createRoute({
   component: WarehouseListPage,
 })
 
+const receiptsRoute = createRoute({
+  getParentRoute: () => privateRoutes,
+  path: '/receipts',
+  component: ReceiptListPage,
+})
+
+const receiptAddRoute = createRoute({
+  getParentRoute: () => privateRoutes,
+  path: '/receipts/add',
+  component: ReceiptAddPage,
+})
+
+const receiptDetailRoute = createRoute({
+  getParentRoute: () => privateRoutes,
+  path: '/receipts/$receiptId',
+  component: ReceiptDetailPage,
+})
+
+const referenceRoute = createRoute({
+  getParentRoute: () => privateRoutes,
+  path: '/reference',
+  component: ReferencePage,
+})
+
 const objectsRoute = createRoute({
   getParentRoute: () => privateRoutes,
   path: '/objects',
@@ -146,6 +174,10 @@ const routeTree = rootRoute.addChildren([
     productDetailRoute,
     productAddRoute,
     warehousesRoute,
+    receiptsRoute,
+    receiptAddRoute,
+    receiptDetailRoute,
+    referenceRoute,
     objectsRoute,
     shipmentsRoute,
     pricesRoute,

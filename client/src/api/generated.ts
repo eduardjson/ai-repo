@@ -2,10 +2,14 @@ import { emptySplitApi as api } from "./emptyApi";
 export const addTagTypes = [
   "auth",
   "user",
+  "categories",
+  "manufacturers",
+  "units",
   "products",
   "warehouses",
   "objects",
   "shipments",
+  "receipts",
   "chat",
   "projects",
   "transfers",
@@ -94,6 +98,144 @@ const injectedRtkApi = api
         }),
         invalidatesTags: ["user"],
       }),
+      categoryControllerFindAll: build.query<
+        CategoryControllerFindAllApiResponse,
+        CategoryControllerFindAllApiArg
+      >({
+        query: () => ({ url: `/categories` }),
+        providesTags: ["categories"],
+      }),
+      categoryControllerCreate: build.mutation<
+        CategoryControllerCreateApiResponse,
+        CategoryControllerCreateApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/categories`,
+          method: "POST",
+          body: queryArg.createCategoryDto,
+        }),
+        invalidatesTags: ["categories"],
+      }),
+      categoryControllerFindOne: build.query<
+        CategoryControllerFindOneApiResponse,
+        CategoryControllerFindOneApiArg
+      >({
+        query: (queryArg) => ({ url: `/categories/${queryArg.id}` }),
+        providesTags: ["categories"],
+      }),
+      categoryControllerUpdate: build.mutation<
+        CategoryControllerUpdateApiResponse,
+        CategoryControllerUpdateApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/categories/${queryArg.id}`,
+          method: "PATCH",
+          body: queryArg.updateCategoryDto,
+        }),
+        invalidatesTags: ["categories"],
+      }),
+      categoryControllerRemove: build.mutation<
+        CategoryControllerRemoveApiResponse,
+        CategoryControllerRemoveApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/categories/${queryArg.id}`,
+          method: "DELETE",
+        }),
+        invalidatesTags: ["categories"],
+      }),
+      manufacturerControllerFindAll: build.query<
+        ManufacturerControllerFindAllApiResponse,
+        ManufacturerControllerFindAllApiArg
+      >({
+        query: () => ({ url: `/manufacturers` }),
+        providesTags: ["manufacturers"],
+      }),
+      manufacturerControllerCreate: build.mutation<
+        ManufacturerControllerCreateApiResponse,
+        ManufacturerControllerCreateApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/manufacturers`,
+          method: "POST",
+          body: queryArg.createManufacturerDto,
+        }),
+        invalidatesTags: ["manufacturers"],
+      }),
+      manufacturerControllerFindOne: build.query<
+        ManufacturerControllerFindOneApiResponse,
+        ManufacturerControllerFindOneApiArg
+      >({
+        query: (queryArg) => ({ url: `/manufacturers/${queryArg.id}` }),
+        providesTags: ["manufacturers"],
+      }),
+      manufacturerControllerUpdate: build.mutation<
+        ManufacturerControllerUpdateApiResponse,
+        ManufacturerControllerUpdateApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/manufacturers/${queryArg.id}`,
+          method: "PATCH",
+          body: queryArg.updateManufacturerDto,
+        }),
+        invalidatesTags: ["manufacturers"],
+      }),
+      manufacturerControllerRemove: build.mutation<
+        ManufacturerControllerRemoveApiResponse,
+        ManufacturerControllerRemoveApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/manufacturers/${queryArg.id}`,
+          method: "DELETE",
+        }),
+        invalidatesTags: ["manufacturers"],
+      }),
+      unitControllerFindAll: build.query<
+        UnitControllerFindAllApiResponse,
+        UnitControllerFindAllApiArg
+      >({
+        query: () => ({ url: `/units` }),
+        providesTags: ["units"],
+      }),
+      unitControllerCreate: build.mutation<
+        UnitControllerCreateApiResponse,
+        UnitControllerCreateApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/units`,
+          method: "POST",
+          body: queryArg.createUnitDto,
+        }),
+        invalidatesTags: ["units"],
+      }),
+      unitControllerFindOne: build.query<
+        UnitControllerFindOneApiResponse,
+        UnitControllerFindOneApiArg
+      >({
+        query: (queryArg) => ({ url: `/units/${queryArg.id}` }),
+        providesTags: ["units"],
+      }),
+      unitControllerUpdate: build.mutation<
+        UnitControllerUpdateApiResponse,
+        UnitControllerUpdateApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/units/${queryArg.id}`,
+          method: "PATCH",
+          body: queryArg.updateUnitDto,
+        }),
+        invalidatesTags: ["units"],
+      }),
+      unitControllerRemove: build.mutation<
+        UnitControllerRemoveApiResponse,
+        UnitControllerRemoveApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/units/${queryArg.id}`,
+          method: "DELETE",
+        }),
+        invalidatesTags: ["units"],
+      }),
       productControllerFindAll: build.query<
         ProductControllerFindAllApiResponse,
         ProductControllerFindAllApiArg
@@ -104,8 +246,9 @@ const injectedRtkApi = api
             page: queryArg.page,
             size: queryArg.size,
             search: queryArg.search,
-            category: queryArg.category,
-            manufacturer: queryArg.manufacturer,
+            categoryId: queryArg.categoryId,
+            manufacturerId: queryArg.manufacturerId,
+            includeInactive: queryArg.includeInactive,
           },
         }),
         providesTags: ["products"],
@@ -120,6 +263,13 @@ const injectedRtkApi = api
           body: queryArg.createProductDto,
         }),
         invalidatesTags: ["products"],
+      }),
+      productControllerFindByBarcode: build.query<
+        ProductControllerFindByBarcodeApiResponse,
+        ProductControllerFindByBarcodeApiArg
+      >({
+        query: (queryArg) => ({ url: `/products/barcode/${queryArg.value}` }),
+        providesTags: ["products"],
       }),
       productControllerGetImage: build.query<
         ProductControllerGetImageApiResponse,
@@ -379,6 +529,109 @@ const injectedRtkApi = api
         }),
         invalidatesTags: ["shipments", "warehouses"],
       }),
+      receiptControllerFindAll: build.query<
+        ReceiptControllerFindAllApiResponse,
+        ReceiptControllerFindAllApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/receipts`,
+          params: {
+            status: queryArg.status,
+          },
+        }),
+        providesTags: ["receipts"],
+      }),
+      receiptControllerCreate: build.mutation<
+        ReceiptControllerCreateApiResponse,
+        ReceiptControllerCreateApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/receipts`,
+          method: "POST",
+          body: queryArg.createReceiptDto,
+        }),
+        invalidatesTags: ["receipts"],
+      }),
+      receiptControllerFindOne: build.query<
+        ReceiptControllerFindOneApiResponse,
+        ReceiptControllerFindOneApiArg
+      >({
+        query: (queryArg) => ({ url: `/receipts/${queryArg.id}` }),
+        providesTags: ["receipts"],
+      }),
+      receiptControllerUpdate: build.mutation<
+        ReceiptControllerUpdateApiResponse,
+        ReceiptControllerUpdateApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/receipts/${queryArg.id}`,
+          method: "PATCH",
+          body: queryArg.updateReceiptDto,
+        }),
+        invalidatesTags: ["receipts"],
+      }),
+      receiptControllerRemove: build.mutation<
+        ReceiptControllerRemoveApiResponse,
+        ReceiptControllerRemoveApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/receipts/${queryArg.id}`,
+          method: "DELETE",
+        }),
+        invalidatesTags: ["receipts"],
+      }),
+      receiptControllerAddItem: build.mutation<
+        ReceiptControllerAddItemApiResponse,
+        ReceiptControllerAddItemApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/receipts/${queryArg.id}/items`,
+          method: "POST",
+          body: queryArg.addReceiptItemDto,
+        }),
+        invalidatesTags: ["receipts"],
+      }),
+      receiptControllerUpdateItem: build.mutation<
+        ReceiptControllerUpdateItemApiResponse,
+        ReceiptControllerUpdateItemApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/receipts/${queryArg.id}/items/${queryArg.itemId}`,
+          method: "PATCH",
+          body: queryArg.updateReceiptItemDto,
+        }),
+        invalidatesTags: ["receipts"],
+      }),
+      receiptControllerRemoveItem: build.mutation<
+        ReceiptControllerRemoveItemApiResponse,
+        ReceiptControllerRemoveItemApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/receipts/${queryArg.id}/items/${queryArg.itemId}`,
+          method: "DELETE",
+        }),
+        invalidatesTags: ["receipts"],
+      }),
+      receiptControllerPost: build.mutation<
+        ReceiptControllerPostApiResponse,
+        ReceiptControllerPostApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/receipts/${queryArg.id}/post`,
+          method: "POST",
+        }),
+        invalidatesTags: ["receipts", "warehouses"],
+      }),
+      receiptControllerCancel: build.mutation<
+        ReceiptControllerCancelApiResponse,
+        ReceiptControllerCancelApiArg
+      >({
+        query: (queryArg) => ({
+          url: `/receipts/${queryArg.id}/cancel`,
+          method: "POST",
+        }),
+        invalidatesTags: ["receipts", "warehouses"],
+      }),
       chatControllerFindAll: build.query<
         ChatControllerFindAllApiResponse,
         ChatControllerFindAllApiArg
@@ -530,18 +783,89 @@ export type UserControllerCreateApiResponse = /** status 201  */ UserDto;
 export type UserControllerCreateApiArg = {
   createUserDto: CreateUserDto;
 };
+export type CategoryControllerFindAllApiResponse =
+  /** status 200  */ CategoryDto[];
+export type CategoryControllerFindAllApiArg = void;
+export type CategoryControllerCreateApiResponse =
+  /** status 201  */ CategoryDto;
+export type CategoryControllerCreateApiArg = {
+  createCategoryDto: CreateCategoryDto;
+};
+export type CategoryControllerFindOneApiResponse =
+  /** status 200  */ CategoryDto;
+export type CategoryControllerFindOneApiArg = {
+  id: string;
+};
+export type CategoryControllerUpdateApiResponse =
+  /** status 200  */ CategoryDto;
+export type CategoryControllerUpdateApiArg = {
+  id: string;
+  updateCategoryDto: UpdateCategoryDto;
+};
+export type CategoryControllerRemoveApiResponse = unknown;
+export type CategoryControllerRemoveApiArg = {
+  id: string;
+};
+export type ManufacturerControllerFindAllApiResponse =
+  /** status 200  */ ManufacturerDto[];
+export type ManufacturerControllerFindAllApiArg = void;
+export type ManufacturerControllerCreateApiResponse =
+  /** status 201  */ ManufacturerDto;
+export type ManufacturerControllerCreateApiArg = {
+  createManufacturerDto: CreateManufacturerDto;
+};
+export type ManufacturerControllerFindOneApiResponse =
+  /** status 200  */ ManufacturerDto;
+export type ManufacturerControllerFindOneApiArg = {
+  id: string;
+};
+export type ManufacturerControllerUpdateApiResponse =
+  /** status 200  */ ManufacturerDto;
+export type ManufacturerControllerUpdateApiArg = {
+  id: string;
+  updateManufacturerDto: UpdateManufacturerDto;
+};
+export type ManufacturerControllerRemoveApiResponse = unknown;
+export type ManufacturerControllerRemoveApiArg = {
+  id: string;
+};
+export type UnitControllerFindAllApiResponse = /** status 200  */ UnitDto[];
+export type UnitControllerFindAllApiArg = void;
+export type UnitControllerCreateApiResponse = /** status 201  */ UnitDto;
+export type UnitControllerCreateApiArg = {
+  createUnitDto: CreateUnitDto;
+};
+export type UnitControllerFindOneApiResponse = /** status 200  */ UnitDto;
+export type UnitControllerFindOneApiArg = {
+  id: string;
+};
+export type UnitControllerUpdateApiResponse = /** status 200  */ UnitDto;
+export type UnitControllerUpdateApiArg = {
+  id: string;
+  updateUnitDto: UpdateUnitDto;
+};
+export type UnitControllerRemoveApiResponse = unknown;
+export type UnitControllerRemoveApiArg = {
+  id: string;
+};
 export type ProductControllerFindAllApiResponse =
   /** status 200  */ ProductListResponseDto;
 export type ProductControllerFindAllApiArg = {
   page?: string;
   size?: string;
   search?: string;
-  category?: string;
-  manufacturer?: string;
+  categoryId?: string;
+  manufacturerId?: string;
+  includeInactive?: string;
 };
 export type ProductControllerCreateApiResponse = /** status 201  */ ProductDto;
 export type ProductControllerCreateApiArg = {
   createProductDto: CreateProductDto;
+};
+export type ProductControllerFindByBarcodeApiResponse =
+  /** status 200  */ ProductDto;
+export type ProductControllerFindByBarcodeApiArg = {
+  value: string;
 };
 export type ProductControllerGetImageApiResponse = unknown;
 export type ProductControllerGetImageApiArg = {
@@ -566,7 +890,7 @@ export type ProductControllerUpdateApiArg = {
   id: string;
   updateProductDto: UpdateProductDto;
 };
-export type ProductControllerRemoveApiResponse = unknown;
+export type ProductControllerRemoveApiResponse = /** status 200  */ object;
 export type ProductControllerRemoveApiArg = {
   id: string;
 };
@@ -675,6 +999,60 @@ export type ShipmentControllerUpdateStatusApiArg = {
   id: string;
   updateStatusDto: UpdateStatusDto;
 };
+export type ReceiptControllerFindAllApiResponse =
+  /** status 200  */ GoodsReceiptDto[];
+export type ReceiptControllerFindAllApiArg = {
+  status?: string;
+};
+export type ReceiptControllerCreateApiResponse =
+  /** status 201  */ GoodsReceiptDto;
+export type ReceiptControllerCreateApiArg = {
+  createReceiptDto: CreateReceiptDto;
+};
+export type ReceiptControllerFindOneApiResponse =
+  /** status 200  */ GoodsReceiptDto;
+export type ReceiptControllerFindOneApiArg = {
+  id: string;
+};
+export type ReceiptControllerUpdateApiResponse =
+  /** status 200  */ GoodsReceiptDto;
+export type ReceiptControllerUpdateApiArg = {
+  id: string;
+  updateReceiptDto: UpdateReceiptDto;
+};
+export type ReceiptControllerRemoveApiResponse = unknown;
+export type ReceiptControllerRemoveApiArg = {
+  id: string;
+};
+export type ReceiptControllerAddItemApiResponse =
+  /** status 200  */ GoodsReceiptDto;
+export type ReceiptControllerAddItemApiArg = {
+  id: string;
+  addReceiptItemDto: AddReceiptItemDto;
+};
+export type ReceiptControllerUpdateItemApiResponse =
+  /** status 200  */ GoodsReceiptDto;
+export type ReceiptControllerUpdateItemApiArg = {
+  id: string;
+  itemId: string;
+  updateReceiptItemDto: UpdateReceiptItemDto;
+};
+export type ReceiptControllerRemoveItemApiResponse =
+  /** status 200  */ GoodsReceiptDto;
+export type ReceiptControllerRemoveItemApiArg = {
+  id: string;
+  itemId: string;
+};
+export type ReceiptControllerPostApiResponse =
+  /** status 200  */ GoodsReceiptDto;
+export type ReceiptControllerPostApiArg = {
+  id: string;
+};
+export type ReceiptControllerCancelApiResponse =
+  /** status 200  */ GoodsReceiptDto;
+export type ReceiptControllerCancelApiArg = {
+  id: string;
+};
 export type ChatControllerFindAllApiResponse = /** status 200  */ MessageDto[];
 export type ChatControllerFindAllApiArg = {
   limit?: string;
@@ -763,23 +1141,101 @@ export type CreateUserDto = {
   phone?: string;
   role?: ("ADMIN" | "USER")[];
 };
+export type CategoryDto = {
+  id: string;
+  name: string;
+  parentId?: string | null;
+  children?: CategoryDto[] | null;
+  createdAt: string;
+};
+export type CreateCategoryDto = {
+  name: string;
+  parentId?: string;
+};
+export type UpdateCategoryDto = {
+  name?: string;
+  parentId?: string;
+};
+export type ManufacturerDto = {
+  id: string;
+  name: string;
+  country?: string | null;
+  createdAt: string;
+};
+export type CreateManufacturerDto = {
+  name: string;
+  country?: string;
+};
+export type UpdateManufacturerDto = {
+  name?: string;
+  country?: string;
+};
+export type UnitDto = {
+  id: string;
+  code: string;
+  name: string;
+  symbol: string;
+};
+export type CreateUnitDto = {
+  code: string;
+  name: string;
+  symbol: string;
+};
+export type UpdateUnitDto = {
+  code?: string;
+  name?: string;
+  symbol?: string;
+};
 export type ProductImageDto = {
   id: string;
   productId: string;
   url: string;
 };
+export type BarcodeDto = {
+  id: string;
+  productId: string;
+  value: string;
+  type: "EAN13" | "CODE128" | "UPC" | "QR";
+  isPrimary: boolean;
+};
 export type ProductDto = {
   id: string;
+  sku: string;
   title: string;
   description?: string | null;
-  category?: string | null;
-  manufacturer?: string | null;
+  categoryId?: string | null;
+  category?: CategoryDto | null;
+  manufacturerId?: string | null;
+  manufacturer?: ManufacturerDto | null;
+  baseUnitId: string;
+  baseUnit?: UnitDto | null;
+  purchaseUnitId?: string | null;
+  purchaseUnit?: UnitDto | null;
+  purchaseToBase: number;
+  saleUnitId?: string | null;
+  saleUnit?: UnitDto | null;
+  saleToBase: number;
+  purchasePrice?: number | null;
+  estimatePrice?: number | null;
+  salePrice?: number | null;
+  vatRate: "NONE" | "VAT0" | "VAT10" | "VAT20";
+  weightKg?: number | null;
+  lengthMm?: number | null;
+  widthMm?: number | null;
+  heightMm?: number | null;
+  volumeM3?: number | null;
+  grade?: string | null;
+  material?: string | null;
+  gost?: string | null;
+  country?: string | null;
+  minStock?: number | null;
+  isActive: boolean;
   imageUrl?: string | null;
   imageType?: string | null;
-  unit?: string | null;
   createdAt: string;
   updatedAt: string;
   images: ProductImageDto[];
+  barcodes: BarcodeDto[];
 };
 export type ProductListResponseDto = {
   items: ProductDto[];
@@ -788,21 +1244,68 @@ export type ProductListResponseDto = {
   size: number;
   pages: number;
 };
+export type BarcodeInputDto = {
+  value: string;
+  type?: "EAN13" | "CODE128" | "UPC" | "QR";
+  isPrimary?: boolean;
+};
 export type CreateProductDto = {
   title: string;
+  sku?: string;
   description?: string;
-  category?: string;
-  manufacturer?: string;
+  categoryId?: string;
+  manufacturerId?: string;
+  baseUnitId: string;
+  purchaseUnitId?: string;
+  purchaseToBase?: number;
+  saleUnitId?: string;
+  saleToBase?: number;
+  purchasePrice?: number;
+  estimatePrice?: number;
+  salePrice?: number;
+  vatRate?: "NONE" | "VAT0" | "VAT10" | "VAT20";
+  weightKg?: number;
+  lengthMm?: number;
+  widthMm?: number;
+  heightMm?: number;
+  volumeM3?: number;
+  grade?: string;
+  material?: string;
+  gost?: string;
+  country?: string;
+  minStock?: number;
+  isActive?: boolean;
   imageUrl?: string;
-  unit?: string;
+  barcodes?: BarcodeInputDto[];
 };
 export type UpdateProductDto = {
   title?: string;
+  sku?: string;
   description?: string;
-  category?: string;
-  manufacturer?: string;
+  categoryId?: string;
+  manufacturerId?: string;
+  baseUnitId?: string;
+  purchaseUnitId?: string;
+  purchaseToBase?: number;
+  saleUnitId?: string;
+  saleToBase?: number;
+  purchasePrice?: number;
+  estimatePrice?: number;
+  salePrice?: number;
+  vatRate?: "NONE" | "VAT0" | "VAT10" | "VAT20";
+  weightKg?: number;
+  lengthMm?: number;
+  widthMm?: number;
+  heightMm?: number;
+  volumeM3?: number;
+  grade?: string;
+  material?: string;
+  gost?: string;
+  country?: string;
+  minStock?: number;
+  isActive?: boolean;
   imageUrl?: string;
-  unit?: string;
+  barcodes?: BarcodeInputDto[];
 };
 export type PriceListItemDto = {
   id: string;
@@ -926,6 +1429,67 @@ export type CreateShipmentDto = {
 export type UpdateStatusDto = {
   status: "PENDING" | "COMPLETED" | "CANCELLED";
 };
+export type GoodsReceiptItemDto = {
+  id: string;
+  receiptId: string;
+  productId: string;
+  quantity: number;
+  unitId: string;
+  unitQuantity: number;
+  unitFactor: number;
+  purchasePrice?: number | null;
+  product?: ProductDto | null;
+  unit?: UnitDto | null;
+};
+export type GoodsReceiptDto = {
+  id: string;
+  number: string;
+  warehouseId: string;
+  supplier?: string | null;
+  receiptDate: string;
+  status: "DRAFT" | "POSTED" | "CANCELLED";
+  comment?: string | null;
+  createdById?: string | null;
+  createdBy?: UserDto | null;
+  createdAt: string;
+  updatedAt: string;
+  warehouse?: WarehouseDto | null;
+  items?: GoodsReceiptItemDto[] | null;
+};
+export type CreateReceiptItemDto = {
+  productId: string;
+  quantity: number;
+  /** Единица, в которой указано количество. По умолчанию — закупочная (или базовая) единица товара. */
+  unitId?: string;
+  /** Цена за единицу приёмки (unitId). */
+  purchasePrice?: number;
+};
+export type CreateReceiptDto = {
+  warehouseId: string;
+  supplier?: string;
+  comment?: string;
+  receiptDate?: string;
+  items?: CreateReceiptItemDto[];
+};
+export type UpdateReceiptDto = {
+  warehouseId?: string;
+  supplier?: string;
+  comment?: string;
+  receiptDate?: string;
+};
+export type AddReceiptItemDto = {
+  productId: string;
+  quantity: number;
+  /** Единица, в которой указано количество. По умолчанию — закупочная (или базовая) единица товара. */
+  unitId?: string;
+  /** Цена за единицу приёмки (unitId). */
+  purchasePrice?: number;
+};
+export type UpdateReceiptItemDto = {
+  quantity?: number;
+  unitId?: string;
+  purchasePrice?: number;
+};
 export type MessageUserDto = {
   id: string;
   avatar?: string | null;
@@ -999,8 +1563,24 @@ export const {
   useUserControllerUpdateMutation,
   useUserControllerRemoveMutation,
   useUserControllerCreateMutation,
+  useCategoryControllerFindAllQuery,
+  useCategoryControllerCreateMutation,
+  useCategoryControllerFindOneQuery,
+  useCategoryControllerUpdateMutation,
+  useCategoryControllerRemoveMutation,
+  useManufacturerControllerFindAllQuery,
+  useManufacturerControllerCreateMutation,
+  useManufacturerControllerFindOneQuery,
+  useManufacturerControllerUpdateMutation,
+  useManufacturerControllerRemoveMutation,
+  useUnitControllerFindAllQuery,
+  useUnitControllerCreateMutation,
+  useUnitControllerFindOneQuery,
+  useUnitControllerUpdateMutation,
+  useUnitControllerRemoveMutation,
   useProductControllerFindAllQuery,
   useProductControllerCreateMutation,
+  useProductControllerFindByBarcodeQuery,
   useProductControllerGetImageQuery,
   useProductControllerGetImagesQuery,
   useProductControllerUploadImagesMutation,
@@ -1029,6 +1609,16 @@ export const {
   useShipmentControllerFindOneQuery,
   useShipmentControllerRemoveMutation,
   useShipmentControllerUpdateStatusMutation,
+  useReceiptControllerFindAllQuery,
+  useReceiptControllerCreateMutation,
+  useReceiptControllerFindOneQuery,
+  useReceiptControllerUpdateMutation,
+  useReceiptControllerRemoveMutation,
+  useReceiptControllerAddItemMutation,
+  useReceiptControllerUpdateItemMutation,
+  useReceiptControllerRemoveItemMutation,
+  useReceiptControllerPostMutation,
+  useReceiptControllerCancelMutation,
   useChatControllerFindAllQuery,
   useChatControllerCreateMutation,
   useChatControllerUpdateMutation,

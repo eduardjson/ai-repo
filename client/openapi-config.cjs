@@ -14,5 +14,7 @@ module.exports = {
     { pattern: 'shipmentControllerUpdateStatus', invalidatesTags: ['shipments', 'warehouses'] },
     { pattern: 'shipmentControllerRemove', invalidatesTags: ['shipments', 'warehouses'] },
     { pattern: 'transferControllerCreate', invalidatesTags: ['transfers', 'warehouses'] },
+    { pattern: 'receiptControllerPost', invalidatesTags: ['receipts', 'warehouses'] },
+    { pattern: 'receiptControllerCancel', invalidatesTags: ['receipts', 'warehouses'] },
   ],
 }

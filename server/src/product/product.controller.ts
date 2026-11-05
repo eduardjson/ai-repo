@@ -8,13 +8,14 @@ import {
   Param,
   Body,
   Query,
+  Req,
   UseInterceptors,
   UploadedFiles,
   UploadedFile,
   Res,
 } from '@nestjs/common';
 import { FilesInterceptor, FileInterceptor } from '@nestjs/platform-express';
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import {
   ApiBearerAuth,
   ApiCreatedResponse,
@@ -43,12 +44,26 @@ export class ProductController {
     @Query('page') page?: string,
     @Query('size') size?: string,
     @Query('search') search?: string,
-    @Query('category') category?: string,
-    @Query('manufacturer') manufacturer?: string,
+    @Query('categoryId') categoryId?: string,
+    @Query('manufacturerId') manufacturerId?: string,
+    @Query('includeInactive') includeInactive?: string,
   ) {
     const p = Math.max(1, parseInt(page || '1'));
     const s = Math.min(100, Math.max(1, parseInt(size || '20')));
-    return this.productService.findAll({ page: p, size: s, search, category, manufacturer });
+    return this.productService.findAll({
+      page: p,
+      size: s,
+      search,
+      categoryId,
+      manufacturerId,
+      includeInactive: includeInactive === 'true',
+    });
+  }
+
+  @Get('barcode/:value')
+  @ApiOkResponse({ type: ProductDto })
+  findByBarcode(@Param('value') value: string) {
+    return this.productService.findByBarcode(value);
   }
 
   @Public()
@@ -77,9 +92,11 @@ export class ProductController {
   @ApiCreatedResponse({ type: ProductDto })
   create(
     @Body() dto: CreateProductDto,
+    @Req() req: Request,
     @UploadedFile() file?: Express.Multer.File,
   ) {
-    return this.productService.create(dto, file);
+    const userId = (req as any).user?.id;
+    return this.productService.create(dto, file, userId);
   }
 
   @Patch(':id')
