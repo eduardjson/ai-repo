@@ -11,6 +11,7 @@ import {
   type WallIndex,
 } from '@/entities/opening'
 import { setTool, type ToolId } from '@/features/tools'
+import { getPortalContainer } from '@/shared/lib/portal-container'
 
 /** Редактор проёмов окон и дверей (показывается для слоя стен). */
 export function OpeningsSection() {
@@ -60,7 +61,7 @@ export function OpeningsSection() {
                 <Select.Value />
                 <Select.Indicator />
               </Select.Trigger>
-              <Select.Popover>
+              <Select.Popover UNSTABLE_portalContainer={getPortalContainer() ?? undefined}>
                 <ListBox>
                   <ListBox.Item id="window" textValue="Окно">
                     Окно
@@ -93,7 +94,7 @@ export function OpeningsSection() {
                 <Select.Value />
                 <Select.Indicator />
               </Select.Trigger>
-              <Select.Popover>
+              <Select.Popover UNSTABLE_portalContainer={getPortalContainer() ?? undefined}>
                 <ListBox>
                   {([0, 1, 2, 3] as const).map((wall) => (
                     <ListBox.Item key={wall} id={String(wall)} textValue={WALL_LABELS[wall]}>

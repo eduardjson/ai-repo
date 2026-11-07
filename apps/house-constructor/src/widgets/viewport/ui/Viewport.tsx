@@ -14,8 +14,6 @@ import {
 
 import { JumperMenu } from './JumperMenu'
 
-import './Viewport.css'
-
 const TOOL_HINTS: Record<ToolId, string> = {
   select: 'Клик по проёму или перемычке — выбрать. ЛКМ — вращение, колесо — масштаб, ПКМ — сдвиг.',
   addWindow: 'Кликните по стене, чтобы разместить окно.',

@@ -8,7 +8,8 @@
  * и подключаются только в standalone-режиме (main.tsx), чтобы не перебивать
  * стили хоста при монтировании через Module Federation.
  */
-:root {
+:root,
+:host {
   --bg: #f2f4f7;
   --panel-bg: #ffffff;
   --panel-border: #e2e6ea;

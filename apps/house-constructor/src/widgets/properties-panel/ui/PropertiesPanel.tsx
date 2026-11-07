@@ -3,8 +3,6 @@ import { FoundationSection } from './FoundationSection'
 import { LayerParamsSection } from './LayerParamsSection'
 import { OpeningsSection } from './OpeningsSection'
 
-import './PropertiesPanel.css'
-
 /**
  * Правая панель: параметры здания, активного слоя и проёмов.
  */

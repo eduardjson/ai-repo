@@ -1,8 +1,4 @@
-import { StrictMode } from 'react'
-import { createRoot, type Root } from 'react-dom/client'
-import { Provider } from 'react-redux'
-
-import { App, store } from '@/app'
+import { mountApp } from '@/app/mount'
 
 /**
  * Пропсы монтирования (расширяются по мере необходимости).
@@ -15,23 +11,14 @@ export interface MountOptions {
 /**
  * Точка входа remote-приложения для хоста (Module Federation).
  *
- * Монтирует конструктор в переданный DOM-контейнер, создавая собственный
- * React-root со своим Redux-стором. Ни React, ни стор, ни стили не зависят от
- * хоста — это позволяет remote использовать свой стек (React 19.3, HeroUI,
- * Tailwind, R3F) и поддерживаться отдельной командой.
+ * Монтирует конструктор в переданный DOM-контейнер через shadow root, создавая
+ * собственный React-root со своим Redux-стором и изолированными стилями. Ни
+ * React, ни стор, ни стили не зависят от хоста — это позволяет remote
+ * использовать свой стек (React 19.3, HeroUI, Tailwind, R3F) и поддерживаться
+ * отдельной командой.
  *
  * Возвращает функцию размонтирования, которую хост вызывает при уходе с вкладки.
  */
 export function mount(container: HTMLElement, _options?: MountOptions): () => void {
-  const root: Root = createRoot(container)
-
-  root.render(
-    <StrictMode>
-      <Provider store={store}>
-        <App />
-      </Provider>
-    </StrictMode>,
-  )
-
-  return () => root.unmount()
+  return mountApp(container)
 }

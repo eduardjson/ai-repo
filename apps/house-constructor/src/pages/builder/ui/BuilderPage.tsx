@@ -3,8 +3,6 @@ import { PropertiesPanel } from '@/widgets/properties-panel'
 import { Toolbar } from '@/widgets/toolbar'
 import { Viewport } from '@/widgets/viewport'
 
-import './BuilderPage.css'
-
 export function BuilderPage() {
   return (
     <div className="builder-page">

@@ -4,8 +4,6 @@ import { useAppDispatch, useAppSelector } from '@/app/hooks'
 import { LAYER_DEFINITIONS, setActiveLayer, toggleVisible } from '@/entities/layer'
 import { setEnabled } from '@/features/show-hidden-layers'
 
-import './LayerPanel.css'
-
 /**
  * Панель слоёв: включение/выключение видимости,
  * выбор активного слоя и режим полупрозрачных скрытых слоёв.

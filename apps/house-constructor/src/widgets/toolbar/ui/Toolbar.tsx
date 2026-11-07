@@ -5,8 +5,6 @@ import { setActiveLayer, setVisible } from '@/entities/layer'
 import { setTool, type ToolId } from '@/features/tools'
 import { resetView, setPreset, VIEW_PRESETS, type ViewPreset } from '@/features/view'
 
-import './Toolbar.css'
-
 const TOOL_OPTIONS: { value: ToolId; label: string }[] = [
   { value: 'select', label: 'Выбрать' },
   { value: 'drawFootprint', label: 'Контур' },

@@ -4,8 +4,6 @@ import { Button, Label, NumberField } from '@heroui/react'
 import { useAppDispatch, useAppSelector } from '@/app/hooks'
 import { closeJumperMenu, removeJumper, updateJumper } from '@/entities/foundation'
 
-import './JumperMenu.css'
-
 const MENU_WIDTH = 260
 const MENU_HEIGHT = 260
 
