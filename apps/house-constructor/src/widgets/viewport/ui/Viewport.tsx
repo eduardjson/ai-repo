@@ -26,7 +26,7 @@ export function Viewport() {
 
   return (
     <div className="viewport">
-      <Canvas shadows camera={{ position: [14, 10, 14], fov: 45, near: 0.1, far: 800 }}>
+      <Canvas shadows frameloop="demand" camera={{ position: [14, 10, 14], fov: 45, near: 0.1, far: 800 }}>
         <color attach="background" args={['#e9edf1']} />
         <hemisphereLight args={['#ffffff', '#c8ced4', 1.15]} />
         <ambientLight intensity={0.35} />

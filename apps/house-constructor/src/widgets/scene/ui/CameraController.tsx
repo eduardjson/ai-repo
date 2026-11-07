@@ -25,6 +25,7 @@ export function CameraController() {
   const resetNonce = useAppSelector((state) => state.view.resetNonce)
   const controls = useThree((state) => state.controls) as unknown as OrbitControlsLike | null
   const camera = useThree((state) => state.camera)
+  const invalidate = useThree((state) => state.invalidate)
 
   useEffect(() => {
     if (!controls) return
@@ -32,7 +33,9 @@ export function CameraController() {
     camera.position.set(position[0], position[1], position[2])
     controls.target.set(0, 2, 0)
     controls.update()
-  }, [preset, resetNonce, controls, camera])
+    // При frameloop="demand" камера не перерисуется сама — просим кадр явно.
+    invalidate()
+  }, [preset, resetNonce, controls, camera, invalidate])
 
   return null
 }
