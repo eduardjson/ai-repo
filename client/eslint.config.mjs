@@ -14,7 +14,7 @@ export default tseslint.config(
       'dist/**',
       'node_modules/**',
       'src/api/generated.ts',
-      'vite.config.ts',
+      '**/vite.config.ts',
       'openapi-config.cjs',
       'eslint.config.mjs',
     ],

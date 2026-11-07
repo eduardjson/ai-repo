@@ -35,6 +35,7 @@ docker compose up --build
 | Сервис       | Порт | URL |
 |--------------|------|-----|
 | Фронтенд     | 5173 | http://localhost:5173 |
+| Конструктор (remote) | 5174 | http://localhost:5174 |
 | API          | 3000 | http://localhost:3000/api |
 | Swagger UI   | —    | http://localhost:3000/docs |
 | Swagger JSON | —    | http://localhost:3000/docs-json |
@@ -53,6 +54,7 @@ docker compose up --build
 ├── client/                       # React + Vite + MUI
 │   ├── src/api/generated.ts      # сгенерированный API + хуки + типы
 │   └── ...
+├── apps/house-constructor/       # отдельное приложение «Конструктор» (микрофронтенд, Module Federation)
 ├── server/                       # NestJS + Prisma
 │   ├── src/                      # модули: auth, user, product, warehouse,
 │   │                             #   object, shipment, transfer, project, chat
@@ -60,6 +62,37 @@ docker compose up --build
 │   └── prisma/schema.prisma
 └── docs/DESIGN_SYSTEM.md         # дизайн-система
 ```
+
+## Микрофронтенды (Конструктор)
+
+Вкладка «Конструктор» — это отдельное приложение в `apps/house-constructor`,
+подключаемое через **Module Federation** (`@module-federation/vite`):
+
+```
+client (host)                          apps/house-constructor (remote)
+Vite 6                                 Vite 6
+  └─ lazy(() => import(                  └─ federation({
+       'houseConstructor/Builder'))         name: 'houseConstructor',
+                                            exposes: { './Builder': ... }
+```
+
+- Remote отдаёт модуль `Builder` из `remoteEntry.js`; хост грузит его лениво —
+  бандл конструктора (three.js, MUI, jspdf) тянется только при открытии вкладки.
+- `react`/`react-dom` шарится (singleton), остальное бандлится локально в remote.
+- Авторизация остаётся в хосте: remote получает доступ к API через пропсы
+  (`getAccessToken`/`setAccessToken`) и при 401 сам перевыпускает токен.
+- Подробнее: [`apps/house-constructor/README.md`](apps/house-constructor/README.md).
+
+Локальная разработка конструктора:
+
+```bash
+cd apps/house-constructor
+npm install
+npm run dev   # http://localhost:5174 (remote)
+```
+
+Хост в dev подхватывает remote по `VITE_CONSTRUCTOR_REMOTE`
+(по умолчанию `http://localhost:5174/remoteEntry.js`).
 
 ## API-контракт и кодогенерация
 

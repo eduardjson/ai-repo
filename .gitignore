@@ -5,3 +5,8 @@ dist
 *.tsbuildinfo
 .DS_Store
 server/src/generated/
+
+# Module Federation: сгенерированные артефакты (диагностика и федеративные типы)
+.mf
+@mf-types
+

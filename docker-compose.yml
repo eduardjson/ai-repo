@@ -8,11 +8,11 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: mydb
     ports:
-      - "5433:5432"
+      - '5433:5432'
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d mydb"]
+      test: ['CMD-SHELL', 'pg_isready -U postgres -d mydb']
       interval: 5s
       timeout: 5s
       retries: 10
@@ -27,7 +27,7 @@ services:
       ADMIN_EMAIL: admin@example.com
       ADMIN_PASSWORD: admin
     ports:
-      - "3000:3000"
+      - '3000:3000'
     depends_on:
       db:
         condition: service_healthy
@@ -38,10 +38,18 @@ services:
     restart: unless-stopped
     environment:
       VITE_API_TARGET: http://server:3000
+      VITE_CONSTRUCTOR_REMOTE: http://localhost:5174/remoteEntry.js
     ports:
-      - "5173:5173"
+      - '5173:5173'
     depends_on:
       - server
+
+  house-constructor:
+    build: ./apps/house-constructor
+    container_name: demo_house_constructor
+    restart: unless-stopped
+    ports:
+      - '5174:5174'
 
 volumes:
   pgdata:
