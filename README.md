@@ -82,6 +82,9 @@ docker compose up --build
 # БД поднять отдельно
 docker compose up -d db
 
+# Корень репозитория: зависимости для git-хуков (husky + lint-staged)
+npm install
+
 # Бэкенд
 cd server
 cp .env.example .env   # при необходимости поправить значения
