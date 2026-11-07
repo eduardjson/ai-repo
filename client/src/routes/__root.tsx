@@ -72,7 +72,17 @@ export function AppLayout() {
               onChange={(_e, v) => navigate({ to: tabs[v].path })}
               variant="scrollable"
               scrollButtons="auto"
-              sx={{ ml: 2, flex: 1 }}
+              sx={{
+                ml: 2,
+                flex: 1,
+                // Растягиваем вкладки на всю высоту хедера, чтобы их нижняя
+                // граница (и индикатор) касалась низа AppBar без отступа.
+                alignSelf: 'stretch',
+                minHeight: 'auto',
+                '& .MuiTabs-scroller': { height: '100%' },
+                '& .MuiTabs-flexContainer': { height: '100%' },
+                '& .MuiTab-root': { minHeight: 'auto', height: '100%' },
+              }}
             >
               {tabs.map((tab) => (
                 <Tab key={tab.path} label={tab.label} />
