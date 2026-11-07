@@ -1,25 +1,25 @@
-import { IsString, IsNumber, IsOptional } from 'class-validator';
+import { IsString, IsNumber, IsOptional } from 'class-validator'
 
 export class AddStockDto {
   @IsString()
-  productId: string;
+  productId: string
 
   @IsNumber()
-  quantity: number;
-
-  @IsOptional()
-  @IsNumber()
-  purchasePrice?: number;
+  quantity: number
 
   @IsOptional()
   @IsNumber()
-  estimatePrice?: number;
+  purchasePrice?: number
 
   @IsOptional()
   @IsNumber()
-  salePrice?: number;
+  estimatePrice?: number
 
   @IsOptional()
   @IsNumber()
-  discount?: number;
+  salePrice?: number
+
+  @IsOptional()
+  @IsNumber()
+  discount?: number
 }

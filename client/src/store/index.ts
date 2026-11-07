@@ -9,8 +9,7 @@ export const store = configureStore({
     filter: filterReducer,
     [emptySplitApi.reducerPath]: emptySplitApi.reducer,
   },
-  middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(emptySplitApi.middleware),
+  middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(emptySplitApi.middleware),
 })
 
 export type RootState = ReturnType<typeof store.getState>

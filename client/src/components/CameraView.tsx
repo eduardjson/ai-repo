@@ -48,7 +48,16 @@ function HlsView({ url }: { url: string }) {
 
   if (error) {
     return (
-      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1, py: 6, color: 'text.secondary' }}>
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: 1,
+          py: 6,
+          color: 'text.secondary',
+        }}
+      >
         <VideocamOff sx={{ fontSize: 48 }} />
         <Typography variant="body2">{error}</Typography>
         <Typography variant="caption">Проверьте URL камеры и её доступность</Typography>
@@ -73,7 +82,12 @@ function MjpegView({ url }: { url: string }) {
   const [key, setKey] = useState(0)
   return (
     <Box sx={{ position: 'relative', width: '100%', height: '100%', bgcolor: '#000' }}>
-      <Box component="img" src={url} key={key} sx={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+      <Box
+        component="img"
+        src={url}
+        key={key}
+        sx={{ width: '100%', height: '100%', objectFit: 'contain' }}
+      />
       <Button
         size="small"
         variant="outlined"
@@ -102,7 +116,12 @@ function SnapshotView({ url }: { url: string }) {
 
   return (
     <Box sx={{ position: 'relative', width: '100%', height: '100%', bgcolor: '#000' }}>
-      <Box component="img" src={src} key={tick} sx={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+      <Box
+        component="img"
+        src={src}
+        key={tick}
+        sx={{ width: '100%', height: '100%', objectFit: 'contain' }}
+      />
       <Button
         size="small"
         variant="outlined"
@@ -118,7 +137,16 @@ function SnapshotView({ url }: { url: string }) {
 
 export function CameraView({ url, type }: CameraViewProps) {
   return (
-    <Box sx={{ width: '100%', height: 420, borderRadius: 1, overflow: 'hidden', border: 1, borderColor: 'divider' }}>
+    <Box
+      sx={{
+        width: '100%',
+        height: 420,
+        borderRadius: 1,
+        overflow: 'hidden',
+        border: 1,
+        borderColor: 'divider',
+      }}
+    >
       {type === 'hls' && <HlsView url={url} />}
       {type === 'mjpeg' && <MjpegView url={url} />}
       {type === 'snapshot' && <SnapshotView url={url} />}

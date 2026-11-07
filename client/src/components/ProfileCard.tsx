@@ -20,8 +20,12 @@ function InfoRow({ icon, label, value }: { icon: ReactNode; label: string; value
     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
       <Box sx={{ color: 'text.secondary', display: 'flex' }}>{icon}</Box>
       <Box sx={{ minWidth: 0 }}>
-        <Typography variant="body2" sx={{ wordBreak: 'break-all' }}>{value}</Typography>
-        <Typography variant="caption" color="text.secondary">{label}</Typography>
+        <Typography variant="body2" sx={{ wordBreak: 'break-all' }}>
+          {value}
+        </Typography>
+        <Typography variant="caption" color="text.secondary">
+          {label}
+        </Typography>
       </Box>
     </Box>
   )
@@ -43,7 +47,9 @@ export function ProfileCard({ user, actions }: ProfileCardProps) {
             {fullName[0]?.toUpperCase() || '?'}
           </Avatar>
           <Box sx={{ minWidth: 0 }}>
-            <Typography variant="h6" noWrap>{fullName}</Typography>
+            <Typography variant="h6" noWrap>
+              {fullName}
+            </Typography>
             <Box sx={{ display: 'flex', gap: 0.5, mt: 0.5, flexWrap: 'wrap' }}>
               {user.role?.map((r) => (
                 <Chip key={r} label={ROLE_LABELS[r] ?? r} size="small" variant="outlined" />
@@ -56,8 +62,16 @@ export function ProfileCard({ user, actions }: ProfileCardProps) {
 
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
           <InfoRow icon={<Email fontSize="small" />} label="Email" value={user.email} />
-          {user.phone && <InfoRow icon={<Phone fontSize="small" />} label="Телефон" value={user.phone} />}
-          {user.username && <InfoRow icon={<AlternateEmail fontSize="small" />} label="Имя пользователя" value={user.username} />}
+          {user.phone && (
+            <InfoRow icon={<Phone fontSize="small" />} label="Телефон" value={user.phone} />
+          )}
+          {user.username && (
+            <InfoRow
+              icon={<AlternateEmail fontSize="small" />}
+              label="Имя пользователя"
+              value={user.username}
+            />
+          )}
           <InfoRow
             icon={<CalendarMonth fontSize="small" />}
             label="В системе с"

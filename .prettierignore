@@ -1,0 +1,17 @@
+# Зависимости и сборка
+node_modules
+dist
+build
+
+# Сгенерированный код (правится кодгеном, руками не трогаем)
+# `**/` — чтобы паттерн срабатывал и из корня, и из client/ / server/
+**/api/generated.ts
+**/generated/**
+openapi.json
+
+# Lock-файлы и служебное
+package-lock.json
+*.tsbuildinfo
+.env
+.env.*
+!.env.example

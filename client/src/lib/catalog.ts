@@ -44,8 +44,10 @@ export function formatMoney(n?: number | null): string {
 export function formatCompactMoney(n?: number | null): string {
   if (n == null) return '-'
   const abs = Math.abs(n)
-  if (abs >= 1_000_000) return `${(n / 1_000_000).toLocaleString('ru-RU', { maximumFractionDigits: 1 })} млн ₽`
-  if (abs >= 1_000) return `${(n / 1_000).toLocaleString('ru-RU', { maximumFractionDigits: 1 })} тыс ₽`
+  if (abs >= 1_000_000)
+    return `${(n / 1_000_000).toLocaleString('ru-RU', { maximumFractionDigits: 1 })} млн ₽`
+  if (abs >= 1_000)
+    return `${(n / 1_000).toLocaleString('ru-RU', { maximumFractionDigits: 1 })} тыс ₽`
   return `${n.toLocaleString('ru-RU', { maximumFractionDigits: 0 })} ₽`
 }
 

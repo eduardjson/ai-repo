@@ -1,10 +1,32 @@
 import { useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import {
-  Box, Typography, Button, Table, TableHead, TableBody, TableRow, TableCell,
-  TableContainer, Paper, Avatar, Chip, IconButton, Dialog, DialogTitle,
-  DialogContent, DialogActions, TextField, FormControl, InputLabel, Select,
-  MenuItem, Tooltip, Alert, Checkbox, ListItemText,
+  Box,
+  Typography,
+  Button,
+  Table,
+  TableHead,
+  TableBody,
+  TableRow,
+  TableCell,
+  TableContainer,
+  Paper,
+  Avatar,
+  Chip,
+  IconButton,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Tooltip,
+  Alert,
+  Checkbox,
+  ListItemText,
 } from '@mui/material'
 import { Add, Edit, Delete } from '@mui/icons-material'
 import { format } from 'date-fns'
@@ -46,8 +68,10 @@ export function EmployeeListPage() {
   const isAdmin = currentUser?.role?.includes('ADMIN') ?? false
 
   const { data: users } = useUserControllerFindAllQuery()
-  const [createUser, { isLoading: creating, error: createError }] = useUserControllerCreateMutation()
-  const [updateUser, { isLoading: updating, error: updateError }] = useUserControllerUpdateMutation()
+  const [createUser, { isLoading: creating, error: createError }] =
+    useUserControllerCreateMutation()
+  const [updateUser, { isLoading: updating, error: updateError }] =
+    useUserControllerUpdateMutation()
   const [deleteUser] = useUserControllerRemoveMutation()
 
   const [dialogOpen, setDialogOpen] = useState(false)
@@ -119,7 +143,9 @@ export function EmployeeListPage() {
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
         <Typography variant="h4">Сотрудники</Typography>
         {isAdmin && (
-          <Button variant="contained" startIcon={<Add />} onClick={openCreate}>Добавить сотрудника</Button>
+          <Button variant="contained" startIcon={<Add />} onClick={openCreate}>
+            Добавить сотрудника
+          </Button>
         )}
       </Box>
 
@@ -137,35 +163,63 @@ export function EmployeeListPage() {
           </TableHead>
           <TableBody>
             {users?.map((u) => (
-              <TableRow key={u.id} hover sx={{ cursor: 'pointer' }} onClick={() => navigate({ to: `/employees/${u.id}` })}>
+              <TableRow
+                key={u.id}
+                hover
+                sx={{ cursor: 'pointer' }}
+                onClick={() => navigate({ to: `/employees/${u.id}` })}
+              >
                 <TableCell>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                    <Avatar src={u.avatar ?? undefined} sx={{ width: 36, height: 36 }}>{u.firstName?.[0] || u.email[0].toUpperCase()}</Avatar>
-                    <Typography variant="body2" fontWeight={500}>{u.firstName || u.username || u.email}</Typography>
+                    <Avatar src={u.avatar ?? undefined} sx={{ width: 36, height: 36 }}>
+                      {u.firstName?.[0] || u.email[0].toUpperCase()}
+                    </Avatar>
+                    <Typography variant="body2" fontWeight={500}>
+                      {u.firstName || u.username || u.email}
+                    </Typography>
                   </Box>
                 </TableCell>
                 <TableCell>{u.email}</TableCell>
                 <TableCell>{u.phone || '-'}</TableCell>
                 <TableCell>
                   <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
-                    {u.role?.map((r) => <Chip key={r} label={ROLE_LABELS[r] ?? r} size="small" variant="outlined" />)}
+                    {u.role?.map((r) => (
+                      <Chip key={r} label={ROLE_LABELS[r] ?? r} size="small" variant="outlined" />
+                    ))}
                   </Box>
                 </TableCell>
                 <TableCell>{format(new Date(u.createdAt), 'dd.MM.yyyy')}</TableCell>
                 {isAdmin && (
                   <TableCell align="right" onClick={(e) => e.stopPropagation()}>
                     <Tooltip title="Редактировать">
-                      <IconButton size="small" onClick={() => openEdit(u)}><Edit fontSize="small" /></IconButton>
+                      <IconButton size="small" onClick={() => openEdit(u)}>
+                        <Edit fontSize="small" />
+                      </IconButton>
                     </Tooltip>
                     <Tooltip title="Удалить">
-                      <IconButton size="small" color="error" disabled={u.id === currentUser?.id} onClick={() => setDeleteTarget(u)}><Delete fontSize="small" /></IconButton>
+                      <IconButton
+                        size="small"
+                        color="error"
+                        disabled={u.id === currentUser?.id}
+                        onClick={() => setDeleteTarget(u)}
+                      >
+                        <Delete fontSize="small" />
+                      </IconButton>
                     </Tooltip>
                   </TableCell>
                 )}
               </TableRow>
             ))}
             {(!users || users.length === 0) && (
-              <TableRow><TableCell colSpan={isAdmin ? 6 : 5} align="center" sx={{ py: 4, color: 'text.secondary' }}>Нет сотрудников</TableCell></TableRow>
+              <TableRow>
+                <TableCell
+                  colSpan={isAdmin ? 6 : 5}
+                  align="center"
+                  sx={{ py: 4, color: 'text.secondary' }}
+                >
+                  Нет сотрудников
+                </TableCell>
+              </TableRow>
             )}
           </TableBody>
         </Table>
@@ -174,16 +228,49 @@ export function EmployeeListPage() {
       <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} maxWidth="sm" fullWidth>
         <DialogTitle>{editTarget ? 'Редактировать сотрудника' : 'Новый сотрудник'}</DialogTitle>
         <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
-          <TextField label="Email *" type="email" fullWidth value={form.email} onChange={(e) => set('email', e.target.value)} />
+          <TextField
+            label="Email *"
+            type="email"
+            fullWidth
+            value={form.email}
+            onChange={(e) => set('email', e.target.value)}
+          />
           {!editTarget && (
-            <TextField label="Пароль *" type="password" fullWidth value={form.password} onChange={(e) => set('password', e.target.value)} helperText="Минимум 6 символов" />
+            <TextField
+              label="Пароль *"
+              type="password"
+              fullWidth
+              value={form.password}
+              onChange={(e) => set('password', e.target.value)}
+              helperText="Минимум 6 символов"
+            />
           )}
           <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
-            <TextField label="Имя" fullWidth value={form.firstName} onChange={(e) => set('firstName', e.target.value)} />
-            <TextField label="Фамилия" fullWidth value={form.lastName} onChange={(e) => set('lastName', e.target.value)} />
+            <TextField
+              label="Имя"
+              fullWidth
+              value={form.firstName}
+              onChange={(e) => set('firstName', e.target.value)}
+            />
+            <TextField
+              label="Фамилия"
+              fullWidth
+              value={form.lastName}
+              onChange={(e) => set('lastName', e.target.value)}
+            />
           </Box>
-          <TextField label="Имя пользователя" fullWidth value={form.username} onChange={(e) => set('username', e.target.value)} />
-          <TextField label="Телефон" fullWidth value={form.phone} onChange={(e) => set('phone', e.target.value)} />
+          <TextField
+            label="Имя пользователя"
+            fullWidth
+            value={form.username}
+            onChange={(e) => set('username', e.target.value)}
+          />
+          <TextField
+            label="Телефон"
+            fullWidth
+            value={form.phone}
+            onChange={(e) => set('phone', e.target.value)}
+          />
           <FormControl fullWidth>
             <InputLabel>Роль</InputLabel>
             <Select
@@ -191,7 +278,9 @@ export function EmployeeListPage() {
               label="Роль"
               value={form.role}
               onChange={(e) => set('role', e.target.value as string[])}
-              renderValue={(selected) => (selected as string[]).map((r) => ROLE_LABELS[r] ?? r).join(', ')}
+              renderValue={(selected) =>
+                (selected as string[]).map((r) => ROLE_LABELS[r] ?? r).join(', ')
+              }
             >
               {(['ADMIN', 'USER'] as const).map((r) => (
                 <MenuItem key={r} value={r}>
@@ -205,7 +294,11 @@ export function EmployeeListPage() {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setDialogOpen(false)}>Отмена</Button>
-          <Button variant="contained" onClick={handleSubmit} disabled={!valid || creating || updating}>
+          <Button
+            variant="contained"
+            onClick={handleSubmit}
+            disabled={!valid || creating || updating}
+          >
             {editTarget ? 'Сохранить' : 'Создать'}
           </Button>
         </DialogActions>
@@ -215,7 +308,12 @@ export function EmployeeListPage() {
         open={!!deleteTarget}
         title="Удалить сотрудника"
         message={`Удалить сотрудника «${deleteTarget?.email}»? Это действие необратимо.`}
-        onConfirm={async () => { if (deleteTarget) { await deleteUser({ id: deleteTarget.id }).unwrap(); setDeleteTarget(null) } }}
+        onConfirm={async () => {
+          if (deleteTarget) {
+            await deleteUser({ id: deleteTarget.id }).unwrap()
+            setDeleteTarget(null)
+          }
+        }}
         onCancel={() => setDeleteTarget(null)}
       />
     </Box>

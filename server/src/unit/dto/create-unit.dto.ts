@@ -1,12 +1,12 @@
-import { IsString } from 'class-validator';
+import { IsString } from 'class-validator'
 
 export class CreateUnitDto {
   @IsString()
-  code: string;
+  code: string
 
   @IsString()
-  name: string;
+  name: string
 
   @IsString()
-  symbol: string;
+  symbol: string
 }

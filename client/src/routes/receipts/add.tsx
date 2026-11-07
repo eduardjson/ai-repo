@@ -1,9 +1,27 @@
 import { useNavigate } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
 import {
-  Box, Typography, Card, CardContent, Button, IconButton, TextField, Select,
-  MenuItem, FormControl, InputLabel, Autocomplete, Table, TableHead, TableBody,
-  TableRow, TableCell, TableContainer, Paper, Stack, Alert,
+  Box,
+  Typography,
+  Card,
+  CardContent,
+  Button,
+  IconButton,
+  TextField,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  Autocomplete,
+  Table,
+  TableHead,
+  TableBody,
+  TableRow,
+  TableCell,
+  TableContainer,
+  Paper,
+  Stack,
+  Alert,
 } from '@mui/material'
 import { ArrowBack, Add, Delete, QrCodeScanner } from '@mui/icons-material'
 import {
@@ -42,7 +60,8 @@ export function ReceiptAddPage() {
   const [scan, setScan] = useState('')
   const [lookup, setLookup] = useState<string | null>(null)
   const { data: scanned, isError: scanError } = useProductControllerFindByBarcodeQuery(
-    { value: lookup ?? '' }, { skip: !lookup },
+    { value: lookup ?? '' },
+    { skip: !lookup },
   )
 
   const products = productsData?.items ?? []
@@ -63,12 +82,25 @@ export function ReceiptAddPage() {
 
   const unitOptions = selectedProduct
     ? [
-        { id: selectedProduct.baseUnitId, label: `${selectedProduct.baseUnit?.symbol ?? ''} — базовая` },
+        {
+          id: selectedProduct.baseUnitId,
+          label: `${selectedProduct.baseUnit?.symbol ?? ''} — базовая`,
+        },
         ...(selectedProduct.purchaseUnitId
-          ? [{ id: selectedProduct.purchaseUnitId, label: `${selectedProduct.purchaseUnit?.symbol} — закупочная` }]
+          ? [
+              {
+                id: selectedProduct.purchaseUnitId,
+                label: `${selectedProduct.purchaseUnit?.symbol} — закупочная`,
+              },
+            ]
           : []),
         ...(selectedProduct.saleUnitId
-          ? [{ id: selectedProduct.saleUnitId, label: `${selectedProduct.saleUnit?.symbol} — продажа` }]
+          ? [
+              {
+                id: selectedProduct.saleUnitId,
+                label: `${selectedProduct.saleUnit?.symbol} — продажа`,
+              },
+            ]
           : []),
       ]
     : []
@@ -123,44 +155,104 @@ export function ReceiptAddPage() {
   return (
     <Box>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
-        <IconButton onClick={() => navigate({ to: '/receipts' })}><ArrowBack /></IconButton>
-        <Typography variant="h4" fontWeight={700}>Новое поступление</Typography>
+        <IconButton onClick={() => navigate({ to: '/receipts' })}>
+          <ArrowBack />
+        </IconButton>
+        <Typography variant="h4" fontWeight={700}>
+          Новое поступление
+        </Typography>
       </Box>
 
       <Card elevation={2} sx={{ mb: 3 }}>
         <CardContent sx={{ p: 3 }}>
-          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr 1fr 1fr' }, gap: 2 }}>
+          <Box
+            sx={{
+              display: 'grid',
+              gridTemplateColumns: { xs: '1fr', md: '1fr 1fr 1fr 1fr' },
+              gap: 2,
+            }}
+          >
             <FormControl size="small" fullWidth>
               <InputLabel>Склад *</InputLabel>
-              <Select value={warehouseId} label="Склад *" onChange={(e) => setWarehouseId(e.target.value)}>
-                {warehouses?.map((w) => <MenuItem key={w.id} value={w.id}>{w.name}</MenuItem>)}
+              <Select
+                value={warehouseId}
+                label="Склад *"
+                onChange={(e) => setWarehouseId(e.target.value)}
+              >
+                {warehouses?.map((w) => (
+                  <MenuItem key={w.id} value={w.id}>
+                    {w.name}
+                  </MenuItem>
+                ))}
               </Select>
             </FormControl>
-            <TextField size="small" label="Поставщик" value={supplier} onChange={(e) => setSupplier(e.target.value)} />
-            <TextField size="small" label="Дата" type="date" value={receiptDate} onChange={(e) => setReceiptDate(e.target.value)} InputLabelProps={{ shrink: true }} />
-            <TextField size="small" label="Комментарий" value={comment} onChange={(e) => setComment(e.target.value)} />
+            <TextField
+              size="small"
+              label="Поставщик"
+              value={supplier}
+              onChange={(e) => setSupplier(e.target.value)}
+            />
+            <TextField
+              size="small"
+              label="Дата"
+              type="date"
+              value={receiptDate}
+              onChange={(e) => setReceiptDate(e.target.value)}
+              InputLabelProps={{ shrink: true }}
+            />
+            <TextField
+              size="small"
+              label="Комментарий"
+              value={comment}
+              onChange={(e) => setComment(e.target.value)}
+            />
           </Box>
         </CardContent>
       </Card>
 
       <Card elevation={2} sx={{ mb: 3 }}>
         <CardContent sx={{ p: 3 }}>
-          <Typography variant="h6" sx={{ mb: 2 }}>Добавить позицию</Typography>
+          <Typography variant="h6" sx={{ mb: 2 }}>
+            Добавить позицию
+          </Typography>
           <Stack direction="row" gap={2} mb={2} flexWrap="wrap" alignItems="center">
             <TextField
               size="small"
               placeholder="Сканировать штрихкод..."
               value={scan}
               onChange={(e) => setScan(e.target.value)}
-              onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); setLookup(scan.trim()) } }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault()
+                  setLookup(scan.trim())
+                }
+              }}
               sx={{ minWidth: 260 }}
               InputProps={{ startAdornment: <QrCodeScanner color="action" sx={{ mr: 1 }} /> }}
             />
-            <Button size="small" variant="outlined" onClick={() => setLookup(scan.trim())} disabled={!scan.trim()}>Найти</Button>
-            {scanError && <Typography variant="caption" color="error.main">Товар не найден по штрихкоду</Typography>}
+            <Button
+              size="small"
+              variant="outlined"
+              onClick={() => setLookup(scan.trim())}
+              disabled={!scan.trim()}
+            >
+              Найти
+            </Button>
+            {scanError && (
+              <Typography variant="caption" color="error.main">
+                Товар не найден по штрихкоду
+              </Typography>
+            )}
           </Stack>
 
-          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '2fr 1fr 1fr 1fr auto' }, gap: 2, alignItems: 'center' }}>
+          <Box
+            sx={{
+              display: 'grid',
+              gridTemplateColumns: { xs: '1fr', md: '2fr 1fr 1fr 1fr auto' },
+              gap: 2,
+              alignItems: 'center',
+            }}
+          >
             <Autocomplete
               size="small"
               options={products}
@@ -173,19 +265,44 @@ export function ReceiptAddPage() {
             <FormControl size="small" fullWidth>
               <InputLabel>Единица</InputLabel>
               <Select value={unitId} label="Единица" onChange={(e) => setUnitId(e.target.value)}>
-                {unitOptions.map((o) => <MenuItem key={o.id} value={o.id}>{o.label}</MenuItem>)}
+                {unitOptions.map((o) => (
+                  <MenuItem key={o.id} value={o.id}>
+                    {o.label}
+                  </MenuItem>
+                ))}
               </Select>
             </FormControl>
-            <TextField size="small" label="Кол-во" type="number" value={qty} onChange={(e) => setQty(e.target.value)} />
-            <TextField size="small" label="Цена за ед." type="number" value={price} onChange={(e) => setPrice(e.target.value)} />
-            <Button variant="contained" startIcon={<Add />} onClick={addLine} disabled={!selectedProduct || !qty}>Добавить</Button>
+            <TextField
+              size="small"
+              label="Кол-во"
+              type="number"
+              value={qty}
+              onChange={(e) => setQty(e.target.value)}
+            />
+            <TextField
+              size="small"
+              label="Цена за ед."
+              type="number"
+              value={price}
+              onChange={(e) => setPrice(e.target.value)}
+            />
+            <Button
+              variant="contained"
+              startIcon={<Add />}
+              onClick={addLine}
+              disabled={!selectedProduct || !qty}
+            >
+              Добавить
+            </Button>
           </Box>
         </CardContent>
       </Card>
 
       <Card elevation={2} sx={{ mb: 3 }}>
         <CardContent sx={{ p: 3 }}>
-          <Typography variant="h6" sx={{ mb: 2 }}>Позиции ({lines.length})</Typography>
+          <Typography variant="h6" sx={{ mb: 2 }}>
+            Позиции ({lines.length})
+          </Typography>
           {lines.length === 0 && <Alert severity="info">Добавьте хотя бы одну позицию.</Alert>}
           {lines.length > 0 && (
             <TableContainer component={Paper} variant="outlined">
@@ -206,13 +323,25 @@ export function ReceiptAddPage() {
                       <TableRow key={i} hover>
                         <TableCell>
                           <Box sx={{ fontWeight: 500 }}>{p?.title ?? l.productId}</Box>
-                          <Typography variant="caption" color="text.secondary">{p?.sku}</Typography>
+                          <Typography variant="caption" color="text.secondary">
+                            {p?.sku}
+                          </Typography>
                         </TableCell>
-                        <TableCell align="right">{formatQty(l.unitQuantity)} {unitSymbol(l.unitId)}</TableCell>
-                        <TableCell align="right">{formatMoney(l.purchasePrice)}</TableCell>
-                        <TableCell align="right">{formatMoney(l.purchasePrice != null ? l.purchasePrice * l.unitQuantity : undefined)}</TableCell>
                         <TableCell align="right">
-                          <IconButton size="small" color="error" onClick={() => setLines((ls) => ls.filter((_, j) => j !== i))}>
+                          {formatQty(l.unitQuantity)} {unitSymbol(l.unitId)}
+                        </TableCell>
+                        <TableCell align="right">{formatMoney(l.purchasePrice)}</TableCell>
+                        <TableCell align="right">
+                          {formatMoney(
+                            l.purchasePrice != null ? l.purchasePrice * l.unitQuantity : undefined,
+                          )}
+                        </TableCell>
+                        <TableCell align="right">
+                          <IconButton
+                            size="small"
+                            color="error"
+                            onClick={() => setLines((ls) => ls.filter((_, j) => j !== i))}
+                          >
                             <Delete fontSize="small" />
                           </IconButton>
                         </TableCell>
@@ -227,10 +356,18 @@ export function ReceiptAddPage() {
       </Card>
 
       <Box sx={{ display: 'flex', gap: 2, mb: 4 }}>
-        <Button variant="contained" size="large" onClick={submit} loading={isLoading} disabled={!warehouseId || lines.length === 0}>
+        <Button
+          variant="contained"
+          size="large"
+          onClick={submit}
+          loading={isLoading}
+          disabled={!warehouseId || lines.length === 0}
+        >
           Сохранить черновик
         </Button>
-        <Button variant="outlined" size="large" onClick={() => navigate({ to: '/receipts' })}>Отмена</Button>
+        <Button variant="outlined" size="large" onClick={() => navigate({ to: '/receipts' })}>
+          Отмена
+        </Button>
       </Box>
     </Box>
   )

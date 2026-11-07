@@ -34,13 +34,45 @@ import {
   AccordionSummary,
   AccordionDetails,
 } from '@mui/material'
-import { RestartAlt, GridOn, Download, Print, Save, FolderOpen, Delete, ExpandMore } from '@mui/icons-material'
+import {
+  RestartAlt,
+  GridOn,
+  Download,
+  Print,
+  Save,
+  FolderOpen,
+  Delete,
+  ExpandMore,
+} from '@mui/icons-material'
 import { ModuleViewer } from './ModuleViewer'
 import { ModuleDrawing } from './ModuleDrawing'
-import { calculateEstimate, exportEstimateCsv, exportEstimatePdf, defaultConfig, type ModuleConfig } from './estimate'
+import {
+  calculateEstimate,
+  exportEstimateCsv,
+  exportEstimatePdf,
+  defaultConfig,
+  type ModuleConfig,
+} from './estimate'
 import { exportDrawingPdf } from './drawing'
-import { ROOF_MATERIALS, WALL_TYPES, FOUNDATIONS, WALL_COLORS, ROOF_COLORS, DEFAULT_RATES, type RateMap, type Option, type ColorOption } from './config'
-import { useProjectControllerFindAllQuery, useProjectControllerCreateMutation, useProjectControllerUpdateMutation, useProjectControllerRemoveMutation, useWarehouseControllerGetGlobalPriceListQuery, type ProjectDto } from '../../api/generated'
+import {
+  ROOF_MATERIALS,
+  WALL_TYPES,
+  FOUNDATIONS,
+  WALL_COLORS,
+  ROOF_COLORS,
+  DEFAULT_RATES,
+  type RateMap,
+  type Option,
+  type ColorOption,
+} from './config'
+import {
+  useProjectControllerFindAllQuery,
+  useProjectControllerCreateMutation,
+  useProjectControllerUpdateMutation,
+  useProjectControllerRemoveMutation,
+  useWarehouseControllerGetGlobalPriceListQuery,
+  type ProjectDto,
+} from '../../api/generated'
 
 const fmt = (n: number) => n.toLocaleString('ru-RU')
 const fmtQty = (n: number) => (Number.isInteger(n) ? n.toString() : n.toFixed(1).replace('.', ','))
@@ -72,48 +104,98 @@ const RATE_FIELDS: { key: string; label: string }[] = [
   { key: 'work_floor', label: 'Монтаж пола' },
 ]
 
-function SliderField({ label, value, onChange, min, max, step, display }: {
-  label: string; value: number; onChange: (v: number) => void; min: number; max: number; step: number; display: string
+function SliderField({
+  label,
+  value,
+  onChange,
+  min,
+  max,
+  step,
+  display,
+}: {
+  label: string
+  value: number
+  onChange: (v: number) => void
+  min: number
+  max: number
+  step: number
+  display: string
 }) {
   return (
     <Box sx={{ mb: 2 }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
         <Typography variant="body2">{label}</Typography>
-        <Typography variant="body2" fontWeight={600}>{display}</Typography>
+        <Typography variant="body2" fontWeight={600}>
+          {display}
+        </Typography>
       </Box>
-      <Slider value={value} onChange={(_, v) => onChange(v as number)} min={min} max={max} step={step} />
+      <Slider
+        value={value}
+        onChange={(_, v) => onChange(v as number)}
+        min={min}
+        max={max}
+        step={step}
+      />
     </Box>
   )
 }
 
-function SelectField({ label, value, onChange, options }: {
-  label: string; value: string; onChange: (v: string) => void; options: Option[]
+function SelectField({
+  label,
+  value,
+  onChange,
+  options,
+}: {
+  label: string
+  value: string
+  onChange: (v: string) => void
+  options: Option[]
 }) {
   return (
     <FormControl fullWidth size="small" sx={{ mb: 2 }}>
       <InputLabel>{label}</InputLabel>
       <Select value={value} label={label} onChange={(e) => onChange(e.target.value)}>
-        {options.map((o) => <MenuItem key={o.value} value={o.value}>{o.label}</MenuItem>)}
+        {options.map((o) => (
+          <MenuItem key={o.value} value={o.value}>
+            {o.label}
+          </MenuItem>
+        ))}
       </Select>
     </FormControl>
   )
 }
 
-function ColorPicker({ label, options, value, onChange }: {
-  label: string; options: ColorOption[]; value: string; onChange: (v: string) => void
+function ColorPicker({
+  label,
+  options,
+  value,
+  onChange,
+}: {
+  label: string
+  options: ColorOption[]
+  value: string
+  onChange: (v: string) => void
 }) {
   return (
     <Box sx={{ mb: 2 }}>
-      <Typography variant="body2" sx={{ mb: 1 }}>{label}</Typography>
+      <Typography variant="body2" sx={{ mb: 1 }}>
+        {label}
+      </Typography>
       <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
         {options.map((c) => (
           <Tooltip key={c.value} title={c.label}>
             <Box
               onClick={() => onChange(c.value)}
               sx={{
-                width: 28, height: 28, borderRadius: '50%', bgcolor: c.value, cursor: 'pointer',
-                border: '2px solid', borderColor: value === c.value ? 'primary.main' : 'divider',
-                transition: 'transform 0.1s', '&:hover': { transform: 'scale(1.1)' },
+                width: 28,
+                height: 28,
+                borderRadius: '50%',
+                bgcolor: c.value,
+                cursor: 'pointer',
+                border: '2px solid',
+                borderColor: value === c.value ? 'primary.main' : 'divider',
+                transition: 'transform 0.1s',
+                '&:hover': { transform: 'scale(1.1)' },
               }}
             />
           </Tooltip>
@@ -154,17 +236,54 @@ export function ConstructorPage() {
   const { data: priceList } = useWarehouseControllerGetGlobalPriceListQuery()
 
   const config = useMemo<ModuleConfig>(
-    () => ({ length, width, height, windows, doors, partitions, roofType, roofMaterial, wallType, foundation, wallColor, roofColor, margin }),
-    [length, width, height, windows, doors, partitions, roofType, roofMaterial, wallType, foundation, wallColor, roofColor, margin],
+    () => ({
+      length,
+      width,
+      height,
+      windows,
+      doors,
+      partitions,
+      roofType,
+      roofMaterial,
+      wallType,
+      foundation,
+      wallColor,
+      roofColor,
+      margin,
+    }),
+    [
+      length,
+      width,
+      height,
+      windows,
+      doors,
+      partitions,
+      roofType,
+      roofMaterial,
+      wallType,
+      foundation,
+      wallColor,
+      roofColor,
+      margin,
+    ],
   )
 
   const estimate = useMemo(() => calculateEstimate(config, rates), [config, rates])
 
   const applyConfig = (cfg: ModuleConfig) => {
-    setLength(cfg.length); setWidth(cfg.width); setHeight(cfg.height)
-    setWindows(cfg.windows); setDoors(cfg.doors); setPartitions(cfg.partitions)
-    setRoofType(cfg.roofType); setRoofMaterial(cfg.roofMaterial); setWallType(cfg.wallType)
-    setFoundation(cfg.foundation); setWallColor(cfg.wallColor); setRoofColor(cfg.roofColor); setMargin(cfg.margin)
+    setLength(cfg.length)
+    setWidth(cfg.width)
+    setHeight(cfg.height)
+    setWindows(cfg.windows)
+    setDoors(cfg.doors)
+    setPartitions(cfg.partitions)
+    setRoofType(cfg.roofType)
+    setRoofMaterial(cfg.roofMaterial)
+    setWallType(cfg.wallType)
+    setFoundation(cfg.foundation)
+    setWallColor(cfg.wallColor)
+    setRoofColor(cfg.roofColor)
+    setMargin(cfg.margin)
   }
 
   const handleSave = async () => {
@@ -172,7 +291,9 @@ export function ConstructorPage() {
     if (editingId) {
       await updateProject({ id: editingId, updateProjectDto: { name: projectName.trim(), config } })
     } else {
-      const created = await createProject({ createProjectDto: { name: projectName.trim(), config } }).unwrap()
+      const created = await createProject({
+        createProjectDto: { name: projectName.trim(), config },
+      }).unwrap()
       setEditingId(created.id)
     }
     setSaveOpen(false)
@@ -187,47 +308,158 @@ export function ConstructorPage() {
 
   return (
     <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3, flexWrap: 'wrap', gap: 2 }}>
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          mb: 3,
+          flexWrap: 'wrap',
+          gap: 2,
+        }}
+      >
         <Typography variant="h4">Конструктор</Typography>
         <Box sx={{ display: 'flex', gap: 1 }}>
-          <Button variant="outlined" startIcon={<FolderOpen />} onClick={() => setLoadOpen(true)}>Проекты</Button>
-          <Button variant="contained" startIcon={<Save />} onClick={() => setSaveOpen(true)}>{editingId ? 'Обновить проект' : 'Сохранить'}</Button>
+          <Button variant="outlined" startIcon={<FolderOpen />} onClick={() => setLoadOpen(true)}>
+            Проекты
+          </Button>
+          <Button variant="contained" startIcon={<Save />} onClick={() => setSaveOpen(true)}>
+            {editingId ? 'Обновить проект' : 'Сохранить'}
+          </Button>
         </Box>
       </Box>
 
       <Grid container spacing={3}>
         <Grid size={{ xs: 12, md: 5 }}>
           <Paper variant="outlined" sx={{ p: 3, mb: 3 }}>
-            <Typography variant="h6" gutterBottom>Параметры модуля</Typography>
+            <Typography variant="h6" gutterBottom>
+              Параметры модуля
+            </Typography>
 
-            <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>Габариты</Typography>
-            <SliderField label="Длина" value={length} onChange={setLength} min={2} max={12} step={0.5} display={`${length} м`} />
-            <SliderField label="Ширина" value={width} onChange={setWidth} min={2} max={6} step={0.5} display={`${width} м`} />
-            <SliderField label="Высота" value={height} onChange={setHeight} min={2.2} max={4} step={0.1} display={`${height} м`} />
+            <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>
+              Габариты
+            </Typography>
+            <SliderField
+              label="Длина"
+              value={length}
+              onChange={setLength}
+              min={2}
+              max={12}
+              step={0.5}
+              display={`${length} м`}
+            />
+            <SliderField
+              label="Ширина"
+              value={width}
+              onChange={setWidth}
+              min={2}
+              max={6}
+              step={0.5}
+              display={`${width} м`}
+            />
+            <SliderField
+              label="Высота"
+              value={height}
+              onChange={setHeight}
+              min={2.2}
+              max={4}
+              step={0.1}
+              display={`${height} м`}
+            />
 
             <Divider sx={{ my: 2 }} />
-            <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>Проёмы и планировка</Typography>
-            <SliderField label="Окна" value={windows} onChange={setWindows} min={0} max={8} step={1} display={`${windows} шт`} />
-            <SliderField label="Двери" value={doors} onChange={setDoors} min={0} max={4} step={1} display={`${doors} шт`} />
-            <SliderField label="Перегородки" value={partitions} onChange={setPartitions} min={0} max={4} step={1} display={`${partitions} шт`} />
+            <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>
+              Проёмы и планировка
+            </Typography>
+            <SliderField
+              label="Окна"
+              value={windows}
+              onChange={setWindows}
+              min={0}
+              max={8}
+              step={1}
+              display={`${windows} шт`}
+            />
+            <SliderField
+              label="Двери"
+              value={doors}
+              onChange={setDoors}
+              min={0}
+              max={4}
+              step={1}
+              display={`${doors} шт`}
+            />
+            <SliderField
+              label="Перегородки"
+              value={partitions}
+              onChange={setPartitions}
+              min={0}
+              max={4}
+              step={1}
+              display={`${partitions} шт`}
+            />
 
             <Divider sx={{ my: 2 }} />
-            <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>Конструктив</Typography>
-            <ToggleButtonGroup value={roofType} exclusive onChange={(_, v) => v && setRoofType(v)} size="small" fullWidth sx={{ mb: 2 }}>
+            <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>
+              Конструктив
+            </Typography>
+            <ToggleButtonGroup
+              value={roofType}
+              exclusive
+              onChange={(_, v) => v && setRoofType(v)}
+              size="small"
+              fullWidth
+              sx={{ mb: 2 }}
+            >
               <ToggleButton value="flat">Плоская крыша</ToggleButton>
               <ToggleButton value="gable">Двускатная</ToggleButton>
             </ToggleButtonGroup>
-            <SelectField label="Материал кровли" value={roofMaterial} onChange={setRoofMaterial} options={ROOF_MATERIALS} />
-            <SelectField label="Тип стен" value={wallType} onChange={setWallType} options={WALL_TYPES} />
-            <SelectField label="Фундамент" value={foundation} onChange={setFoundation} options={FOUNDATIONS} />
+            <SelectField
+              label="Материал кровли"
+              value={roofMaterial}
+              onChange={setRoofMaterial}
+              options={ROOF_MATERIALS}
+            />
+            <SelectField
+              label="Тип стен"
+              value={wallType}
+              onChange={setWallType}
+              options={WALL_TYPES}
+            />
+            <SelectField
+              label="Фундамент"
+              value={foundation}
+              onChange={setFoundation}
+              options={FOUNDATIONS}
+            />
 
             <Divider sx={{ my: 2 }} />
-            <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>Внешний вид</Typography>
-            <ColorPicker label="Цвет стен" options={WALL_COLORS} value={wallColor} onChange={setWallColor} />
-            <ColorPicker label="Цвет кровли" options={ROOF_COLORS} value={roofColor} onChange={setRoofColor} />
+            <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>
+              Внешний вид
+            </Typography>
+            <ColorPicker
+              label="Цвет стен"
+              options={WALL_COLORS}
+              value={wallColor}
+              onChange={setWallColor}
+            />
+            <ColorPicker
+              label="Цвет кровли"
+              options={ROOF_COLORS}
+              value={roofColor}
+              onChange={setRoofColor}
+            />
 
             <Divider sx={{ my: 2 }} />
-            <SliderField label="Наценка" value={margin} onChange={setMargin} min={0} max={50} step={1} display={`${margin} %`} />
+            <SliderField
+              label="Наценка"
+              value={margin}
+              onChange={setMargin}
+              min={0}
+              max={50}
+              step={1}
+              display={`${margin} %`}
+            />
           </Paper>
 
           <Accordion sx={{ mb: 3 }} defaultExpanded={false}>
@@ -244,7 +476,9 @@ export function ConstructorPage() {
                       size="small"
                       fullWidth
                       value={rates[f.key]}
-                      onChange={(e) => setRates((prev) => ({ ...prev, [f.key]: Number(e.target.value) || 0 }))}
+                      onChange={(e) =>
+                        setRates((prev) => ({ ...prev, [f.key]: Number(e.target.value) || 0 }))
+                      }
                     />
                   </Grid>
                 ))}
@@ -258,16 +492,25 @@ export function ConstructorPage() {
             </AccordionSummary>
             <AccordionDetails>
               {!priceList || priceList.length === 0 ? (
-                <Typography variant="body2" color="text.secondary">Прайс-лист пуст. Добавьте позиции на странице «Цены».</Typography>
+                <Typography variant="body2" color="text.secondary">
+                  Прайс-лист пуст. Добавьте позиции на странице «Цены».
+                </Typography>
               ) : (
                 <TableContainer>
                   <Table size="small">
-                    <TableHead><TableRow><TableCell>Товар</TableCell><TableCell align="right">Цена</TableCell></TableRow></TableHead>
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>Товар</TableCell>
+                        <TableCell align="right">Цена</TableCell>
+                      </TableRow>
+                    </TableHead>
                     <TableBody>
                       {priceList.map((p, i) => (
                         <TableRow key={`${p.productId}-${p.warehouseId}-${i}`}>
                           <TableCell>{p.productTitle}</TableCell>
-                          <TableCell align="right">{p.salePrice ? fmtMoney(p.salePrice) : '—'}</TableCell>
+                          <TableCell align="right">
+                            {p.salePrice ? fmtMoney(p.salePrice) : '—'}
+                          </TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
@@ -278,25 +521,47 @@ export function ConstructorPage() {
           </Accordion>
 
           <Paper variant="outlined" sx={{ p: 3 }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+            <Box
+              sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}
+            >
               <Typography variant="h6">Смета</Typography>
               <Box sx={{ display: 'flex', gap: 0.5 }}>
-                <Tooltip title="Экспорт в CSV"><IconButton size="small" onClick={() => exportEstimateCsv(config, estimate)}><Download fontSize="small" /></IconButton></Tooltip>
-                <Tooltip title="Экспорт в PDF"><IconButton size="small" onClick={() => exportEstimatePdf(config, estimate)}><Print fontSize="small" /></IconButton></Tooltip>
+                <Tooltip title="Экспорт в CSV">
+                  <IconButton size="small" onClick={() => exportEstimateCsv(config, estimate)}>
+                    <Download fontSize="small" />
+                  </IconButton>
+                </Tooltip>
+                <Tooltip title="Экспорт в PDF">
+                  <IconButton size="small" onClick={() => exportEstimatePdf(config, estimate)}>
+                    <Print fontSize="small" />
+                  </IconButton>
+                </Tooltip>
               </Box>
             </Box>
 
             <TableContainer>
               <Table size="small">
-                <TableHead><TableRow><TableCell>Наименование</TableCell><TableCell align="right">Кол-во</TableCell><TableCell align="right">Сумма</TableCell></TableRow></TableHead>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Наименование</TableCell>
+                    <TableCell align="right">Кол-во</TableCell>
+                    <TableCell align="right">Сумма</TableCell>
+                  </TableRow>
+                </TableHead>
                 <TableBody>
                   {estimate.sections.map((sec) => (
                     <Fragment key={sec.title}>
-                      <TableRow><TableCell colSpan={3} sx={{ bgcolor: 'action.hover', fontWeight: 600 }}>{sec.title}</TableCell></TableRow>
+                      <TableRow>
+                        <TableCell colSpan={3} sx={{ bgcolor: 'action.hover', fontWeight: 600 }}>
+                          {sec.title}
+                        </TableCell>
+                      </TableRow>
                       {sec.items.map((it) => (
                         <TableRow key={it.name}>
                           <TableCell sx={{ pl: 2 }}>{it.name}</TableCell>
-                          <TableCell align="right">{fmtQty(it.quantity)} {it.unit}</TableCell>
+                          <TableCell align="right">
+                            {fmtQty(it.quantity)} {it.unit}
+                          </TableCell>
                           <TableCell align="right">{fmtMoney(it.total)}</TableCell>
                         </TableRow>
                       ))}
@@ -310,19 +575,35 @@ export function ConstructorPage() {
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.75 }}>
               <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                 <Typography variant="body2">Площади (пол / стены / кровля)</Typography>
-                <Typography variant="body2" fontWeight={600}>{fmt(estimate.floorArea)} / {fmt(estimate.netWallArea)} / {fmt(estimate.roofArea)} м²</Typography>
+                <Typography variant="body2" fontWeight={600}>
+                  {fmt(estimate.floorArea)} / {fmt(estimate.netWallArea)} / {fmt(estimate.roofArea)}{' '}
+                  м²
+                </Typography>
               </Box>
               <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                 <Typography variant="body2">Итого по смете</Typography>
-                <Typography variant="body2" fontWeight={600}>{fmtMoney(estimate.subtotal)}</Typography>
+                <Typography variant="body2" fontWeight={600}>
+                  {fmtMoney(estimate.subtotal)}
+                </Typography>
               </Box>
               <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                 <Typography variant="body2">Наценка ({margin}%)</Typography>
-                <Typography variant="body2" fontWeight={600}>{fmtMoney(estimate.marginAmount)}</Typography>
+                <Typography variant="body2" fontWeight={600}>
+                  {fmtMoney(estimate.marginAmount)}
+                </Typography>
               </Box>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 0.5 }}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  mt: 0.5,
+                }}
+              >
                 <Typography variant="h6">Итого</Typography>
-                <Typography variant="h6" color="primary.main">{fmtMoney(estimate.total)}</Typography>
+                <Typography variant="h6" color="primary.main">
+                  {fmtMoney(estimate.total)}
+                </Typography>
               </Box>
             </Box>
           </Paper>
@@ -330,7 +611,12 @@ export function ConstructorPage() {
 
         <Grid size={{ xs: 12, md: 7 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-            <ToggleButtonGroup value={viewTab} exclusive onChange={(_, v) => v && setViewTab(v)} size="small">
+            <ToggleButtonGroup
+              value={viewTab}
+              exclusive
+              onChange={(_, v) => v && setViewTab(v)}
+              size="small"
+            >
               <ToggleButton value="3d">3D-вид</ToggleButton>
               <ToggleButton value="drawing">Чертёж</ToggleButton>
             </ToggleButtonGroup>
@@ -339,7 +625,11 @@ export function ConstructorPage() {
                 size="small"
                 variant="outlined"
                 startIcon={<Download />}
-                onClick={() => exportDrawingPdf(config).catch((e) => console.error('Чертёж PDF не удалось сформировать', e))}
+                onClick={() =>
+                  exportDrawingPdf(config).catch((e) =>
+                    console.error('Чертёж PDF не удалось сформировать', e),
+                  )
+                }
               >
                 Скачать PDF
               </Button>
@@ -350,8 +640,28 @@ export function ConstructorPage() {
             <Box sx={{ position: 'relative' }}>
               <ModuleViewer config={config} viewMode={viewMode} resetSignal={resetSignal} />
               <Box sx={{ position: 'absolute', top: 8, right: 8, display: 'flex', gap: 0.5 }}>
-                <Tooltip title="Сбросить камеру"><IconButton size="small" onClick={() => setResetSignal((s) => s + 1)} sx={{ bgcolor: 'background.paper', boxShadow: 1 }}><RestartAlt fontSize="small" /></IconButton></Tooltip>
-                <Tooltip title="Каркасный режим"><IconButton size="small" onClick={() => setViewMode(viewMode === 'solid' ? 'wireframe' : 'solid')} sx={{ bgcolor: 'background.paper', boxShadow: 1, color: viewMode === 'wireframe' ? 'primary.main' : 'inherit' }}><GridOn fontSize="small" /></IconButton></Tooltip>
+                <Tooltip title="Сбросить камеру">
+                  <IconButton
+                    size="small"
+                    onClick={() => setResetSignal((s) => s + 1)}
+                    sx={{ bgcolor: 'background.paper', boxShadow: 1 }}
+                  >
+                    <RestartAlt fontSize="small" />
+                  </IconButton>
+                </Tooltip>
+                <Tooltip title="Каркасный режим">
+                  <IconButton
+                    size="small"
+                    onClick={() => setViewMode(viewMode === 'solid' ? 'wireframe' : 'solid')}
+                    sx={{
+                      bgcolor: 'background.paper',
+                      boxShadow: 1,
+                      color: viewMode === 'wireframe' ? 'primary.main' : 'inherit',
+                    }}
+                  >
+                    <GridOn fontSize="small" />
+                  </IconButton>
+                </Tooltip>
               </Box>
             </Box>
           ) : (
@@ -369,11 +679,20 @@ export function ConstructorPage() {
       <Dialog open={saveOpen} onClose={() => setSaveOpen(false)} maxWidth="xs" fullWidth>
         <DialogTitle>{editingId ? 'Обновить проект' : 'Сохранить проект'}</DialogTitle>
         <DialogContent>
-          <TextField autoFocus fullWidth label="Название проекта" value={projectName} onChange={(e) => setProjectName(e.target.value)} sx={{ mt: 1 }} />
+          <TextField
+            autoFocus
+            fullWidth
+            label="Название проекта"
+            value={projectName}
+            onChange={(e) => setProjectName(e.target.value)}
+            sx={{ mt: 1 }}
+          />
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setSaveOpen(false)}>Отмена</Button>
-          <Button variant="contained" onClick={handleSave} disabled={!projectName.trim()}>Сохранить</Button>
+          <Button variant="contained" onClick={handleSave} disabled={!projectName.trim()}>
+            Сохранить
+          </Button>
         </DialogActions>
       </Dialog>
 
@@ -381,22 +700,37 @@ export function ConstructorPage() {
         <DialogTitle>Мои проекты</DialogTitle>
         <DialogContent>
           {!projects || projects.length === 0 ? (
-            <Typography variant="body2" color="text.secondary" sx={{ py: 2 }}>Сохранённых проектов пока нет.</Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ py: 2 }}>
+              Сохранённых проектов пока нет.
+            </Typography>
           ) : (
             <List>
               {projects.map((p) => (
-                <ListItem key={p.id} disablePadding secondaryAction={
-                  <Tooltip title="Удалить"><IconButton edge="end" onClick={() => deleteProject({ id: p.id })}><Delete fontSize="small" /></IconButton></Tooltip>
-                }>
+                <ListItem
+                  key={p.id}
+                  disablePadding
+                  secondaryAction={
+                    <Tooltip title="Удалить">
+                      <IconButton edge="end" onClick={() => deleteProject({ id: p.id })}>
+                        <Delete fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
+                  }
+                >
                   <ListItemButton onClick={() => handleLoad(p)}>
-                    <ListItemText primary={p.name} secondary={`Обновлён: ${new Date(p.updatedAt).toLocaleString('ru-RU')}`} />
+                    <ListItemText
+                      primary={p.name}
+                      secondary={`Обновлён: ${new Date(p.updatedAt).toLocaleString('ru-RU')}`}
+                    />
                   </ListItemButton>
                 </ListItem>
               ))}
             </List>
           )}
         </DialogContent>
-        <DialogActions><Button onClick={() => setLoadOpen(false)}>Закрыть</Button></DialogActions>
+        <DialogActions>
+          <Button onClick={() => setLoadOpen(false)}>Закрыть</Button>
+        </DialogActions>
       </Dialog>
     </Box>
   )

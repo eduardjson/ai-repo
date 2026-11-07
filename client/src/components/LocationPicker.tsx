@@ -39,7 +39,10 @@ export function LocationPicker({ value, onChange, height = 300 }: LocationPicker
     if (!container) return
     if ((container as unknown as { _leaflet_id?: number })._leaflet_id) return
 
-    const map = L.map(container).setView(value ? [value.lat, value.lng] : DEFAULT_CENTER, value ? 15 : 5)
+    const map = L.map(container).setView(
+      value ? [value.lat, value.lng] : DEFAULT_CENTER,
+      value ? 15 : 5,
+    )
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
@@ -117,11 +120,19 @@ export function LocationPicker({ value, onChange, height = 300 }: LocationPicker
           }}
           InputProps={{
             endAdornment: query ? (
-              <Button size="small" onClick={() => setQuery('')} sx={{ minWidth: 0, p: 0.5 }}><Clear fontSize="small" /></Button>
+              <Button size="small" onClick={() => setQuery('')} sx={{ minWidth: 0, p: 0.5 }}>
+                <Clear fontSize="small" />
+              </Button>
             ) : undefined,
           }}
         />
-        <Button variant="outlined" size="small" startIcon={<Search />} onClick={handleSearch} disabled={searching}>
+        <Button
+          variant="outlined"
+          size="small"
+          startIcon={<Search />}
+          onClick={handleSearch}
+          disabled={searching}
+        >
           {searching ? <CircularProgress size={18} /> : 'Найти'}
         </Button>
       </Box>
@@ -140,9 +151,19 @@ export function LocationPicker({ value, onChange, height = 300 }: LocationPicker
         }}
       />
 
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 0.5, minHeight: 24 }}>
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          mt: 0.5,
+          minHeight: 24,
+        }}
+      >
         {error ? (
-          <Typography variant="caption" color="error">{error}</Typography>
+          <Typography variant="caption" color="error">
+            {error}
+          </Typography>
         ) : value ? (
           <Typography variant="caption" color="text.secondary">
             {value.lat.toFixed(5)}, {value.lng.toFixed(5)}

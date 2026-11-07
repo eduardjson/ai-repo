@@ -1,10 +1,32 @@
 import { useParams, useNavigate } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
 import {
-  Box, Typography, Button, IconButton, Card, CardContent, Chip, CircularProgress,
-  Table, TableHead, TableBody, TableRow, TableCell, TableContainer, Paper,
-  Dialog, DialogTitle, DialogContent, DialogActions, TextField, Select, MenuItem,
-  FormControl, InputLabel, Autocomplete, Divider,
+  Box,
+  Typography,
+  Button,
+  IconButton,
+  Card,
+  CardContent,
+  Chip,
+  CircularProgress,
+  Table,
+  TableHead,
+  TableBody,
+  TableRow,
+  TableCell,
+  TableContainer,
+  Paper,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  Autocomplete,
+  Divider,
 } from '@mui/material'
 import { ArrowBack, Add, CheckCircle, Cancel, Delete } from '@mui/icons-material'
 import {
@@ -20,7 +42,9 @@ import { ActionModal } from '../../components/ActionModal'
 import { RECEIPT_STATUS_LABELS, formatQty, formatMoney } from '../../lib/catalog'
 
 const statusColor: Record<string, 'success' | 'warning' | 'error'> = {
-  POSTED: 'success', DRAFT: 'warning', CANCELLED: 'error',
+  POSTED: 'success',
+  DRAFT: 'warning',
+  CANCELLED: 'error',
 }
 
 export function ReceiptDetailPage() {
@@ -51,21 +75,44 @@ export function ReceiptDetailPage() {
     if (selectedProduct) setUnitId(selectedProduct.purchaseUnitId ?? selectedProduct.baseUnitId)
   }, [selectedProduct])
 
-  if (isLoading) return <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}><CircularProgress /></Box>
+  if (isLoading)
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
+        <CircularProgress />
+      </Box>
+    )
   if (!receipt) return <Typography>Поступление не найдено</Typography>
 
   const unitOptions = selectedProduct
     ? [
-        { id: selectedProduct.baseUnitId, label: `${selectedProduct.baseUnit?.symbol ?? ''} — базовая` },
-        ...(selectedProduct.purchaseUnitId ? [{ id: selectedProduct.purchaseUnitId, label: `${selectedProduct.purchaseUnit?.symbol} — закупочная` }] : []),
-        ...(selectedProduct.saleUnitId ? [{ id: selectedProduct.saleUnitId, label: `${selectedProduct.saleUnit?.symbol} — продажа` }] : []),
+        {
+          id: selectedProduct.baseUnitId,
+          label: `${selectedProduct.baseUnit?.symbol ?? ''} — базовая`,
+        },
+        ...(selectedProduct.purchaseUnitId
+          ? [
+              {
+                id: selectedProduct.purchaseUnitId,
+                label: `${selectedProduct.purchaseUnit?.symbol} — закупочная`,
+              },
+            ]
+          : []),
+        ...(selectedProduct.saleUnitId
+          ? [
+              {
+                id: selectedProduct.saleUnitId,
+                label: `${selectedProduct.saleUnit?.symbol} — продажа`,
+              },
+            ]
+          : []),
       ]
     : []
 
   const isDraft = receipt.status === 'DRAFT'
   const isPosted = receipt.status === 'POSTED'
 
-  const totalSum = receipt.items?.reduce((s, i) => s + (i.purchasePrice ?? 0) * i.unitQuantity, 0) ?? 0
+  const totalSum =
+    receipt.items?.reduce((s, i) => s + (i.purchasePrice ?? 0) * i.unitQuantity, 0) ?? 0
 
   const submitAddItem = async () => {
     if (!selectedProduct || !qty) return
@@ -88,41 +135,108 @@ export function ReceiptDetailPage() {
   return (
     <Box>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3, flexWrap: 'wrap' }}>
-        <IconButton onClick={() => navigate({ to: '/receipts' })}><ArrowBack /></IconButton>
-        <Typography variant="h4" fontWeight={700}>{receipt.number}</Typography>
+        <IconButton onClick={() => navigate({ to: '/receipts' })}>
+          <ArrowBack />
+        </IconButton>
+        <Typography variant="h4" fontWeight={700}>
+          {receipt.number}
+        </Typography>
         <Chip label={RECEIPT_STATUS_LABELS[receipt.status]} color={statusColor[receipt.status]} />
         <Box sx={{ ml: 'auto', display: 'flex', gap: 1 }}>
           {isDraft && (
             <>
-              <Button variant="outlined" startIcon={<Add />} onClick={() => setAddOpen(true)}>Добавить позицию</Button>
-              <Button variant="contained" color="success" startIcon={<CheckCircle />} onClick={() => setConfirmPost(true)}>Провести</Button>
-              <Button variant="outlined" color="error" startIcon={<Delete />} onClick={() => setConfirmRemove(true)}>Удалить</Button>
+              <Button variant="outlined" startIcon={<Add />} onClick={() => setAddOpen(true)}>
+                Добавить позицию
+              </Button>
+              <Button
+                variant="contained"
+                color="success"
+                startIcon={<CheckCircle />}
+                onClick={() => setConfirmPost(true)}
+              >
+                Провести
+              </Button>
+              <Button
+                variant="outlined"
+                color="error"
+                startIcon={<Delete />}
+                onClick={() => setConfirmRemove(true)}
+              >
+                Удалить
+              </Button>
             </>
           )}
           {isPosted && (
-            <Button variant="outlined" color="error" startIcon={<Cancel />} onClick={() => setConfirmCancel(true)}>Отменить</Button>
+            <Button
+              variant="outlined"
+              color="error"
+              startIcon={<Cancel />}
+              onClick={() => setConfirmCancel(true)}
+            >
+              Отменить
+            </Button>
           )}
           {receipt.status === 'CANCELLED' && (
-            <Button variant="outlined" color="error" startIcon={<Delete />} onClick={() => setConfirmRemove(true)}>Удалить</Button>
+            <Button
+              variant="outlined"
+              color="error"
+              startIcon={<Delete />}
+              onClick={() => setConfirmRemove(true)}
+            >
+              Удалить
+            </Button>
           )}
         </Box>
       </Box>
 
       <Card elevation={2} sx={{ mb: 3 }}>
         <CardContent sx={{ p: 3 }}>
-          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr 1fr 1fr' }, gap: 2 }}>
-            <Box><Typography variant="subtitle2" color="text.secondary">Склад</Typography><Typography>{receipt.warehouse?.name ?? '-'}</Typography></Box>
-            <Box><Typography variant="subtitle2" color="text.secondary">Поставщик</Typography><Typography>{receipt.supplier || '-'}</Typography></Box>
-            <Box><Typography variant="subtitle2" color="text.secondary">Дата</Typography><Typography>{new Date(receipt.receiptDate).toLocaleString('ru-RU')}</Typography></Box>
-            <Box><Typography variant="subtitle2" color="text.secondary">Автор</Typography><Typography>{receipt.createdBy?.email ?? '-'}</Typography></Box>
+          <Box
+            sx={{
+              display: 'grid',
+              gridTemplateColumns: { xs: '1fr', md: '1fr 1fr 1fr 1fr' },
+              gap: 2,
+            }}
+          >
+            <Box>
+              <Typography variant="subtitle2" color="text.secondary">
+                Склад
+              </Typography>
+              <Typography>{receipt.warehouse?.name ?? '-'}</Typography>
+            </Box>
+            <Box>
+              <Typography variant="subtitle2" color="text.secondary">
+                Поставщик
+              </Typography>
+              <Typography>{receipt.supplier || '-'}</Typography>
+            </Box>
+            <Box>
+              <Typography variant="subtitle2" color="text.secondary">
+                Дата
+              </Typography>
+              <Typography>{new Date(receipt.receiptDate).toLocaleString('ru-RU')}</Typography>
+            </Box>
+            <Box>
+              <Typography variant="subtitle2" color="text.secondary">
+                Автор
+              </Typography>
+              <Typography>{receipt.createdBy?.email ?? '-'}</Typography>
+            </Box>
           </Box>
-          {receipt.comment && <><Divider sx={{ my: 2 }} /><Typography variant="body2">{receipt.comment}</Typography></>}
+          {receipt.comment && (
+            <>
+              <Divider sx={{ my: 2 }} />
+              <Typography variant="body2">{receipt.comment}</Typography>
+            </>
+          )}
         </CardContent>
       </Card>
 
       <Card elevation={2}>
         <CardContent sx={{ p: 3 }}>
-          <Typography variant="h6" sx={{ mb: 2 }}>Позиции</Typography>
+          <Typography variant="h6" sx={{ mb: 2 }}>
+            Позиции
+          </Typography>
           <TableContainer component={Paper} variant="outlined">
             <Table size="small">
               <TableHead>
@@ -139,22 +253,40 @@ export function ReceiptDetailPage() {
                   <TableRow key={item.id} hover>
                     <TableCell>
                       <Box sx={{ fontWeight: 500 }}>{item.product?.title ?? item.productId}</Box>
-                      <Typography variant="caption" color="text.secondary">{item.product?.sku}</Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        {item.product?.sku}
+                      </Typography>
                     </TableCell>
-                    <TableCell align="right">{formatQty(item.unitQuantity)} {item.unit?.symbol}</TableCell>
-                    <TableCell align="right">{formatQty(item.quantity)} {item.product?.baseUnit?.symbol}</TableCell>
+                    <TableCell align="right">
+                      {formatQty(item.unitQuantity)} {item.unit?.symbol}
+                    </TableCell>
+                    <TableCell align="right">
+                      {formatQty(item.quantity)} {item.product?.baseUnit?.symbol}
+                    </TableCell>
                     <TableCell align="right">{formatMoney(item.purchasePrice)}</TableCell>
-                    <TableCell align="right">{formatMoney(item.purchasePrice != null ? item.purchasePrice * item.unitQuantity : undefined)}</TableCell>
+                    <TableCell align="right">
+                      {formatMoney(
+                        item.purchasePrice != null
+                          ? item.purchasePrice * item.unitQuantity
+                          : undefined,
+                      )}
+                    </TableCell>
                   </TableRow>
                 ))}
                 {(!receipt.items || receipt.items.length === 0) && (
-                  <TableRow><TableCell colSpan={5} align="center" sx={{ py: 4, color: 'text.secondary' }}>Нет позиций</TableCell></TableRow>
+                  <TableRow>
+                    <TableCell colSpan={5} align="center" sx={{ py: 4, color: 'text.secondary' }}>
+                      Нет позиций
+                    </TableCell>
+                  </TableRow>
                 )}
               </TableBody>
             </Table>
           </TableContainer>
           {receipt.items && receipt.items.length > 0 && (
-            <Typography variant="subtitle1" sx={{ mt: 2, textAlign: 'right' }}>Итого: {formatMoney(totalSum)}</Typography>
+            <Typography variant="subtitle1" sx={{ mt: 2, textAlign: 'right' }}>
+              Итого: {formatMoney(totalSum)}
+            </Typography>
           )}
         </CardContent>
       </Card>
@@ -164,7 +296,10 @@ export function ReceiptDetailPage() {
         title="Провести поступление"
         message="Товары будут оприходованы на склад (увеличат остатки). Действие обратимо через отмену."
         confirmLabel="Провести"
-        onConfirm={async () => { await post({ id: receiptId }).unwrap(); setConfirmPost(false) }}
+        onConfirm={async () => {
+          await post({ id: receiptId }).unwrap()
+          setConfirmPost(false)
+        }}
         onCancel={() => setConfirmPost(false)}
       />
       <ActionModal
@@ -172,7 +307,10 @@ export function ReceiptDetailPage() {
         title="Отменить поступление"
         message="Остатки на складе будут уменьшены обратно."
         confirmLabel="Отменить"
-        onConfirm={async () => { await cancel({ id: receiptId }).unwrap(); setConfirmCancel(false) }}
+        onConfirm={async () => {
+          await cancel({ id: receiptId }).unwrap()
+          setConfirmCancel(false)
+        }}
         onCancel={() => setConfirmCancel(false)}
       />
       <ActionModal
@@ -180,7 +318,10 @@ export function ReceiptDetailPage() {
         title="Удалить поступление"
         message={`Документ «${receipt.number}» будет удалён безвозвратно.`}
         confirmLabel="Удалить"
-        onConfirm={async () => { await remove({ id: receiptId }).unwrap(); navigate({ to: '/receipts' }) }}
+        onConfirm={async () => {
+          await remove({ id: receiptId }).unwrap()
+          navigate({ to: '/receipts' })
+        }}
         onCancel={() => setConfirmRemove(false)}
       />
 
@@ -199,15 +340,33 @@ export function ReceiptDetailPage() {
           <FormControl size="small" fullWidth>
             <InputLabel>Единица</InputLabel>
             <Select value={unitId} label="Единица" onChange={(e) => setUnitId(e.target.value)}>
-              {unitOptions.map((o) => <MenuItem key={o.id} value={o.id}>{o.label}</MenuItem>)}
+              {unitOptions.map((o) => (
+                <MenuItem key={o.id} value={o.id}>
+                  {o.label}
+                </MenuItem>
+              ))}
             </Select>
           </FormControl>
-          <TextField size="small" label="Кол-во" type="number" value={qty} onChange={(e) => setQty(e.target.value)} />
-          <TextField size="small" label="Цена за ед." type="number" value={price} onChange={(e) => setPrice(e.target.value)} />
+          <TextField
+            size="small"
+            label="Кол-во"
+            type="number"
+            value={qty}
+            onChange={(e) => setQty(e.target.value)}
+          />
+          <TextField
+            size="small"
+            label="Цена за ед."
+            type="number"
+            value={price}
+            onChange={(e) => setPrice(e.target.value)}
+          />
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setAddOpen(false)}>Отмена</Button>
-          <Button variant="contained" onClick={submitAddItem} disabled={!selectedProduct || !qty}>Добавить</Button>
+          <Button variant="contained" onClick={submitAddItem} disabled={!selectedProduct || !qty}>
+            Добавить
+          </Button>
         </DialogActions>
       </Dialog>
     </Box>

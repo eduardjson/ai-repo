@@ -1,5 +1,13 @@
 import { useState } from 'react'
-import { Avatar, IconButton, Drawer, Box, ListItemButton, ListItemIcon, ListItemText } from '@mui/material'
+import {
+  Avatar,
+  IconButton,
+  Drawer,
+  Box,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+} from '@mui/material'
 import { Logout, Person } from '@mui/icons-material'
 import { useNavigate } from '@tanstack/react-router'
 import { useAppSelector, useAppDispatch } from '../store/hooks'
@@ -41,12 +49,21 @@ export function Profile() {
             user={user}
             actions={
               <>
-                <ListItemButton onClick={() => { navigate({ to: `/employees/${user.id}` }); setOpen(false) }}>
-                  <ListItemIcon><Person /></ListItemIcon>
+                <ListItemButton
+                  onClick={() => {
+                    navigate({ to: `/employees/${user.id}` })
+                    setOpen(false)
+                  }}
+                >
+                  <ListItemIcon>
+                    <Person />
+                  </ListItemIcon>
                   <ListItemText primary="Открыть профиль" />
                 </ListItemButton>
                 <ListItemButton onClick={handleLogout}>
-                  <ListItemIcon><Logout color="error" /></ListItemIcon>
+                  <ListItemIcon>
+                    <Logout color="error" />
+                  </ListItemIcon>
                   <ListItemText primary="Выйти" primaryTypographyProps={{ color: 'error' }} />
                 </ListItemButton>
               </>

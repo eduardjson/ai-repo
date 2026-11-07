@@ -5,6 +5,16 @@ import { baseQueryWithReauth } from './base'
 // tagTypes должны совпадать с тегами OpenAPI (генерируются из @ApiTags).
 export const emptySplitApi = createApi({
   baseQuery: baseQueryWithReauth,
-  tagTypes: ['auth', 'user', 'products', 'warehouses', 'objects', 'shipments', 'chat', 'projects', 'transfers'],
+  tagTypes: [
+    'auth',
+    'user',
+    'products',
+    'warehouses',
+    'objects',
+    'shipments',
+    'chat',
+    'projects',
+    'transfers',
+  ],
   endpoints: () => ({}),
 })

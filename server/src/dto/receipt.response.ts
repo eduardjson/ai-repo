@@ -1,79 +1,79 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { ReceiptStatus } from './enums';
-import { ProductDto } from './product.response';
-import { WarehouseDto } from './warehouse.response';
-import { UnitDto } from './unit.response';
-import { UserDto } from './user.response';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
+import { ReceiptStatus } from './enums'
+import { ProductDto } from './product.response'
+import { WarehouseDto } from './warehouse.response'
+import { UnitDto } from './unit.response'
+import { UserDto } from './user.response'
 
 export class GoodsReceiptItemDto {
   @ApiProperty()
-  id: string;
+  id: string
 
   @ApiProperty()
-  receiptId: string;
+  receiptId: string
 
   @ApiProperty()
-  productId: string;
+  productId: string
 
   @ApiProperty()
-  quantity: number;
+  quantity: number
 
   @ApiProperty()
-  unitId: string;
+  unitId: string
 
   @ApiProperty()
-  unitQuantity: number;
+  unitQuantity: number
 
   @ApiProperty()
-  unitFactor: number;
+  unitFactor: number
 
   @ApiPropertyOptional({ nullable: true })
-  purchasePrice?: number;
+  purchasePrice?: number
 
   @ApiPropertyOptional({ type: () => ProductDto, nullable: true })
-  product?: ProductDto;
+  product?: ProductDto
 
   @ApiPropertyOptional({ type: () => UnitDto, nullable: true })
-  unit?: UnitDto;
+  unit?: UnitDto
 }
 
 export class GoodsReceiptDto {
   @ApiProperty()
-  id: string;
+  id: string
 
   @ApiProperty()
-  number: string;
+  number: string
 
   @ApiProperty()
-  warehouseId: string;
+  warehouseId: string
 
   @ApiPropertyOptional({ nullable: true })
-  supplier?: string;
+  supplier?: string
 
   @ApiProperty()
-  receiptDate: string;
+  receiptDate: string
 
   @ApiProperty({ enum: ReceiptStatus })
-  status: ReceiptStatus;
+  status: ReceiptStatus
 
   @ApiPropertyOptional({ nullable: true })
-  comment?: string;
+  comment?: string
 
   @ApiPropertyOptional({ nullable: true })
-  createdById?: string;
+  createdById?: string
 
   @ApiPropertyOptional({ type: () => UserDto, nullable: true })
-  createdBy?: UserDto;
+  createdBy?: UserDto
 
   @ApiProperty()
-  createdAt: string;
+  createdAt: string
 
   @ApiProperty()
-  updatedAt: string;
+  updatedAt: string
 
   @ApiPropertyOptional({ type: () => WarehouseDto, nullable: true })
-  warehouse?: WarehouseDto;
+  warehouse?: WarehouseDto
 
   @ApiPropertyOptional({ type: () => [GoodsReceiptItemDto], nullable: true })
-  items?: GoodsReceiptItemDto[];
+  items?: GoodsReceiptItemDto[]
 }

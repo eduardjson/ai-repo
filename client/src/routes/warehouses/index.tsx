@@ -1,5 +1,25 @@
 import { useState } from 'react'
-import { Box, Typography, Button, Table, TableHead, TableBody, TableRow, TableCell, TableContainer, Paper, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Tooltip, CircularProgress, Grid } from '@mui/material'
+import {
+  Box,
+  Typography,
+  Button,
+  Table,
+  TableHead,
+  TableBody,
+  TableRow,
+  TableCell,
+  TableContainer,
+  Paper,
+  IconButton,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  Tooltip,
+  CircularProgress,
+  Grid,
+} from '@mui/material'
 import { Add, Edit, Delete, Inventory, Visibility, LocationOn } from '@mui/icons-material'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
@@ -17,9 +37,19 @@ import {
 import { ActionModal } from '../../components/ActionModal'
 import { LocationPicker, type LatLng } from '../../components/LocationPicker'
 
-const warehouseSchema = z.object({ name: z.string().min(1, 'Название обязательно'), address: z.string().optional() })
+const warehouseSchema = z.object({
+  name: z.string().min(1, 'Название обязательно'),
+  address: z.string().optional(),
+})
 type WarehouseFormValues = z.infer<typeof warehouseSchema>
-const stockSchema = z.object({ productId: z.string().min(1, 'Выберите товар'), quantity: z.string().min(1, 'Количество > 0'), purchasePrice: z.string().optional(), estimatePrice: z.string().optional(), salePrice: z.string().optional(), discount: z.string().optional() })
+const stockSchema = z.object({
+  productId: z.string().min(1, 'Выберите товар'),
+  quantity: z.string().min(1, 'Количество > 0'),
+  purchasePrice: z.string().optional(),
+  estimatePrice: z.string().optional(),
+  salePrice: z.string().optional(),
+  discount: z.string().optional(),
+})
 type StockFormValues = z.infer<typeof stockSchema>
 
 export function WarehouseListPage() {
@@ -37,23 +67,46 @@ export function WarehouseListPage() {
   const [stockWarehouseId, setStockWarehouseId] = useState<string | null>(null)
   const [stockViewWarehouseId, setStockViewWarehouseId] = useState<string | null>(null)
   const [location, setLocation] = useState<LatLng | null>(null)
-  const { data: stockItems, isLoading: stockLoading } = useWarehouseControllerGetStockQuery({ id: stockViewWarehouseId! }, { skip: !stockViewWarehouseId })
+  const { data: stockItems, isLoading: stockLoading } = useWarehouseControllerGetStockQuery(
+    { id: stockViewWarehouseId! },
+    { skip: !stockViewWarehouseId },
+  )
 
-  const { register, handleSubmit: handleWhSubmit, reset, formState: { errors } } = useForm<WarehouseFormValues>({ resolver: zodResolver(warehouseSchema) })
-  const { register: regStock, handleSubmit: handleStSubmit, reset: resetStock, formState: { errors: stockErrors } } = useForm<StockFormValues>({ resolver: zodResolver(stockSchema) })
+  const {
+    register,
+    handleSubmit: handleWhSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<WarehouseFormValues>({ resolver: zodResolver(warehouseSchema) })
+  const {
+    register: regStock,
+    handleSubmit: handleStSubmit,
+    reset: resetStock,
+    formState: { errors: stockErrors },
+  } = useForm<StockFormValues>({ resolver: zodResolver(stockSchema) })
 
-  const openCreate = () => { setEditTarget(null); setLocation(null); reset({ name: '', address: '' }); setDialogOpen(true) }
+  const openCreate = () => {
+    setEditTarget(null)
+    setLocation(null)
+    reset({ name: '', address: '' })
+    setDialogOpen(true)
+  }
   const openEdit = (w: WarehouseDto) => {
     setEditTarget(w)
-    setLocation(w.latitude != null && w.longitude != null ? { lat: w.latitude, lng: w.longitude } : null)
+    setLocation(
+      w.latitude != null && w.longitude != null ? { lat: w.latitude, lng: w.longitude } : null,
+    )
     reset({ name: w.name, address: w.address || '' })
     setDialogOpen(true)
   }
 
   const onWhSubmit = async (data: WarehouseFormValues) => {
     const payload = { ...data, latitude: location?.lat, longitude: location?.lng }
-    if (editTarget) { await updateWarehouse({ id: editTarget.id, updateWarehouseDto: payload }).unwrap() }
-    else { await createWarehouse({ createWarehouseDto: payload }).unwrap() }
+    if (editTarget) {
+      await updateWarehouse({ id: editTarget.id, updateWarehouseDto: payload }).unwrap()
+    } else {
+      await createWarehouse({ createWarehouseDto: payload }).unwrap()
+    }
     setDialogOpen(false)
   }
 
@@ -77,31 +130,71 @@ export function WarehouseListPage() {
   return (
     <Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h4" fontWeight={700}>Склады</Typography>
-        <Button variant="contained" startIcon={<Add />} onClick={openCreate}>Добавить склад</Button>
+        <Typography variant="h4" fontWeight={700}>
+          Склады
+        </Typography>
+        <Button variant="contained" startIcon={<Add />} onClick={openCreate}>
+          Добавить склад
+        </Button>
       </Box>
       <TableContainer component={Paper} elevation={1}>
         <Table size="small">
-          <TableHead><TableRow><TableCell>Название</TableCell><TableCell>Адрес</TableCell><TableCell align="right">Действия</TableCell></TableRow></TableHead>
+          <TableHead>
+            <TableRow>
+              <TableCell>Название</TableCell>
+              <TableCell>Адрес</TableCell>
+              <TableCell align="right">Действия</TableCell>
+            </TableRow>
+          </TableHead>
           <TableBody>
             {warehouses?.map((w) => (
               <TableRow key={w.id} hover>
                 <TableCell sx={{ fontWeight: 500 }}>
                   {w.name}
                   {w.latitude != null && w.longitude != null && (
-                    <Tooltip title="Есть координаты на карте"><LocationOn fontSize="small" sx={{ ml: 0.5, verticalAlign: 'middle', color: 'primary.main' }} /></Tooltip>
+                    <Tooltip title="Есть координаты на карте">
+                      <LocationOn
+                        fontSize="small"
+                        sx={{ ml: 0.5, verticalAlign: 'middle', color: 'primary.main' }}
+                      />
+                    </Tooltip>
                   )}
                 </TableCell>
                 <TableCell>{w.address || '-'}</TableCell>
                 <TableCell align="right">
-                  <Tooltip title="Остатки"><IconButton size="small" onClick={() => setStockViewWarehouseId(w.id)}><Visibility fontSize="small" /></IconButton></Tooltip>
-                  <Tooltip title="Добавить товар"><IconButton size="small" onClick={() => { setStockWarehouseId(w.id); setStockDialogOpen(true); resetStock({ productId: '', quantity: '0' }) }}><Inventory fontSize="small" /></IconButton></Tooltip>
-                  <IconButton size="small" onClick={() => openEdit(w)}><Edit fontSize="small" /></IconButton>
-                  <IconButton size="small" color="error" onClick={() => setDeleteTarget(w)}><Delete fontSize="small" /></IconButton>
+                  <Tooltip title="Остатки">
+                    <IconButton size="small" onClick={() => setStockViewWarehouseId(w.id)}>
+                      <Visibility fontSize="small" />
+                    </IconButton>
+                  </Tooltip>
+                  <Tooltip title="Добавить товар">
+                    <IconButton
+                      size="small"
+                      onClick={() => {
+                        setStockWarehouseId(w.id)
+                        setStockDialogOpen(true)
+                        resetStock({ productId: '', quantity: '0' })
+                      }}
+                    >
+                      <Inventory fontSize="small" />
+                    </IconButton>
+                  </Tooltip>
+                  <IconButton size="small" onClick={() => openEdit(w)}>
+                    <Edit fontSize="small" />
+                  </IconButton>
+                  <IconButton size="small" color="error" onClick={() => setDeleteTarget(w)}>
+                    <Delete fontSize="small" />
+                  </IconButton>
                 </TableCell>
               </TableRow>
             ))}
-            {(!warehouses || warehouses.length === 0) && <TableRow><TableCell colSpan={3} align="center" sx={{ py: 4, color: 'text.secondary' }}>Нет складов</TableCell></TableRow>}
+            {(!warehouses || warehouses.length === 0) && (
+              <TableRow>
+                <TableCell colSpan={3} align="center" sx={{ py: 4, color: 'text.secondary' }}>
+                  Нет складов
+                </TableCell>
+              </TableRow>
+            )}
           </TableBody>
         </Table>
       </TableContainer>
@@ -111,11 +204,25 @@ export function WarehouseListPage() {
           <DialogTitle>{editTarget ? 'Редактировать склад' : 'Новый склад'}</DialogTitle>
           <DialogContent sx={{ mt: 1 }}>
             <Grid container spacing={2}>
-              <Grid size={{ xs: 12, md: 6 }} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                <TextField label="Название" fullWidth {...register('name')} error={!!errors.name} helperText={errors.name?.message} />
+              <Grid
+                size={{ xs: 12, md: 6 }}
+                sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}
+              >
+                <TextField
+                  label="Название"
+                  fullWidth
+                  {...register('name')}
+                  error={!!errors.name}
+                  helperText={errors.name?.message}
+                />
                 <TextField label="Адрес" fullWidth {...register('address')} />
                 {location && (
-                  <Button size="small" color="inherit" onClick={() => setLocation(null)} sx={{ alignSelf: 'flex-start' }}>
+                  <Button
+                    size="small"
+                    color="inherit"
+                    onClick={() => setLocation(null)}
+                    sx={{ alignSelf: 'flex-start' }}
+                  >
                     Сбросить точку на карте
                   </Button>
                 )}
@@ -125,36 +232,95 @@ export function WarehouseListPage() {
               </Grid>
             </Grid>
           </DialogContent>
-          <DialogActions><Button onClick={() => setDialogOpen(false)}>Отмена</Button><Button type="submit" variant="contained">Сохранить</Button></DialogActions>
+          <DialogActions>
+            <Button onClick={() => setDialogOpen(false)}>Отмена</Button>
+            <Button type="submit" variant="contained">
+              Сохранить
+            </Button>
+          </DialogActions>
         </form>
       </Dialog>
 
-      <Dialog open={stockDialogOpen} onClose={() => setStockDialogOpen(false)} maxWidth="sm" fullWidth>
+      <Dialog
+        open={stockDialogOpen}
+        onClose={() => setStockDialogOpen(false)}
+        maxWidth="sm"
+        fullWidth
+      >
         <form onSubmit={handleStSubmit(onStSubmit)}>
           <DialogTitle>Добавить товар на склад</DialogTitle>
           <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
-            <TextField select label="Товар" fullWidth {...regStock('productId')} error={!!stockErrors.productId} helperText={stockErrors.productId?.message} SelectProps={{ native: true }}>
+            <TextField
+              select
+              label="Товар"
+              fullWidth
+              {...regStock('productId')}
+              error={!!stockErrors.productId}
+              helperText={stockErrors.productId?.message}
+              SelectProps={{ native: true }}
+            >
               <option value="">Выберите товар</option>
-              {products?.items?.map((p) => <option key={p.id} value={p.id}>{p.title}</option>)}
+              {products?.items?.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.title}
+                </option>
+              ))}
             </TextField>
-            <TextField label="Количество" type="number" fullWidth {...regStock('quantity')} error={!!stockErrors.quantity} helperText={stockErrors.quantity?.message} />
-            <TextField label="Цена закупки" type="number" fullWidth {...regStock('purchasePrice')} />
-            <TextField label="Сметная цена" type="number" fullWidth {...regStock('estimatePrice')} />
+            <TextField
+              label="Количество"
+              type="number"
+              fullWidth
+              {...regStock('quantity')}
+              error={!!stockErrors.quantity}
+              helperText={stockErrors.quantity?.message}
+            />
+            <TextField
+              label="Цена закупки"
+              type="number"
+              fullWidth
+              {...regStock('purchasePrice')}
+            />
+            <TextField
+              label="Сметная цена"
+              type="number"
+              fullWidth
+              {...regStock('estimatePrice')}
+            />
             <TextField label="Цена продажи" type="number" fullWidth {...regStock('salePrice')} />
             <TextField label="Скидка" type="number" fullWidth {...regStock('discount')} />
           </DialogContent>
-          <DialogActions><Button onClick={() => setStockDialogOpen(false)}>Отмена</Button><Button type="submit" variant="contained">Добавить</Button></DialogActions>
+          <DialogActions>
+            <Button onClick={() => setStockDialogOpen(false)}>Отмена</Button>
+            <Button type="submit" variant="contained">
+              Добавить
+            </Button>
+          </DialogActions>
         </form>
       </Dialog>
 
-      <Dialog open={!!stockViewWarehouseId} onClose={() => setStockViewWarehouseId(null)} maxWidth="md" fullWidth>
+      <Dialog
+        open={!!stockViewWarehouseId}
+        onClose={() => setStockViewWarehouseId(null)}
+        maxWidth="md"
+        fullWidth
+      >
         <DialogTitle>Остатки на складе</DialogTitle>
         <DialogContent sx={{ mt: 1 }}>
           {stockLoading ? (
-            <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}><CircularProgress /></Box>
+            <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+              <CircularProgress />
+            </Box>
           ) : (
             <Table size="small">
-              <TableHead><TableRow><TableCell>Товар</TableCell><TableCell align="right">Кол-во</TableCell><TableCell align="right">Закупка</TableCell><TableCell align="right">Сметная</TableCell><TableCell align="right">Продажа</TableCell></TableRow></TableHead>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Товар</TableCell>
+                  <TableCell align="right">Кол-во</TableCell>
+                  <TableCell align="right">Закупка</TableCell>
+                  <TableCell align="right">Сметная</TableCell>
+                  <TableCell align="right">Продажа</TableCell>
+                </TableRow>
+              </TableHead>
               <TableBody>
                 {stockItems?.map((s) => (
                   <TableRow key={s.id} hover>
@@ -165,15 +331,34 @@ export function WarehouseListPage() {
                     <TableCell align="right">{s.salePrice ?? '-'}</TableCell>
                   </TableRow>
                 ))}
-                {(!stockItems || stockItems.length === 0) && <TableRow><TableCell colSpan={5} align="center" sx={{ py: 3, color: 'text.secondary' }}>Нет остатков</TableCell></TableRow>}
+                {(!stockItems || stockItems.length === 0) && (
+                  <TableRow>
+                    <TableCell colSpan={5} align="center" sx={{ py: 3, color: 'text.secondary' }}>
+                      Нет остатков
+                    </TableCell>
+                  </TableRow>
+                )}
               </TableBody>
             </Table>
           )}
         </DialogContent>
-        <DialogActions><Button onClick={() => setStockViewWarehouseId(null)}>Закрыть</Button></DialogActions>
+        <DialogActions>
+          <Button onClick={() => setStockViewWarehouseId(null)}>Закрыть</Button>
+        </DialogActions>
       </Dialog>
 
-      <ActionModal open={!!deleteTarget} title="Удалить склад" message={`Удалить "${deleteTarget?.name}"?`} onConfirm={async () => { if (deleteTarget) { await deleteWarehouse({ id: deleteTarget.id }).unwrap(); setDeleteTarget(null) } }} onCancel={() => setDeleteTarget(null)} />
+      <ActionModal
+        open={!!deleteTarget}
+        title="Удалить склад"
+        message={`Удалить "${deleteTarget?.name}"?`}
+        onConfirm={async () => {
+          if (deleteTarget) {
+            await deleteWarehouse({ id: deleteTarget.id }).unwrap()
+            setDeleteTarget(null)
+          }
+        }}
+        onCancel={() => setDeleteTarget(null)}
+      />
     </Box>
   )
 }

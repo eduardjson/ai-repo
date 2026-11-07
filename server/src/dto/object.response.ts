@@ -1,34 +1,34 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { CameraType } from './enums';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
+import { CameraType } from './enums'
 
 export class ObjectDto {
   @ApiProperty()
-  id: string;
+  id: string
 
   @ApiProperty()
-  name: string;
+  name: string
 
   @ApiPropertyOptional({ nullable: true })
-  address?: string;
+  address?: string
 
   @ApiPropertyOptional({ nullable: true })
-  latitude?: number;
+  latitude?: number
 
   @ApiPropertyOptional({ nullable: true })
-  longitude?: number;
+  longitude?: number
 
   @ApiPropertyOptional({ nullable: true })
-  description?: string;
+  description?: string
 
   @ApiPropertyOptional({ nullable: true })
-  cameraUrl?: string;
+  cameraUrl?: string
 
   @ApiPropertyOptional({ enum: CameraType, nullable: true })
-  cameraType?: CameraType;
+  cameraType?: CameraType
 
   @ApiProperty()
-  createdAt: string;
+  createdAt: string
 
   @ApiProperty()
-  updatedAt: string;
+  updatedAt: string
 }

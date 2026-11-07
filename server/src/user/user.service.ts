@@ -1,8 +1,8 @@
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
-import * as bcrypt from 'bcrypt';
-import { PrismaService } from '../prisma/prisma.service';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { Injectable, NotFoundException, ConflictException } from '@nestjs/common'
+import * as bcrypt from 'bcrypt'
+import { PrismaService } from '../prisma/prisma.service'
+import { CreateUserDto } from './dto/create-user.dto'
+import { UpdateUserDto } from './dto/update-user.dto'
 
 @Injectable()
 export class UserService {
@@ -22,7 +22,7 @@ export class UserService {
         createdAt: true,
         updatedAt: true,
       },
-    });
+    })
   }
 
   async findById(id: string) {
@@ -40,19 +40,19 @@ export class UserService {
         createdAt: true,
         updatedAt: true,
       },
-    });
+    })
     if (!user) {
-      throw new NotFoundException('User not found');
+      throw new NotFoundException('User not found')
     }
-    return user;
+    return user
   }
 
   async create(dto: CreateUserDto) {
-    const existing = await this.prisma.user.findUnique({ where: { email: dto.email } });
+    const existing = await this.prisma.user.findUnique({ where: { email: dto.email } })
     if (existing) {
-      throw new ConflictException('Email already exists');
+      throw new ConflictException('Email already exists')
     }
-    const hashed = await bcrypt.hash(dto.password, 10);
+    const hashed = await bcrypt.hash(dto.password, 10)
     return this.prisma.user.create({
       data: {
         email: dto.email,
@@ -75,17 +75,17 @@ export class UserService {
         createdAt: true,
         updatedAt: true,
       },
-    });
+    })
   }
 
   async remove(id: string) {
-    await this.findById(id);
-    await this.prisma.user.delete({ where: { id } });
-    return { id };
+    await this.findById(id)
+    await this.prisma.user.delete({ where: { id } })
+    return { id }
   }
 
   async update(id: string, dto: UpdateUserDto) {
-    await this.findById(id);
+    await this.findById(id)
     return this.prisma.user.update({
       where: { id },
       data: dto as any,
@@ -101,6 +101,6 @@ export class UserService {
         createdAt: true,
         updatedAt: true,
       },
-    });
+    })
   }
 }

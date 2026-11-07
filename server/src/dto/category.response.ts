@@ -1,18 +1,18 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
 
 export class CategoryDto {
   @ApiProperty()
-  id: string;
+  id: string
 
   @ApiProperty()
-  name: string;
+  name: string
 
   @ApiPropertyOptional({ nullable: true })
-  parentId?: string;
+  parentId?: string
 
   @ApiPropertyOptional({ type: () => [CategoryDto], nullable: true })
-  children?: CategoryDto[];
+  children?: CategoryDto[]
 
   @ApiProperty()
-  createdAt: string;
+  createdAt: string
 }

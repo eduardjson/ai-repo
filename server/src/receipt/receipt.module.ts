@@ -1,6 +1,6 @@
-import { Module } from '@nestjs/common';
-import { ReceiptService } from './receipt.service';
-import { ReceiptController } from './receipt.controller';
+import { Module } from '@nestjs/common'
+import { ReceiptService } from './receipt.service'
+import { ReceiptController } from './receipt.controller'
 
 @Module({
   controllers: [ReceiptController],

@@ -1,7 +1,7 @@
-import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
-import { CreateTransferDto } from './dto/create-transfer.dto';
-import { MovementType } from '../generated/prisma/client';
+import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common'
+import { PrismaService } from '../prisma/prisma.service'
+import { CreateTransferDto } from './dto/create-transfer.dto'
+import { MovementType } from '../generated/prisma/client'
 
 @Injectable()
 export class TransferService {
@@ -11,18 +11,18 @@ export class TransferService {
     return this.prisma.stockTransfer.findMany({
       include: { product: true, fromWarehouse: true, toWarehouse: true },
       orderBy: { createdAt: 'desc' },
-    });
+    })
   }
 
   async create(dto: CreateTransferDto, userId?: string) {
     if (dto.fromWarehouseId === dto.toWarehouseId) {
-      throw new BadRequestException('Склады отправитель и получатель должны отличаться');
+      throw new BadRequestException('Склады отправитель и получатель должны отличаться')
     }
 
-    const from = await this.prisma.warehouse.findUnique({ where: { id: dto.fromWarehouseId } });
-    const to = await this.prisma.warehouse.findUnique({ where: { id: dto.toWarehouseId } });
+    const from = await this.prisma.warehouse.findUnique({ where: { id: dto.fromWarehouseId } })
+    const to = await this.prisma.warehouse.findUnique({ where: { id: dto.toWarehouseId } })
     if (!from || !to) {
-      throw new NotFoundException('Склад не найден');
+      throw new NotFoundException('Склад не найден')
     }
 
     return this.prisma.$transaction(async (tx) => {
@@ -33,16 +33,16 @@ export class TransferService {
             warehouseId: dto.fromWarehouseId,
           },
         },
-      });
+      })
 
       if (!source || source.quantity < dto.quantity) {
-        throw new BadRequestException('Недостаточно товара на складе-отправителе');
+        throw new BadRequestException('Недостаточно товара на складе-отправителе')
       }
 
       await tx.stockItem.update({
         where: { id: source.id },
         data: { quantity: source.quantity - dto.quantity },
-      });
+      })
 
       const dest = await tx.stockItem.findUnique({
         where: {
@@ -51,13 +51,13 @@ export class TransferService {
             warehouseId: dto.toWarehouseId,
           },
         },
-      });
+      })
 
       if (dest) {
         await tx.stockItem.update({
           where: { id: dest.id },
           data: { quantity: dest.quantity + dto.quantity },
-        });
+        })
       } else {
         await tx.stockItem.create({
           data: {
@@ -69,7 +69,7 @@ export class TransferService {
             salePrice: source.salePrice,
             discount: source.discount,
           },
-        });
+        })
       }
 
       const transfer = await tx.stockTransfer.create({
@@ -80,7 +80,7 @@ export class TransferService {
           toWarehouseId: dto.toWarehouseId,
         },
         include: { product: true, fromWarehouse: true, toWarehouse: true },
-      });
+      })
 
       await tx.stockMovement.createMany({
         data: [
@@ -101,9 +101,9 @@ export class TransferService {
             referenceId: transfer.id,
           },
         ],
-      });
+      })
 
-      return transfer;
-    });
+      return transfer
+    })
   }
 }

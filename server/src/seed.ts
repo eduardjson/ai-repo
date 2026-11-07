@@ -1,10 +1,10 @@
-import * as bcrypt from 'bcrypt';
-import type { PrismaService } from './prisma/prisma.service';
-import { generateInternalEan13, generateSku } from './product/barcode.util';
-import { VatRate, BarcodeType } from './generated/prisma/client';
+import * as bcrypt from 'bcrypt'
+import type { PrismaService } from './prisma/prisma.service'
+import { generateInternalEan13, generateSku } from './product/barcode.util'
+import { VatRate, BarcodeType } from './generated/prisma/client'
 
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'admin@example.com';
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin';
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'admin@example.com'
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin'
 
 /**
  * Создаёт администратора при первом старте, если его ещё нет.
@@ -14,19 +14,19 @@ const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin';
  * поэтому пароль не перезаписывается после того, как администратор его сменит.
  */
 export async function seedAdmin(prisma: PrismaService): Promise<void> {
-  const existing = await prisma.user.findUnique({ where: { email: ADMIN_EMAIL } });
+  const existing = await prisma.user.findUnique({ where: { email: ADMIN_EMAIL } })
   if (existing) {
-    return;
+    return
   }
 
   if (!process.env.ADMIN_PASSWORD) {
     console.warn(
       '[seed] ADMIN_PASSWORD не задан — используются учётные данные по умолчанию. ' +
         'Задайте ADMIN_EMAIL/ADMIN_PASSWORD в переменных окружения для production.',
-    );
+    )
   }
 
-  const password = await bcrypt.hash(ADMIN_PASSWORD, 10);
+  const password = await bcrypt.hash(ADMIN_PASSWORD, 10)
   await prisma.user.create({
     data: {
       email: ADMIN_EMAIL,
@@ -34,9 +34,9 @@ export async function seedAdmin(prisma: PrismaService): Promise<void> {
       firstName: 'Администратор',
       role: ['ADMIN'] as any,
     },
-  });
+  })
 
-  console.log(`[seed] Создан администратор: ${ADMIN_EMAIL}`);
+  console.log(`[seed] Создан администратор: ${ADMIN_EMAIL}`)
 }
 
 const UNITS: { code: string; name: string; symbol: string }[] = [
@@ -52,7 +52,7 @@ const UNITS: { code: string; name: string; symbol: string }[] = [
   { code: 'sheet', name: 'лист', symbol: 'лист' },
   { code: 'bag', name: 'мешок', symbol: 'мешок' },
   { code: 'set', name: 'комплект', symbol: 'компл' },
-];
+]
 
 const CATEGORIES: { name: string; children?: string[] }[] = [
   { name: 'Пиломатериалы', children: ['Доска обрезная', 'Брус', 'Фанера', 'OSB-плита'] },
@@ -62,7 +62,7 @@ const CATEGORIES: { name: string; children?: string[] }[] = [
   { name: 'Кровля и гидроизоляция', children: ['Металлочерепица', 'Гидроизоляция'] },
   { name: 'Изоляция', children: ['Утеплитель'] },
   { name: 'Отделка', children: ['Гипсокартон', 'Краска'] },
-];
+]
 
 const MANUFACTURERS: { name: string; country: string }[] = [
   { name: 'КНАУФ', country: 'Германия' },
@@ -70,32 +70,32 @@ const MANUFACTURERS: { name: string; country: string }[] = [
   { name: 'ROCKWOOL', country: 'Дания' },
   { name: 'Свеза', country: 'Россия' },
   { name: 'Северсталь', country: 'Россия' },
-];
+]
 
 interface SeedProduct {
-  sku: string;
-  title: string;
-  category: string;
-  manufacturer?: string;
-  baseUnit: string;
-  purchaseUnit?: string;
-  purchaseToBase?: number;
-  saleUnit?: string;
-  saleToBase?: number;
-  purchasePrice: number;
-  estimatePrice: number;
-  salePrice: number;
-  vatRate: VatRate;
-  description?: string;
-  grade?: string;
-  material?: string;
-  gost?: string;
-  lengthMm?: number;
-  widthMm?: number;
-  heightMm?: number;
-  weightKg?: number;
-  minStock?: number;
-  multiBarcode?: boolean;
+  sku: string
+  title: string
+  category: string
+  manufacturer?: string
+  baseUnit: string
+  purchaseUnit?: string
+  purchaseToBase?: number
+  saleUnit?: string
+  saleToBase?: number
+  purchasePrice: number
+  estimatePrice: number
+  salePrice: number
+  vatRate: VatRate
+  description?: string
+  grade?: string
+  material?: string
+  gost?: string
+  lengthMm?: number
+  widthMm?: number
+  heightMm?: number
+  weightKg?: number
+  minStock?: number
+  multiBarcode?: boolean
 }
 
 const PRODUCTS: SeedProduct[] = [
@@ -302,7 +302,7 @@ const PRODUCTS: SeedProduct[] = [
     vatRate: VatRate.VAT20,
     minStock: 100,
   },
-];
+]
 
 /**
  * Заполняет справочники (единицы, категории, производители) и, если номенклатура
@@ -315,11 +315,9 @@ export async function seedCatalog(prisma: PrismaService): Promise<void> {
       where: { code: u.code },
       update: {},
       create: u,
-    });
+    })
   }
-  const units = new Map(
-    (await prisma.unit.findMany()).map((u) => [u.code, u.id]),
-  );
+  const units = new Map((await prisma.unit.findMany()).map((u) => [u.code, u.id]))
 
   // Категории (двухуровневые)
   for (const root of CATEGORIES) {
@@ -327,18 +325,16 @@ export async function seedCatalog(prisma: PrismaService): Promise<void> {
       where: { name: root.name },
       update: {},
       create: { name: root.name },
-    });
+    })
     for (const child of root.children ?? []) {
       await prisma.category.upsert({
         where: { name: child },
         update: { parentId: created.id },
         create: { name: child, parentId: created.id },
-      });
+      })
     }
   }
-  const categories = new Map(
-    (await prisma.category.findMany()).map((c) => [c.name, c.id]),
-  );
+  const categories = new Map((await prisma.category.findMany()).map((c) => [c.name, c.id]))
 
   // Производители
   for (const m of MANUFACTURERS) {
@@ -346,28 +342,26 @@ export async function seedCatalog(prisma: PrismaService): Promise<void> {
       where: { name: m.name },
       update: {},
       create: m,
-    });
+    })
   }
-  const manufacturers = new Map(
-    (await prisma.manufacturer.findMany()).map((m) => [m.name, m.id]),
-  );
+  const manufacturers = new Map((await prisma.manufacturer.findMany()).map((m) => [m.name, m.id]))
 
   // Демо-склад, чтобы можно было сразу тестировать приёмку.
   await prisma.warehouse.upsert({
     where: { name: 'Основной склад' },
     update: {},
     create: { name: 'Основной склад', address: 'г. Москва' },
-  });
+  })
 
   // Номенклатура — только если ещё пусто.
-  const existing = await prisma.product.count();
+  const existing = await prisma.product.count()
   if (existing > 0) {
-    console.log('[seed] Номенклатура уже заполнена, пропускаем демо-позиции.');
-    return;
+    console.log('[seed] Номенклатура уже заполнена, пропускаем демо-позиции.')
+    return
   }
 
   for (let i = 0; i < PRODUCTS.length; i++) {
-    const p = PRODUCTS[i];
+    const p = PRODUCTS[i]
     const product = await prisma.product.create({
       data: {
         sku: p.sku,
@@ -393,21 +387,27 @@ export async function seedCatalog(prisma: PrismaService): Promise<void> {
         weightKg: p.weightKg,
         minStock: p.minStock,
       },
-    });
+    })
 
-    const barcodes: { productId: string; value: string; type: BarcodeType; isPrimary: boolean }[] = [
-      { productId: product.id, value: generateInternalEan13(i + 1), type: BarcodeType.EAN13, isPrimary: true },
-    ];
+    const barcodes: { productId: string; value: string; type: BarcodeType; isPrimary: boolean }[] =
+      [
+        {
+          productId: product.id,
+          value: generateInternalEan13(i + 1),
+          type: BarcodeType.EAN13,
+          isPrimary: true,
+        },
+      ]
     if (p.multiBarcode) {
       barcodes.push({
         productId: product.id,
         value: p.sku,
         type: BarcodeType.CODE128,
         isPrimary: false,
-      });
+      })
     }
-    await prisma.barcode.createMany({ data: barcodes });
+    await prisma.barcode.createMany({ data: barcodes })
   }
 
-  console.log(`[seed] Создано демо-позиций номенклатуры: ${PRODUCTS.length}`);
+  console.log(`[seed] Создано демо-позиций номенклатуры: ${PRODUCTS.length}`)
 }

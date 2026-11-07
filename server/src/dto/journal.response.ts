@@ -1,67 +1,67 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { MovementType } from './enums';
-import { ProductDto } from './product.response';
-import { WarehouseDto } from './warehouse.response';
-import { ObjectDto } from './object.response';
-import { UserDto } from './user.response';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
+import { MovementType } from './enums'
+import { ProductDto } from './product.response'
+import { WarehouseDto } from './warehouse.response'
+import { ObjectDto } from './object.response'
+import { UserDto } from './user.response'
 
 export class StockMovementDto {
   @ApiProperty()
-  id: string;
+  id: string
 
   @ApiProperty({ enum: MovementType })
-  type: MovementType;
+  type: MovementType
 
   @ApiProperty()
-  quantity: number;
+  quantity: number
 
   @ApiProperty()
-  productId: string;
+  productId: string
 
   @ApiProperty()
-  warehouseId: string;
+  warehouseId: string
 
   @ApiPropertyOptional({ nullable: true })
-  objectId?: string;
+  objectId?: string
 
   @ApiPropertyOptional({ nullable: true })
-  userId?: string;
+  userId?: string
 
   @ApiPropertyOptional({ nullable: true })
-  referenceId?: string;
+  referenceId?: string
 
   @ApiPropertyOptional({ nullable: true })
-  referenceNumber?: string;
+  referenceNumber?: string
 
   @ApiProperty()
-  createdAt: string;
+  createdAt: string
 
   @ApiPropertyOptional({ type: () => ProductDto, nullable: true })
-  product?: ProductDto;
+  product?: ProductDto
 
   @ApiPropertyOptional({ type: () => WarehouseDto, nullable: true })
-  warehouse?: WarehouseDto;
+  warehouse?: WarehouseDto
 
   @ApiPropertyOptional({ type: () => ObjectDto, nullable: true })
-  object?: ObjectDto;
+  object?: ObjectDto
 
   @ApiPropertyOptional({ type: () => UserDto, nullable: true })
-  user?: UserDto;
+  user?: UserDto
 }
 
 export class StockMovementListResponseDto {
   @ApiProperty({ type: () => [StockMovementDto] })
-  items: StockMovementDto[];
+  items: StockMovementDto[]
 
   @ApiProperty()
-  total: number;
+  total: number
 
   @ApiProperty()
-  page: number;
+  page: number
 
   @ApiProperty()
-  size: number;
+  size: number
 
   @ApiProperty()
-  pages: number;
+  pages: number
 }

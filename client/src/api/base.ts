@@ -34,7 +34,11 @@ const rawBaseQuery = fetchBaseQuery({
 let refreshPromise: Promise<any> | null = null
 
 /** Скачивание вложения (PDF) с авторизацией и сохранением под оригинальным именем. */
-export async function downloadAttachment(messageId: number, attachmentId: string, fileName: string) {
+export async function downloadAttachment(
+  messageId: number,
+  attachmentId: string,
+  fileName: string,
+) {
   const res = await fetch(`/api/chat/messages/${messageId}/attachments/${attachmentId}`, {
     headers: { Authorization: `Bearer ${getAccessToken()}` },
   })

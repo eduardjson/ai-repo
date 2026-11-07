@@ -1,163 +1,163 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { VatRate, BarcodeType } from './enums';
-import { CategoryDto } from './category.response';
-import { ManufacturerDto } from './manufacturer.response';
-import { UnitDto } from './unit.response';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
+import { VatRate, BarcodeType } from './enums'
+import { CategoryDto } from './category.response'
+import { ManufacturerDto } from './manufacturer.response'
+import { UnitDto } from './unit.response'
 
 export class ProductImageDto {
   @ApiProperty()
-  id: string;
+  id: string
 
   @ApiProperty()
-  productId: string;
+  productId: string
 
   @ApiProperty()
-  url: string;
+  url: string
 }
 
 export class BarcodeDto {
   @ApiProperty()
-  id: string;
+  id: string
 
   @ApiProperty()
-  productId: string;
+  productId: string
 
   @ApiProperty()
-  value: string;
+  value: string
 
   @ApiProperty({ enum: BarcodeType })
-  type: BarcodeType;
+  type: BarcodeType
 
   @ApiProperty()
-  isPrimary: boolean;
+  isPrimary: boolean
 }
 
 export class ProductDto {
   @ApiProperty()
-  id: string;
+  id: string
 
   @ApiProperty()
-  sku: string;
+  sku: string
 
   @ApiProperty()
-  title: string;
+  title: string
 
   @ApiPropertyOptional({ nullable: true })
-  description?: string;
+  description?: string
 
   @ApiPropertyOptional({ nullable: true })
-  categoryId?: string;
+  categoryId?: string
 
   @ApiPropertyOptional({ type: () => CategoryDto, nullable: true })
-  category?: CategoryDto;
+  category?: CategoryDto
 
   @ApiPropertyOptional({ nullable: true })
-  manufacturerId?: string;
+  manufacturerId?: string
 
   @ApiPropertyOptional({ type: () => ManufacturerDto, nullable: true })
-  manufacturer?: ManufacturerDto;
+  manufacturer?: ManufacturerDto
 
   @ApiProperty()
-  baseUnitId: string;
+  baseUnitId: string
 
   @ApiPropertyOptional({ type: () => UnitDto, nullable: true })
-  baseUnit?: UnitDto;
+  baseUnit?: UnitDto
 
   @ApiPropertyOptional({ nullable: true })
-  purchaseUnitId?: string;
+  purchaseUnitId?: string
 
   @ApiPropertyOptional({ type: () => UnitDto, nullable: true })
-  purchaseUnit?: UnitDto;
+  purchaseUnit?: UnitDto
 
   @ApiProperty()
-  purchaseToBase: number;
+  purchaseToBase: number
 
   @ApiPropertyOptional({ nullable: true })
-  saleUnitId?: string;
+  saleUnitId?: string
 
   @ApiPropertyOptional({ type: () => UnitDto, nullable: true })
-  saleUnit?: UnitDto;
+  saleUnit?: UnitDto
 
   @ApiProperty()
-  saleToBase: number;
+  saleToBase: number
 
   @ApiPropertyOptional({ nullable: true })
-  purchasePrice?: number;
+  purchasePrice?: number
 
   @ApiPropertyOptional({ nullable: true })
-  estimatePrice?: number;
+  estimatePrice?: number
 
   @ApiPropertyOptional({ nullable: true })
-  salePrice?: number;
+  salePrice?: number
 
   @ApiProperty({ enum: VatRate })
-  vatRate: VatRate;
+  vatRate: VatRate
 
   @ApiPropertyOptional({ nullable: true })
-  weightKg?: number;
+  weightKg?: number
 
   @ApiPropertyOptional({ nullable: true })
-  lengthMm?: number;
+  lengthMm?: number
 
   @ApiPropertyOptional({ nullable: true })
-  widthMm?: number;
+  widthMm?: number
 
   @ApiPropertyOptional({ nullable: true })
-  heightMm?: number;
+  heightMm?: number
 
   @ApiPropertyOptional({ nullable: true })
-  volumeM3?: number;
+  volumeM3?: number
 
   @ApiPropertyOptional({ nullable: true })
-  grade?: string;
+  grade?: string
 
   @ApiPropertyOptional({ nullable: true })
-  material?: string;
+  material?: string
 
   @ApiPropertyOptional({ nullable: true })
-  gost?: string;
+  gost?: string
 
   @ApiPropertyOptional({ nullable: true })
-  country?: string;
+  country?: string
 
   @ApiPropertyOptional({ nullable: true })
-  minStock?: number;
+  minStock?: number
 
   @ApiProperty()
-  isActive: boolean;
+  isActive: boolean
 
   @ApiPropertyOptional({ nullable: true })
-  imageUrl?: string;
+  imageUrl?: string
 
   @ApiPropertyOptional({ nullable: true })
-  imageType?: string;
+  imageType?: string
 
   @ApiProperty()
-  createdAt: string;
+  createdAt: string
 
   @ApiProperty()
-  updatedAt: string;
+  updatedAt: string
 
   @ApiProperty({ type: () => [ProductImageDto] })
-  images: ProductImageDto[];
+  images: ProductImageDto[]
 
   @ApiProperty({ type: () => [BarcodeDto] })
-  barcodes: BarcodeDto[];
+  barcodes: BarcodeDto[]
 }
 
 export class ProductListResponseDto {
   @ApiProperty({ type: () => [ProductDto] })
-  items: ProductDto[];
+  items: ProductDto[]
 
   @ApiProperty()
-  total: number;
+  total: number
 
   @ApiProperty()
-  page: number;
+  page: number
 
   @ApiProperty()
-  size: number;
+  size: number
 
   @ApiProperty()
-  pages: number;
+  pages: number
 }

@@ -1,30 +1,30 @@
-import { IsString, IsOptional, IsLatitude, IsLongitude, IsIn } from 'class-validator';
+import { IsString, IsOptional, IsLatitude, IsLongitude, IsIn } from 'class-validator'
 
 export class CreateObjectDto {
   @IsString()
-  name: string;
+  name: string
 
   @IsOptional()
   @IsString()
-  address?: string;
+  address?: string
 
   @IsOptional()
   @IsLatitude()
-  latitude?: number;
+  latitude?: number
 
   @IsOptional()
   @IsLongitude()
-  longitude?: number;
+  longitude?: number
 
   @IsOptional()
   @IsString()
-  description?: string;
+  description?: string
 
   @IsOptional()
   @IsString()
-  cameraUrl?: string;
+  cameraUrl?: string
 
   @IsOptional()
   @IsIn(['hls', 'mjpeg', 'snapshot'])
-  cameraType?: string;
+  cameraType?: string
 }

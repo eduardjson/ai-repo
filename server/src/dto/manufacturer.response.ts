@@ -1,15 +1,15 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
 
 export class ManufacturerDto {
   @ApiProperty()
-  id: string;
+  id: string
 
   @ApiProperty()
-  name: string;
+  name: string
 
   @ApiPropertyOptional({ nullable: true })
-  country?: string;
+  country?: string
 
   @ApiProperty()
-  createdAt: string;
+  createdAt: string
 }

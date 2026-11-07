@@ -85,7 +85,12 @@ export function calculateEstimate(cfg: ModuleConfig, rates: RateMap): EstimateRe
     {
       title: 'Фундамент',
       items: [
-        { name: `Фундамент — ${foundation.label}`, unit: 'м²', quantity: floorArea, rateKey: foundation.rateKey },
+        {
+          name: `Фундамент — ${foundation.label}`,
+          unit: 'м²',
+          quantity: floorArea,
+          rateKey: foundation.rateKey,
+        },
       ],
     },
     {
@@ -113,7 +118,12 @@ export function calculateEstimate(cfg: ModuleConfig, rates: RateMap): EstimateRe
     {
       title: 'Перегородки',
       items: [
-        { name: 'Внутренние перегородки', unit: 'м²', quantity: partitionArea, rateKey: 'partition' },
+        {
+          name: 'Внутренние перегородки',
+          unit: 'м²',
+          quantity: partitionArea,
+          rateKey: 'partition',
+        },
       ],
     },
     {
@@ -126,7 +136,12 @@ export function calculateEstimate(cfg: ModuleConfig, rates: RateMap): EstimateRe
     {
       title: 'Отделка',
       items: [
-        { name: 'Внутренняя отделка', unit: 'м²', quantity: netWallArea + floorArea, rateKey: 'finish_in' },
+        {
+          name: 'Внутренняя отделка',
+          unit: 'м²',
+          quantity: netWallArea + floorArea,
+          rateKey: 'finish_in',
+        },
         { name: 'Наружная отделка', unit: 'м²', quantity: netWallArea, rateKey: 'finish_out' },
       ],
     },
@@ -140,7 +155,12 @@ export function calculateEstimate(cfg: ModuleConfig, rates: RateMap): EstimateRe
     {
       title: 'Монтажные работы',
       items: [
-        { name: 'Монтаж стен и кровли', unit: 'м²', quantity: netWallArea + roofArea, rateKey: 'work_mount' },
+        {
+          name: 'Монтаж стен и кровли',
+          unit: 'м²',
+          quantity: netWallArea + roofArea,
+          rateKey: 'work_mount',
+        },
         { name: 'Монтаж пола', unit: 'м²', quantity: floorArea, rateKey: 'work_floor' },
       ],
     },
@@ -150,18 +170,31 @@ export function calculateEstimate(cfg: ModuleConfig, rates: RateMap): EstimateRe
     title: sec.title,
     items: sec.items.map((it) => {
       const rate = r(it.rateKey)
-      return { name: it.name, unit: it.unit, quantity: it.quantity, rate, total: it.quantity * rate }
+      return {
+        name: it.name,
+        unit: it.unit,
+        quantity: it.quantity,
+        rate,
+        total: it.quantity * rate,
+      }
     }),
   }))
 
-  const subtotal = sections.reduce(
-    (s, sec) => s + sec.items.reduce((x, it) => x + it.total, 0),
-    0,
-  )
+  const subtotal = sections.reduce((s, sec) => s + sec.items.reduce((x, it) => x + it.total, 0), 0)
   const marginAmount = (subtotal * cfg.margin) / 100
   const total = subtotal + marginAmount
 
-  return { sections, floorArea, wallArea, roofArea, netWallArea, partitionArea, subtotal, marginAmount, total }
+  return {
+    sections,
+    floorArea,
+    wallArea,
+    roofArea,
+    netWallArea,
+    partitionArea,
+    subtotal,
+    marginAmount,
+    total,
+  }
 }
 
 const csvNum = (n: number) => String(Math.round(n * 100) / 100).replace('.', ',')
@@ -171,7 +204,9 @@ export function exportEstimateCsv(cfg: ModuleConfig, estimate: EstimateResult) {
   for (const sec of estimate.sections) {
     rows.push(`${sec.title};;;;;`)
     for (const it of sec.items) {
-      rows.push(`;${it.name};${it.unit};${csvNum(it.quantity)};${csvNum(it.rate)};${csvNum(it.total)}`)
+      rows.push(
+        `;${it.name};${it.unit};${csvNum(it.quantity)};${csvNum(it.rate)};${csvNum(it.total)}`,
+      )
     }
   }
   rows.push(';;;;;')
@@ -197,11 +232,18 @@ export function exportEstimatePdf(cfg: ModuleConfig, estimate: EstimateResult) {
   doc.text('Смета — жилой модуль', 14, 16)
   doc.setFontSize(10)
   doc.text(`Габариты: ${cfg.length} x ${cfg.width} x ${cfg.height} м`, 14, 24)
-  doc.text(`Площадь пола: ${estimate.floorArea.toFixed(1)} м², стен: ${estimate.netWallArea.toFixed(1)} м², кровли: ${estimate.roofArea.toFixed(1)} м²`, 14, 30)
+  doc.text(
+    `Площадь пола: ${estimate.floorArea.toFixed(1)} м², стен: ${estimate.netWallArea.toFixed(1)} м², кровли: ${estimate.roofArea.toFixed(1)} м²`,
+    14,
+    30,
+  )
 
-  const body: (string | { content: string; colSpan: number; styles: Record<string, unknown> })[][] = []
+  const body: (string | { content: string; colSpan: number; styles: Record<string, unknown> })[][] =
+    []
   for (const sec of estimate.sections) {
-    body.push([{ content: sec.title, colSpan: 3, styles: { fontStyle: 'bold', fillColor: [240, 240, 240] } }])
+    body.push([
+      { content: sec.title, colSpan: 3, styles: { fontStyle: 'bold', fillColor: [240, 240, 240] } },
+    ])
     for (const it of sec.items) {
       body.push([it.name, `${fmtQty(it.quantity)} ${it.unit}`, fmtMoney(it.total)])
     }

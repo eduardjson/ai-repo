@@ -1,25 +1,25 @@
-import { IsNumber, IsOptional, Min } from 'class-validator';
-import { Type } from 'class-transformer';
+import { IsNumber, IsOptional, Min } from 'class-validator'
+import { Type } from 'class-transformer'
 
 export class UpdateStockDto {
   @IsOptional()
   @Type(() => Number)
   @IsNumber()
-  purchasePrice?: number;
+  purchasePrice?: number
 
   @IsOptional()
   @Type(() => Number)
   @IsNumber()
-  estimatePrice?: number;
+  estimatePrice?: number
 
   @IsOptional()
   @Type(() => Number)
   @IsNumber()
-  salePrice?: number;
+  salePrice?: number
 
   @IsOptional()
   @Type(() => Number)
   @IsNumber()
   @Min(0)
-  discount?: number;
+  discount?: number
 }

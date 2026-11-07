@@ -1,21 +1,21 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger'
 
 export class ProjectDto {
   @ApiProperty()
-  id: string;
+  id: string
 
   @ApiProperty()
-  name: string;
+  name: string
 
   @ApiProperty({ type: Object, description: 'Произвольная JSON-конфигурация проекта' })
-  config: object;
+  config: object
 
   @ApiProperty()
-  userId: string;
+  userId: string
 
   @ApiProperty()
-  createdAt: string;
+  createdAt: string
 
   @ApiProperty()
-  updatedAt: string;
+  updatedAt: string
 }

@@ -1,8 +1,22 @@
 import { useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
 import {
-  Box, Typography, Button, Table, TableHead, TableBody, TableRow, TableCell,
-  TableContainer, Paper, IconButton, Chip, FormControl, InputLabel, Select, MenuItem,
+  Box,
+  Typography,
+  Button,
+  Table,
+  TableHead,
+  TableBody,
+  TableRow,
+  TableCell,
+  TableContainer,
+  Paper,
+  IconButton,
+  Chip,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from '@mui/material'
 import { Add, Visibility } from '@mui/icons-material'
 import { useReceiptControllerFindAllQuery, type GoodsReceiptDto } from '../../api/generated'
@@ -23,9 +37,26 @@ export function ReceiptListPage() {
 
   return (
     <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3, flexWrap: 'wrap', gap: 2 }}>
-        <Typography variant="h4" fontWeight={700}>Поступления</Typography>
-        <Button variant="contained" startIcon={<Add />} onClick={() => navigate({ to: '/receipts/add' })}>Новое поступление</Button>
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          mb: 3,
+          flexWrap: 'wrap',
+          gap: 2,
+        }}
+      >
+        <Typography variant="h4" fontWeight={700}>
+          Поступления
+        </Typography>
+        <Button
+          variant="contained"
+          startIcon={<Add />}
+          onClick={() => navigate({ to: '/receipts/add' })}
+        >
+          Новое поступление
+        </Button>
       </Box>
 
       <Box sx={{ display: 'flex', gap: 2, mb: 3 }}>
@@ -54,22 +85,45 @@ export function ReceiptListPage() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {isLoading && <TableRow><TableCell colSpan={7} align="center" sx={{ py: 4 }}>Загрузка...</TableCell></TableRow>}
+            {isLoading && (
+              <TableRow>
+                <TableCell colSpan={7} align="center" sx={{ py: 4 }}>
+                  Загрузка...
+                </TableCell>
+              </TableRow>
+            )}
             {data?.map((r) => (
               <TableRow key={r.id} hover>
-                <TableCell sx={{ fontWeight: 500, cursor: 'pointer' }} onClick={() => navigate({ to: `/receipts/${r.id}` })}>{r.number}</TableCell>
+                <TableCell
+                  sx={{ fontWeight: 500, cursor: 'pointer' }}
+                  onClick={() => navigate({ to: `/receipts/${r.id}` })}
+                >
+                  {r.number}
+                </TableCell>
                 <TableCell>{r.warehouse?.name ?? '-'}</TableCell>
                 <TableCell>{r.supplier || '-'}</TableCell>
                 <TableCell>{new Date(r.receiptDate).toLocaleDateString('ru-RU')}</TableCell>
                 <TableCell align="right">{items(r)}</TableCell>
-                <TableCell><Chip label={RECEIPT_STATUS_LABELS[r.status]} size="small" color={statusColor[r.status]} /></TableCell>
+                <TableCell>
+                  <Chip
+                    label={RECEIPT_STATUS_LABELS[r.status]}
+                    size="small"
+                    color={statusColor[r.status]}
+                  />
+                </TableCell>
                 <TableCell align="right">
-                  <IconButton size="small" onClick={() => navigate({ to: `/receipts/${r.id}` })}><Visibility fontSize="small" /></IconButton>
+                  <IconButton size="small" onClick={() => navigate({ to: `/receipts/${r.id}` })}>
+                    <Visibility fontSize="small" />
+                  </IconButton>
                 </TableCell>
               </TableRow>
             ))}
             {!isLoading && (!data || data.length === 0) && (
-              <TableRow><TableCell colSpan={7} align="center" sx={{ py: 4, color: 'text.secondary' }}>Нет поступлений</TableCell></TableRow>
+              <TableRow>
+                <TableCell colSpan={7} align="center" sx={{ py: 4, color: 'text.secondary' }}>
+                  Нет поступлений
+                </TableCell>
+              </TableRow>
             )}
           </TableBody>
         </Table>

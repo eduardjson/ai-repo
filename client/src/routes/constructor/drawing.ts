@@ -72,16 +72,38 @@ export function buildDrawingSvg(cfg: ModuleConfig): string {
   const parts: string[] = []
 
   // ── helpers ────────────────────────────────────────────────────────────────
-  const line = (x1: number, y1: number, x2: number, y2: number, opts: { stroke?: string; lw?: number; dash?: string } = {}) =>
+  const line = (
+    x1: number,
+    y1: number,
+    x2: number,
+    y2: number,
+    opts: { stroke?: string; lw?: number; dash?: string } = {},
+  ) =>
     `<line x1="${n(x1)}" y1="${n(y1)}" x2="${n(x2)}" y2="${n(y2)}" stroke="${opts.stroke ?? '#1a1a1a'}" stroke-width="${opts.lw ?? 0.25}"${opts.dash ? ` stroke-dasharray="${opts.dash}"` : ''} />`
 
-  const rect = (x: number, y: number, w: number, h: number, opts: { stroke?: string; fill?: string; lw?: number; dash?: string } = {}) =>
+  const rect = (
+    x: number,
+    y: number,
+    w: number,
+    h: number,
+    opts: { stroke?: string; fill?: string; lw?: number; dash?: string } = {},
+  ) =>
     `<rect x="${n(x)}" y="${n(y)}" width="${n(w)}" height="${n(h)}" fill="${opts.fill ?? 'none'}" stroke="${opts.stroke ?? '#1a1a1a'}" stroke-width="${opts.lw ?? 0.25}"${opts.dash ? ` stroke-dasharray="${opts.dash}"` : ''} />`
 
-  const poly = (pts: [number, number][], opts: { stroke?: string; fill?: string; lw?: number } = {}) =>
+  const poly = (
+    pts: [number, number][],
+    opts: { stroke?: string; fill?: string; lw?: number } = {},
+  ) =>
     `<polygon points="${pts.map(([x, y]) => `${n(x)},${n(y)}`).join(' ')}" fill="${opts.fill ?? 'none'}" stroke="${opts.stroke ?? '#1a1a1a'}" stroke-width="${opts.lw ?? 0.25}" />`
 
-  const text = (x: number, y: number, str: string, fs = 3, anchor: 'start' | 'middle' | 'end' = 'middle', bold = false) =>
+  const text = (
+    x: number,
+    y: number,
+    str: string,
+    fs = 3,
+    anchor: 'start' | 'middle' | 'end' = 'middle',
+    bold = false,
+  ) =>
     `<text x="${n(x)}" y="${n(y)}" font-family="${FONT}" font-size="${fs}" text-anchor="${anchor}" font-weight="${bold ? '700' : '400'}" fill="#1a1a1a">${str}</text>`
 
   // dimension line (horizontal): between x1..x2 at y, text above
@@ -97,7 +119,9 @@ export function buildDrawingSvg(cfg: ModuleConfig): string {
     parts.push(line(x, y1, x, y2, { lw: 0.2 }))
     parts.push(line(x - 1.4, y1, x + 1.4, y1, { lw: 0.2 }))
     parts.push(line(x - 1.4, y2, x + 1.4, y2, { lw: 0.2 }))
-    parts.push(`<text x="${n(x - 2)}" y="${n((y1 + y2) / 2)}" font-family="${FONT}" font-size="2.8" text-anchor="end" fill="#1a1a1a" transform="rotate(-90 ${n(x - 2)} ${n((y1 + y2) / 2)})">${label}</text>`)
+    parts.push(
+      `<text x="${n(x - 2)}" y="${n((y1 + y2) / 2)}" font-family="${FONT}" font-size="2.8" text-anchor="end" fill="#1a1a1a" transform="rotate(-90 ${n(x - 2)} ${n((y1 + y2) / 2)})">${label}</text>`,
+    )
   }
 
   // ── Фасад (front elevation, long side) ────────────────────────────────────
@@ -131,17 +155,24 @@ export function buildDrawingSvg(cfg: ModuleConfig): string {
   // dimensions
   hDim(frontOx, frontOx + L * S, fFloorY + 7, `${fmtDim(L)} м`)
   vDim(fEaveY, fFloorY, frontOx - 7, `${fmtDim(H)} м`)
-  parts.push(text(frontOx + (L * S) / 2, frontOy - 4, 'Фасад (длинная сторона)', 3.4, 'middle', true))
+  parts.push(
+    text(frontOx + (L * S) / 2, frontOy - 4, 'Фасад (длинная сторона)', 3.4, 'middle', true),
+  )
 
   // ── Боковой вид (side elevation, gable end) ───────────────────────────────
   const sEaveY = sideOy + eaveMM
   const sFloorY = sideOy + elevH
   if (roofType === 'gable') {
-    parts.push(poly([
-      [sideOx, sEaveY],
-      [sideOx + (W * S) / 2, sideOy],
-      [sideOx + W * S, sEaveY],
-    ], { lw: 0.3 }))
+    parts.push(
+      poly(
+        [
+          [sideOx, sEaveY],
+          [sideOx + (W * S) / 2, sideOy],
+          [sideOx + W * S, sEaveY],
+        ],
+        { lw: 0.3 },
+      ),
+    )
   } else {
     parts.push(rect(sideOx - 0.12 * S, sideOy, W * S + 0.24 * S, 0.15 * S, { lw: 0.3 }))
   }
@@ -159,19 +190,29 @@ export function buildDrawingSvg(cfg: ModuleConfig): string {
   for (const w of open.windows) {
     const x = planOx + (w.x + L / 2) * S
     parts.push(rect(x - (winW / 2) * S, pBottom - WT, winW * S, WT, { fill: '#ffffff', lw: 0.2 }))
-    parts.push(line(x - (winW / 2) * S, pBottom - WT / 2, x + (winW / 2) * S, pBottom - WT / 2, { lw: 0.15 }))
+    parts.push(
+      line(x - (winW / 2) * S, pBottom - WT / 2, x + (winW / 2) * S, pBottom - WT / 2, {
+        lw: 0.15,
+      }),
+    )
   }
   for (const d of open.doors) {
     const x = planOx + (d.x + L / 2) * S
     // opening (gap)
     parts.push(rect(x - (doorW / 2) * S, pBottom - WT, doorW * S, WT, { fill: '#ffffff', lw: 0.2 }))
     // door leaf + swing arc
-    parts.push(line(x - (doorW / 2) * S, pBottom - WT, x - (doorW / 2) * S, pBottom - WT - doorW * S, { lw: 0.2 }))
-    parts.push(`<path d="M ${n(x - (doorW / 2) * S)} ${n(pBottom - WT - doorW * S)} A ${n(doorW * S)} ${n(doorW * S)} 0 0 1 ${n(x + (doorW / 2) * S)} ${n(pBottom - WT)}" fill="none" stroke="#1a1a1a" stroke-width="0.2" />`)
+    parts.push(
+      line(x - (doorW / 2) * S, pBottom - WT, x - (doorW / 2) * S, pBottom - WT - doorW * S, {
+        lw: 0.2,
+      }),
+    )
+    parts.push(
+      `<path d="M ${n(x - (doorW / 2) * S)} ${n(pBottom - WT - doorW * S)} A ${n(doorW * S)} ${n(doorW * S)} 0 0 1 ${n(x + (doorW / 2) * S)} ${n(pBottom - WT)}" fill="none" stroke="#1a1a1a" stroke-width="0.2" />`,
+    )
   }
   // partitions
   for (let i = 0; i < cfg.partitions; i++) {
-    const x = planOx + (((i + 1) / (cfg.partitions + 1)) * L) * S
+    const x = planOx + ((i + 1) / (cfg.partitions + 1)) * L * S
     parts.push(line(x, planOy + WT, x, pBottom - WT, { lw: 0.2, dash: '2,1.5' }))
   }
   // dimensions
@@ -182,9 +223,19 @@ export function buildDrawingSvg(cfg: ModuleConfig): string {
   // ── Штамп (title block) ───────────────────────────────────────────────────
   const stampH = 40
   parts.push(rect(stampOx, stampOy, stampW, stampH, { lw: 0.4 }))
-  parts.push(line(stampOx, stampOy + stampH * 0.42, stampOx + stampW, stampOy + stampH * 0.42, { lw: 0.25 }))
+  parts.push(
+    line(stampOx, stampOy + stampH * 0.42, stampOx + stampW, stampOy + stampH * 0.42, { lw: 0.25 }),
+  )
   parts.push(text(stampOx + stampW / 2, stampOy + 7, 'ЖИЛОЙ МОДУЛЬ', 4.2, 'middle', true))
-  parts.push(text(stampOx + stampW / 2, stampOy + 12, `Габариты: ${fmtDim(L)} × ${fmtDim(W)} × ${fmtDim(H)} м`, 3.2, 'middle'))
+  parts.push(
+    text(
+      stampOx + stampW / 2,
+      stampOy + 12,
+      `Габариты: ${fmtDim(L)} × ${fmtDim(W)} × ${fmtDim(H)} м`,
+      3.2,
+      'middle',
+    ),
+  )
 
   const wall = getOption(WALL_TYPES, cfg.wallType)
   const roof = getOption(ROOF_MATERIALS, cfg.roofMaterial)
@@ -193,7 +244,9 @@ export function buildDrawingSvg(cfg: ModuleConfig): string {
   const line2 = `Фундамент: ${foundation.label} · Окна: ${cfg.windows} · Двери: ${cfg.doors} · Перегородки: ${cfg.partitions}`
   parts.push(text(stampOx + 4, stampOy + stampH * 0.42 + 8, line1, 2.7, 'start'))
   parts.push(text(stampOx + 4, stampOy + stampH * 0.42 + 13, line2, 2.7, 'start'))
-  parts.push(text(stampOx + 4, stampOy + stampH * 0.42 + 18, `Масштаб: 1:${standardScale(S)}`, 2.7, 'start'))
+  parts.push(
+    text(stampOx + 4, stampOy + stampH * 0.42 + 18, `Масштаб: 1:${standardScale(S)}`, 2.7, 'start'),
+  )
   parts.push(text(stampOx + stampW - 4, stampOy + stampH - 4, 'Лист 1 / 1', 2.7, 'end'))
 
   return [

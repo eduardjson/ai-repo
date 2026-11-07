@@ -1,98 +1,98 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { ProductDto } from './product.response';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
+import { ProductDto } from './product.response'
 
 export class WarehouseDto {
   @ApiProperty()
-  id: string;
+  id: string
 
   @ApiProperty()
-  name: string;
+  name: string
 
   @ApiPropertyOptional({ nullable: true })
-  address?: string;
+  address?: string
 
   @ApiPropertyOptional({ nullable: true })
-  latitude?: number;
+  latitude?: number
 
   @ApiPropertyOptional({ nullable: true })
-  longitude?: number;
+  longitude?: number
 
   @ApiProperty()
-  createdAt: string;
+  createdAt: string
 
   @ApiProperty()
-  updatedAt: string;
+  updatedAt: string
 }
 
 export class StockItemDto {
   @ApiProperty()
-  id: string;
+  id: string
 
   @ApiProperty()
-  productId: string;
+  productId: string
 
   @ApiProperty()
-  warehouseId: string;
+  warehouseId: string
 
   @ApiProperty()
-  quantity: number;
+  quantity: number
 
   @ApiPropertyOptional({ nullable: true })
-  purchasePrice?: number;
+  purchasePrice?: number
 
   @ApiPropertyOptional({ nullable: true })
-  estimatePrice?: number;
+  estimatePrice?: number
 
   @ApiPropertyOptional({ nullable: true })
-  salePrice?: number;
+  salePrice?: number
 
   @ApiPropertyOptional({ nullable: true })
-  discount?: number;
+  discount?: number
 
   @ApiPropertyOptional({ type: () => ProductDto })
-  product?: ProductDto;
+  product?: ProductDto
 }
 
 export class PriceListItemDto {
   @ApiProperty()
-  id: string;
+  id: string
 
   @ApiProperty()
-  productId: string;
+  productId: string
 
   @ApiProperty()
-  productTitle: string;
+  productTitle: string
 
   @ApiPropertyOptional({ nullable: true })
-  category?: string;
+  category?: string
 
   @ApiPropertyOptional({ nullable: true })
-  manufacturer?: string;
+  manufacturer?: string
 
   @ApiPropertyOptional({ nullable: true })
-  unit?: string;
+  unit?: string
 
   @ApiProperty()
-  quantity: number;
+  quantity: number
 
   @ApiPropertyOptional({ nullable: true })
-  purchasePrice?: number;
+  purchasePrice?: number
 
   @ApiPropertyOptional({ nullable: true })
-  estimatePrice?: number;
+  estimatePrice?: number
 
   @ApiPropertyOptional({ nullable: true })
-  salePrice?: number;
+  salePrice?: number
 
   @ApiPropertyOptional({ nullable: true })
-  discount?: number;
+  discount?: number
 
   @ApiProperty()
-  warehouseId: string;
+  warehouseId: string
 
   @ApiProperty()
-  warehouseName: string;
+  warehouseName: string
 
   @ApiPropertyOptional({ nullable: true })
-  firstArrivedAt?: string;
+  firstArrivedAt?: string
 }

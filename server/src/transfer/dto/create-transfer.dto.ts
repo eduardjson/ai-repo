@@ -1,21 +1,21 @@
-import { IsString, IsNotEmpty, IsNumber, Min } from 'class-validator';
-import { Type } from 'class-transformer';
+import { IsString, IsNotEmpty, IsNumber, Min } from 'class-validator'
+import { Type } from 'class-transformer'
 
 export class CreateTransferDto {
   @IsString()
   @IsNotEmpty()
-  productId: string;
+  productId: string
 
   @IsString()
   @IsNotEmpty()
-  fromWarehouseId: string;
+  fromWarehouseId: string
 
   @IsString()
   @IsNotEmpty()
-  toWarehouseId: string;
+  toWarehouseId: string
 
   @Type(() => Number)
   @IsNumber()
   @Min(0.01)
-  quantity: number;
+  quantity: number
 }

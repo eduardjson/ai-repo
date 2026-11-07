@@ -1,25 +1,25 @@
-import { IsString, IsOptional, IsNumber, Min } from 'class-validator';
-import { Type } from 'class-transformer';
+import { IsString, IsOptional, IsNumber, Min } from 'class-validator'
+import { Type } from 'class-transformer'
 
 /** DTO строки поступления, используемый при добавлении позиции к черновику. */
 export class AddReceiptItemDto {
   @IsString()
-  productId: string;
+  productId: string
 
   @Type(() => Number)
   @IsNumber()
   @Min(0.000001)
-  quantity: number;
+  quantity: number
 
   /** Единица, в которой указано количество. По умолчанию — закупочная (или базовая) единица товара. */
   @IsOptional()
   @IsString()
-  unitId?: string;
+  unitId?: string
 
   /** Цена за единицу приёмки (unitId). */
   @IsOptional()
   @Type(() => Number)
   @IsNumber()
   @Min(0)
-  purchasePrice?: number;
+  purchasePrice?: number
 }

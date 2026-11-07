@@ -1,58 +1,58 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
 
 export class AttachmentDto {
   @ApiProperty()
-  id: string;
+  id: string
 
   @ApiProperty()
-  fileName: string;
+  fileName: string
 
   @ApiProperty()
-  fileSize: number;
+  fileSize: number
 
   @ApiProperty()
-  mimeType: string;
+  mimeType: string
 
   @ApiProperty()
-  uploadedAt: string;
+  uploadedAt: string
 }
 
 export class MessageUserDto {
   @ApiProperty()
-  id: string;
+  id: string
 
   @ApiPropertyOptional({ nullable: true })
-  avatar?: string;
+  avatar?: string
 
   @ApiPropertyOptional({ nullable: true })
-  firstName?: string;
+  firstName?: string
 
   @ApiPropertyOptional({ nullable: true })
-  lastName?: string;
+  lastName?: string
 
   @ApiPropertyOptional({ nullable: true })
-  username?: string;
+  username?: string
 }
 
 export class MessageDto {
   @ApiProperty()
-  id: number;
+  id: number
 
   @ApiProperty()
-  userId: string;
+  userId: string
 
   @ApiProperty()
-  userName: string;
+  userName: string
 
   @ApiProperty()
-  text: string;
+  text: string
 
   @ApiProperty()
-  createdAt: string;
+  createdAt: string
 
   @ApiPropertyOptional({ type: () => MessageUserDto })
-  user?: MessageUserDto;
+  user?: MessageUserDto
 
   @ApiPropertyOptional({ type: () => [AttachmentDto] })
-  attachments?: AttachmentDto[];
+  attachments?: AttachmentDto[]
 }

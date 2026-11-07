@@ -39,7 +39,11 @@ function createModule(cfg: ModuleConfig, wireframe: boolean): THREE.Group {
     wireframe,
   })
   const floorMat = new THREE.MeshStandardMaterial({ color: 0xb0bec5, wireframe })
-  const roofMat = new THREE.MeshStandardMaterial({ color: new THREE.Color(roofColor), side: THREE.DoubleSide, wireframe })
+  const roofMat = new THREE.MeshStandardMaterial({
+    color: new THREE.Color(roofColor),
+    side: THREE.DoubleSide,
+    wireframe,
+  })
 
   // Пол
   const floor = new THREE.Mesh(new THREE.BoxGeometry(length, t, width), floorMat)
@@ -207,7 +211,14 @@ export function ModuleViewer({ config, viewMode, resetSignal }: ModuleViewerProp
   return (
     <Box
       ref={containerRef}
-      sx={{ width: '100%', height: 560, borderRadius: 1, overflow: 'hidden', border: 1, borderColor: 'divider' }}
+      sx={{
+        width: '100%',
+        height: 560,
+        borderRadius: 1,
+        overflow: 'hidden',
+        border: 1,
+        borderColor: 'divider',
+      }}
     />
   )
 }

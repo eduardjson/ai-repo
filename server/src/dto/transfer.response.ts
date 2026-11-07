@@ -1,32 +1,32 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { ProductDto } from './product.response';
-import { WarehouseDto } from './warehouse.response';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
+import { ProductDto } from './product.response'
+import { WarehouseDto } from './warehouse.response'
 
 export class StockTransferDto {
   @ApiProperty()
-  id: string;
+  id: string
 
   @ApiProperty()
-  productId: string;
+  productId: string
 
   @ApiProperty()
-  quantity: number;
+  quantity: number
 
   @ApiProperty()
-  fromWarehouseId: string;
+  fromWarehouseId: string
 
   @ApiProperty()
-  toWarehouseId: string;
+  toWarehouseId: string
 
   @ApiProperty()
-  createdAt: string;
+  createdAt: string
 
   @ApiPropertyOptional({ type: () => ProductDto })
-  product?: ProductDto;
+  product?: ProductDto
 
   @ApiPropertyOptional({ type: () => WarehouseDto })
-  fromWarehouse?: WarehouseDto;
+  fromWarehouse?: WarehouseDto
 
   @ApiPropertyOptional({ type: () => WarehouseDto })
-  toWarehouse?: WarehouseDto;
+  toWarehouse?: WarehouseDto
 }

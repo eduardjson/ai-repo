@@ -1,15 +1,15 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger'
 
 export class UnitDto {
   @ApiProperty()
-  id: string;
+  id: string
 
   @ApiProperty()
-  code: string;
+  code: string
 
   @ApiProperty()
-  name: string;
+  name: string
 
   @ApiProperty()
-  symbol: string;
+  symbol: string
 }

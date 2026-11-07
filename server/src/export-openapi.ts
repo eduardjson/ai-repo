@@ -1,8 +1,8 @@
-import { NestFactory } from '@nestjs/core';
-import { writeFileSync } from 'fs';
-import { resolve } from 'path';
-import { AppModule } from './app.module';
-import { setupSwagger } from './swagger';
+import { NestFactory } from '@nestjs/core'
+import { writeFileSync } from 'fs'
+import { resolve } from 'path'
+import { AppModule } from './app.module'
+import { setupSwagger } from './swagger'
 
 /**
  * Экспортирует OpenAPI-спецификацию в файл openapi.json (в корень репозитория)
@@ -10,19 +10,19 @@ import { setupSwagger } from './swagger';
  * на фронтенде, чтобы не зависеть от запущенного бэкенда.
  */
 async function exportOpenApi(): Promise<void> {
-  const app = await NestFactory.create(AppModule, { logger: false });
-  const document = setupSwagger(app);
+  const app = await NestFactory.create(AppModule, { logger: false })
+  const document = setupSwagger(app)
 
-  const outPath = resolve(__dirname, '..', '..', 'openapi.json');
-  writeFileSync(outPath, JSON.stringify(document, null, 2));
+  const outPath = resolve(__dirname, '..', '..', 'openapi.json')
+  writeFileSync(outPath, JSON.stringify(document, null, 2))
   // eslint-disable-next-line no-console
-  console.log(`OpenAPI spec written to ${outPath}`);
+  console.log(`OpenAPI spec written to ${outPath}`)
 
-  await app.close();
+  await app.close()
 }
 
 exportOpenApi().catch((err) => {
   // eslint-disable-next-line no-console
-  console.error(err);
-  process.exit(1);
-});
+  console.error(err)
+  process.exit(1)
+})

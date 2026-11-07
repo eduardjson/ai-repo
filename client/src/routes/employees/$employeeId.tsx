@@ -9,13 +9,20 @@ export function EmployeeDetailPage() {
   const navigate = useNavigate()
   const { data: user, isLoading } = useUserControllerFindOneQuery({ id: params.employeeId })
 
-  if (isLoading) return <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}><CircularProgress /></Box>
+  if (isLoading)
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
+        <CircularProgress />
+      </Box>
+    )
   if (!user) return <Typography>Пользователь не найден</Typography>
 
   return (
     <Box>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
-        <IconButton onClick={() => navigate({ to: '/employees' })}><ArrowBack /></IconButton>
+        <IconButton onClick={() => navigate({ to: '/employees' })}>
+          <ArrowBack />
+        </IconButton>
         <Typography variant="h4">Профиль</Typography>
       </Box>
       <Box sx={{ maxWidth: 460 }}>

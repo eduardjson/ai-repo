@@ -1,107 +1,107 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
 
 export class WarehouseStockDto {
   @ApiProperty()
-  id: string;
+  id: string
 
   @ApiProperty()
-  name: string;
+  name: string
 
   @ApiProperty()
-  stockValue: number;
+  stockValue: number
 
   @ApiProperty()
-  skuCount: number;
+  skuCount: number
 }
 
 export class MovementTrendPointDto {
   @ApiProperty()
-  date: string;
+  date: string
 
   @ApiProperty()
-  incoming: number;
+  incoming: number
 
   @ApiProperty()
-  outgoing: number;
+  outgoing: number
 }
 
 export class TopProductDto {
   @ApiProperty()
-  productId: string;
+  productId: string
 
   @ApiProperty()
-  title: string;
+  title: string
 
   @ApiProperty()
-  sku: string;
+  sku: string
 
   @ApiProperty()
-  unit: string;
+  unit: string
 
   @ApiProperty()
-  movedQty: number;
+  movedQty: number
 
   @ApiProperty()
-  movedValue: number;
+  movedValue: number
 }
 
 export class LowStockItemDto {
   @ApiProperty()
-  productId: string;
+  productId: string
 
   @ApiProperty()
-  title: string;
+  title: string
 
   @ApiProperty()
-  sku: string;
+  sku: string
 
   @ApiProperty()
-  unit: string;
+  unit: string
 
   @ApiProperty()
-  quantity: number;
+  quantity: number
 
   @ApiProperty()
-  minStock: number;
+  minStock: number
 }
 
 export class DashboardSummaryDto {
   @ApiProperty()
-  inventoryValue: number;
+  inventoryValue: number
 
   @ApiProperty()
-  activeProducts: number;
+  activeProducts: number
 
   @ApiProperty()
-  inStockProducts: number;
+  inStockProducts: number
 
   @ApiProperty()
-  lowStockCount: number;
+  lowStockCount: number
 
   @ApiProperty()
-  outOfStockCount: number;
+  outOfStockCount: number
 
   @ApiProperty()
-  pendingShipments: number;
+  pendingShipments: number
 
   @ApiProperty()
-  draftReceipts: number;
+  draftReceipts: number
 
   @ApiProperty()
-  warehousesCount: number;
+  warehousesCount: number
 
   @ApiProperty()
-  objectsCount: number;
+  objectsCount: number
 
   @ApiProperty({ type: () => [WarehouseStockDto] })
-  warehouses: WarehouseStockDto[];
+  warehouses: WarehouseStockDto[]
 
   @ApiProperty({ type: () => [MovementTrendPointDto] })
-  movementTrend: MovementTrendPointDto[];
+  movementTrend: MovementTrendPointDto[]
 
   @ApiProperty({ type: () => [TopProductDto] })
-  topProducts: TopProductDto[];
+  topProducts: TopProductDto[]
 
   @ApiProperty({ type: () => [LowStockItemDto] })
-  lowStock: LowStockItemDto[];
+  lowStock: LowStockItemDto[]
 }

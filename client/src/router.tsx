@@ -1,4 +1,10 @@
-import { createRootRoute, createRoute, createRouter, Outlet, useNavigate } from '@tanstack/react-router'
+import {
+  createRootRoute,
+  createRoute,
+  createRouter,
+  Outlet,
+  useNavigate,
+} from '@tanstack/react-router'
 import { Box, CircularProgress } from '@mui/material'
 import { useEffect } from 'react'
 
@@ -36,7 +42,13 @@ function AuthGuard() {
   }, [isLoading, isAuthenticated, navigate])
 
   if (isLoading) {
-    return <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '80vh' }}><CircularProgress /></Box>
+    return (
+      <Box
+        sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '80vh' }}
+      >
+        <CircularProgress />
+      </Box>
+    )
   }
 
   if (!isAuthenticated) return null

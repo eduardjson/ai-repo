@@ -1,9 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
-import { CreateWarehouseDto } from './dto/create-warehouse.dto';
-import { AddStockDto } from './dto/add-stock.dto';
-import { UpdateStockDto } from './dto/update-stock.dto';
-import { MovementType } from '../generated/prisma/client';
+import { Injectable, NotFoundException } from '@nestjs/common'
+import { PrismaService } from '../prisma/prisma.service'
+import { CreateWarehouseDto } from './dto/create-warehouse.dto'
+import { AddStockDto } from './dto/add-stock.dto'
+import { UpdateStockDto } from './dto/update-stock.dto'
+import { MovementType } from '../generated/prisma/client'
 
 @Injectable()
 export class WarehouseService {
@@ -12,43 +12,43 @@ export class WarehouseService {
   async findAll() {
     return this.prisma.warehouse.findMany({
       include: { stockItems: true },
-    });
+    })
   }
 
   async findById(id: string) {
     const warehouse = await this.prisma.warehouse.findUnique({
       where: { id },
       include: { stockItems: true },
-    });
+    })
     if (!warehouse) {
-      throw new NotFoundException('Warehouse not found');
+      throw new NotFoundException('Warehouse not found')
     }
-    return warehouse;
+    return warehouse
   }
 
   async create(dto: CreateWarehouseDto) {
     return this.prisma.warehouse.create({
       data: dto,
       include: { stockItems: true },
-    });
+    })
   }
 
   async update(id: string, dto: Partial<CreateWarehouseDto>) {
-    await this.findById(id);
+    await this.findById(id)
     return this.prisma.warehouse.update({
       where: { id },
       data: dto,
       include: { stockItems: true },
-    });
+    })
   }
 
   async remove(id: string) {
-    await this.findById(id);
-    return this.prisma.warehouse.delete({ where: { id } });
+    await this.findById(id)
+    return this.prisma.warehouse.delete({ where: { id } })
   }
 
   async addStock(warehouseId: string, dto: AddStockDto, userId?: string) {
-    await this.findById(warehouseId);
+    await this.findById(warehouseId)
 
     const existing = await this.prisma.stockItem.findUnique({
       where: {
@@ -57,10 +57,10 @@ export class WarehouseService {
           warehouseId,
         },
       },
-    });
+    })
 
     const result = await this.prisma.$transaction(async (tx) => {
-      let stock;
+      let stock
       if (existing) {
         stock = await tx.stockItem.update({
           where: { id: existing.id },
@@ -71,7 +71,7 @@ export class WarehouseService {
             salePrice: dto.salePrice ?? existing.salePrice,
             discount: dto.discount ?? existing.discount,
           },
-        });
+        })
       } else {
         stock = await tx.stockItem.create({
           data: {
@@ -83,7 +83,7 @@ export class WarehouseService {
             salePrice: dto.salePrice,
             discount: dto.discount,
           },
-        });
+        })
       }
 
       await tx.stockMovement.create({
@@ -94,49 +94,55 @@ export class WarehouseService {
           warehouseId,
           userId,
         },
-      });
+      })
 
-      return stock;
-    });
+      return stock
+    })
 
-    return result;
+    return result
   }
 
   async updateStock(stockId: string, warehouseId: string, dto: UpdateStockDto) {
-    const stock = await this.prisma.stockItem.findUnique({ where: { id: stockId } });
+    const stock = await this.prisma.stockItem.findUnique({ where: { id: stockId } })
     if (!stock || stock.warehouseId !== warehouseId) {
-      throw new NotFoundException('Позиция на складе не найдена');
+      throw new NotFoundException('Позиция на складе не найдена')
     }
     return this.prisma.stockItem.update({
       where: { id: stockId },
       data: dto,
       include: { product: true },
-    });
+    })
   }
 
   async getStock(warehouseId: string) {
-    await this.findById(warehouseId);
+    await this.findById(warehouseId)
     return this.prisma.stockItem.findMany({
       where: { warehouseId },
       include: { product: { include: { baseUnit: true } } },
-    });
+    })
   }
 
   async getGlobalPriceList() {
     const items = await this.prisma.stockItem.findMany({
       where: { quantity: { gt: 0 } },
-      include: { product: { include: { category: true, manufacturer: true, baseUnit: true } }, warehouse: true },
-    });
-    return items.map((i) => this.toPriceListItem(i));
+      include: {
+        product: { include: { category: true, manufacturer: true, baseUnit: true } },
+        warehouse: true,
+      },
+    })
+    return items.map((i) => this.toPriceListItem(i))
   }
 
   async getWarehousePriceList(warehouseId: string) {
-    await this.findById(warehouseId);
+    await this.findById(warehouseId)
     const items = await this.prisma.stockItem.findMany({
       where: { warehouseId, quantity: { gt: 0 } },
-      include: { product: { include: { category: true, manufacturer: true, baseUnit: true } }, warehouse: true },
-    });
-    return items.map((i) => this.toPriceListItem(i));
+      include: {
+        product: { include: { category: true, manufacturer: true, baseUnit: true } },
+        warehouse: true,
+      },
+    })
+    return items.map((i) => this.toPriceListItem(i))
   }
 
   private toPriceListItem(i: any) {
@@ -155,6 +161,6 @@ export class WarehouseService {
       warehouseId: i.warehouseId,
       warehouseName: i.warehouse.name,
       firstArrivedAt: i.createdAt,
-    };
+    }
   }
 }

@@ -115,11 +115,26 @@ export function ChatPage() {
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 120px)' }}>
-      <Typography variant="h4" sx={{ mb: 3 }}>Чат</Typography>
+      <Typography variant="h4" sx={{ mb: 3 }}>
+        Чат
+      </Typography>
 
-      <Paper elevation={1} sx={{ flex: 1, overflow: 'auto', p: 2, mb: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
+      <Paper
+        elevation={1}
+        sx={{
+          flex: 1,
+          overflow: 'auto',
+          p: 2,
+          mb: 2,
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 2,
+        }}
+      >
         {isLoading && (
-          <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}><CircularProgress /></Box>
+          <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+            <CircularProgress />
+          </Box>
         )}
 
         {messages?.map((msg) => {
@@ -146,11 +161,18 @@ export function ChatPage() {
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
                 <Avatar
                   src={msg.user?.avatar ?? undefined}
-                  sx={{ width: 30, height: 30, fontSize: 14, bgcolor: own ? 'primary.dark' : 'primary.main' }}
+                  sx={{
+                    width: 30,
+                    height: 30,
+                    fontSize: 14,
+                    bgcolor: own ? 'primary.dark' : 'primary.main',
+                  }}
                 >
                   {initial}
                 </Avatar>
-                <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>{msg.userName}</Typography>
+                <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+                  {msg.userName}
+                </Typography>
               </Box>
 
               {editingId === msg.id ? (
@@ -160,18 +182,32 @@ export function ChatPage() {
                     fullWidth
                     value={editText}
                     onChange={(e) => setEditText(e.target.value)}
-                    onKeyDown={(e) => { if (e.key === 'Enter') handleEdit() }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') handleEdit()
+                    }}
                     autoFocus
                     sx={{
                       '& .MuiOutlinedInput-root': { color: own ? 'inherit' : 'text.primary' },
-                      '& .MuiOutlinedInput-notchedOutline': { borderColor: own ? 'rgba(255,255,255,0.5)' : 'divider' },
+                      '& .MuiOutlinedInput-notchedOutline': {
+                        borderColor: own ? 'rgba(255,255,255,0.5)' : 'divider',
+                      },
                     }}
                   />
-                  <Button size="small" variant="contained" color={own ? 'inherit' : 'primary'} onClick={handleEdit}>OK</Button>
+                  <Button
+                    size="small"
+                    variant="contained"
+                    color={own ? 'inherit' : 'primary'}
+                    onClick={handleEdit}
+                  >
+                    OK
+                  </Button>
                 </Box>
               ) : (
                 msg.text && (
-                  <Typography variant="body1" sx={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
+                  <Typography
+                    variant="body1"
+                    sx={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}
+                  >
                     {msg.text}
                   </Typography>
                 )
@@ -192,28 +228,57 @@ export function ChatPage() {
                 >
                   <PictureAsPdf fontSize="small" />
                   <Box sx={{ minWidth: 0, flex: 1 }}>
-                    <Typography variant="body2" noWrap sx={{ fontWeight: 500 }}>{a.fileName}</Typography>
-                    <Typography variant="caption" sx={{ opacity: 0.8 }}>{fmtSize(a.fileSize)}</Typography>
+                    <Typography variant="body2" noWrap sx={{ fontWeight: 500 }}>
+                      {a.fileName}
+                    </Typography>
+                    <Typography variant="caption" sx={{ opacity: 0.8 }}>
+                      {fmtSize(a.fileSize)}
+                    </Typography>
                   </Box>
                   <Tooltip title="Скачать">
-                    <IconButton size="small" color="inherit" onClick={() => downloadAttachment(msg.id, a.id, a.fileName).catch(() => {})}>
+                    <IconButton
+                      size="small"
+                      color="inherit"
+                      onClick={() => downloadAttachment(msg.id, a.id, a.fileName).catch(() => {})}
+                    >
                       <Download fontSize="small" />
                     </IconButton>
                   </Tooltip>
                 </Box>
               ))}
 
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 0.5, mt: 0.5 }}>
-                <Typography variant="caption" sx={{ opacity: 0.75 }}>{fmtTime(msg.createdAt)}</Typography>
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'flex-end',
+                  gap: 0.5,
+                  mt: 0.5,
+                }}
+              >
+                <Typography variant="caption" sx={{ opacity: 0.75 }}>
+                  {fmtTime(msg.createdAt)}
+                </Typography>
                 {canModify && (
                   <>
                     <Tooltip title="Редактировать">
-                      <IconButton size="small" color="inherit" onClick={() => { setEditingId(msg.id); setEditText(msg.text) }}>
+                      <IconButton
+                        size="small"
+                        color="inherit"
+                        onClick={() => {
+                          setEditingId(msg.id)
+                          setEditText(msg.text)
+                        }}
+                      >
                         <Edit sx={{ fontSize: 15 }} />
                       </IconButton>
                     </Tooltip>
                     <Tooltip title="Удалить">
-                      <IconButton size="small" color="inherit" onClick={() => setDeleteTarget(msg.id)}>
+                      <IconButton
+                        size="small"
+                        color="inherit"
+                        onClick={() => setDeleteTarget(msg.id)}
+                      >
                         <Delete sx={{ fontSize: 15 }} />
                       </IconButton>
                     </Tooltip>
@@ -231,10 +296,20 @@ export function ChatPage() {
         {file && (
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, px: 1, pb: 1 }}>
             <PictureAsPdf color="error" fontSize="small" />
-            <Typography variant="body2" noWrap sx={{ flex: 1 }}>{file.name}</Typography>
-            <Typography variant="caption" color="text.secondary">{fmtSize(file.size)}</Typography>
+            <Typography variant="body2" noWrap sx={{ flex: 1 }}>
+              {file.name}
+            </Typography>
+            <Typography variant="caption" color="text.secondary">
+              {fmtSize(file.size)}
+            </Typography>
             <Tooltip title="Убрать файл">
-              <IconButton size="small" onClick={() => { setFile(null); if (fileInputRef.current) fileInputRef.current.value = '' }}>
+              <IconButton
+                size="small"
+                onClick={() => {
+                  setFile(null)
+                  if (fileInputRef.current) fileInputRef.current.value = ''
+                }}
+              >
                 <Close fontSize="small" />
               </IconButton>
             </Tooltip>

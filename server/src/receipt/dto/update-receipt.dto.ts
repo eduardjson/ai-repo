@@ -1,19 +1,19 @@
-import { IsString, IsOptional } from 'class-validator';
+import { IsString, IsOptional } from 'class-validator'
 
 export class UpdateReceiptDto {
   @IsOptional()
   @IsString()
-  warehouseId?: string;
+  warehouseId?: string
 
   @IsOptional()
   @IsString()
-  supplier?: string;
+  supplier?: string
 
   @IsOptional()
   @IsString()
-  comment?: string;
+  comment?: string
 
   @IsOptional()
   @IsString()
-  receiptDate?: string;
+  receiptDate?: string
 }

@@ -7,152 +7,152 @@ import {
   IsArray,
   ValidateNested,
   Min,
-} from 'class-validator';
-import { Type } from 'class-transformer';
+} from 'class-validator'
+import { Type } from 'class-transformer'
 
 class BarcodeInputDto {
   @IsString()
-  value: string;
+  value: string
 
   @IsOptional()
   @IsIn(['EAN13', 'CODE128', 'UPC', 'QR'])
-  type?: string;
+  type?: string
 
   @IsOptional()
   @IsBoolean()
-  isPrimary?: boolean;
+  isPrimary?: boolean
 }
 
 export class UpdateProductDto {
   @IsOptional()
   @IsString()
-  title?: string;
+  title?: string
 
   @IsOptional()
   @IsString()
-  sku?: string;
+  sku?: string
 
   @IsOptional()
   @IsString()
-  description?: string;
+  description?: string
 
   @IsOptional()
   @IsString()
-  categoryId?: string;
+  categoryId?: string
 
   @IsOptional()
   @IsString()
-  manufacturerId?: string;
+  manufacturerId?: string
 
   @IsOptional()
   @IsString()
-  baseUnitId?: string;
+  baseUnitId?: string
 
   @IsOptional()
   @IsString()
-  purchaseUnitId?: string;
+  purchaseUnitId?: string
 
   @IsOptional()
   @Type(() => Number)
   @IsNumber()
   @Min(0.000001)
-  purchaseToBase?: number;
+  purchaseToBase?: number
 
   @IsOptional()
   @IsString()
-  saleUnitId?: string;
+  saleUnitId?: string
 
   @IsOptional()
   @Type(() => Number)
   @IsNumber()
   @Min(0.000001)
-  saleToBase?: number;
+  saleToBase?: number
 
   @IsOptional()
   @Type(() => Number)
   @IsNumber()
   @Min(0)
-  purchasePrice?: number;
+  purchasePrice?: number
 
   @IsOptional()
   @Type(() => Number)
   @IsNumber()
   @Min(0)
-  estimatePrice?: number;
+  estimatePrice?: number
 
   @IsOptional()
   @Type(() => Number)
   @IsNumber()
   @Min(0)
-  salePrice?: number;
+  salePrice?: number
 
   @IsOptional()
   @IsIn(['NONE', 'VAT0', 'VAT10', 'VAT20'])
-  vatRate?: string;
+  vatRate?: string
 
   @IsOptional()
   @Type(() => Number)
   @IsNumber()
   @Min(0)
-  weightKg?: number;
+  weightKg?: number
 
   @IsOptional()
   @Type(() => Number)
   @IsNumber()
   @Min(0)
-  lengthMm?: number;
+  lengthMm?: number
 
   @IsOptional()
   @Type(() => Number)
   @IsNumber()
   @Min(0)
-  widthMm?: number;
+  widthMm?: number
 
   @IsOptional()
   @Type(() => Number)
   @IsNumber()
   @Min(0)
-  heightMm?: number;
+  heightMm?: number
 
   @IsOptional()
   @Type(() => Number)
   @IsNumber()
   @Min(0)
-  volumeM3?: number;
+  volumeM3?: number
 
   @IsOptional()
   @IsString()
-  grade?: string;
+  grade?: string
 
   @IsOptional()
   @IsString()
-  material?: string;
+  material?: string
 
   @IsOptional()
   @IsString()
-  gost?: string;
+  gost?: string
 
   @IsOptional()
   @IsString()
-  country?: string;
+  country?: string
 
   @IsOptional()
   @Type(() => Number)
   @IsNumber()
   @Min(0)
-  minStock?: number;
+  minStock?: number
 
   @IsOptional()
   @IsBoolean()
-  isActive?: boolean;
+  isActive?: boolean
 
   @IsOptional()
   @IsString()
-  imageUrl?: string;
+  imageUrl?: string
 
   @IsOptional()
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => BarcodeInputDto)
-  barcodes?: BarcodeInputDto[];
+  barcodes?: BarcodeInputDto[]
 }

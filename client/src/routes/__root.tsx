@@ -49,7 +49,7 @@ export function AppLayout() {
   const tabs = isAdmin ? [...TABS, ...ADMIN_TABS] : TABS
 
   const currentTab = tabs.findIndex((tab) =>
-    tab.path === '/' ? location.pathname === '/' : location.pathname.startsWith(tab.path)
+    tab.path === '/' ? location.pathname === '/' : location.pathname.startsWith(tab.path),
   )
 
   const isAuthPage = location.pathname === '/auth/login'

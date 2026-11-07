@@ -68,13 +68,21 @@ export function TransferListPage() {
     }
   }
 
-  const valid = Boolean(productId && fromWarehouseId && toWarehouseId && Number(quantity) > 0 && fromWarehouseId !== toWarehouseId)
+  const valid = Boolean(
+    productId &&
+    fromWarehouseId &&
+    toWarehouseId &&
+    Number(quantity) > 0 &&
+    fromWarehouseId !== toWarehouseId,
+  )
 
   return (
     <Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
         <Typography variant="h4">Перемещения</Typography>
-        <Button variant="contained" startIcon={<Add />} onClick={() => setOpen(true)}>Новое перемещение</Button>
+        <Button variant="contained" startIcon={<Add />} onClick={() => setOpen(true)}>
+          Новое перемещение
+        </Button>
       </Box>
 
       <TableContainer component={Paper} elevation={1}>
@@ -100,7 +108,9 @@ export function TransferListPage() {
             ))}
             {(!transfers || transfers.length === 0) && (
               <TableRow>
-                <TableCell colSpan={5} align="center" sx={{ py: 4, color: 'text.secondary' }}>Нет перемещений</TableCell>
+                <TableCell colSpan={5} align="center" sx={{ py: 4, color: 'text.secondary' }}>
+                  Нет перемещений
+                </TableCell>
               </TableRow>
             )}
           </TableBody>
@@ -113,27 +123,61 @@ export function TransferListPage() {
           <FormControl fullWidth>
             <InputLabel>Товар</InputLabel>
             <Select value={productId} label="Товар" onChange={(e) => setProductId(e.target.value)}>
-              {products.map((p) => <MenuItem key={p.id} value={p.id}>{p.title}</MenuItem>)}
+              {products.map((p) => (
+                <MenuItem key={p.id} value={p.id}>
+                  {p.title}
+                </MenuItem>
+              ))}
             </Select>
           </FormControl>
           <FormControl fullWidth>
             <InputLabel>Со склада</InputLabel>
-            <Select value={fromWarehouseId} label="Со склада" onChange={(e) => setFromWarehouseId(e.target.value)}>
-              {warehouses?.map((w) => <MenuItem key={w.id} value={w.id}>{w.name}</MenuItem>)}
+            <Select
+              value={fromWarehouseId}
+              label="Со склада"
+              onChange={(e) => setFromWarehouseId(e.target.value)}
+            >
+              {warehouses?.map((w) => (
+                <MenuItem key={w.id} value={w.id}>
+                  {w.name}
+                </MenuItem>
+              ))}
             </Select>
           </FormControl>
           <FormControl fullWidth>
             <InputLabel>На склад</InputLabel>
-            <Select value={toWarehouseId} label="На склад" onChange={(e) => setToWarehouseId(e.target.value)}>
-              {warehouses?.filter((w) => w.id !== fromWarehouseId).map((w) => <MenuItem key={w.id} value={w.id}>{w.name}</MenuItem>)}
+            <Select
+              value={toWarehouseId}
+              label="На склад"
+              onChange={(e) => setToWarehouseId(e.target.value)}
+            >
+              {warehouses
+                ?.filter((w) => w.id !== fromWarehouseId)
+                .map((w) => (
+                  <MenuItem key={w.id} value={w.id}>
+                    {w.name}
+                  </MenuItem>
+                ))}
             </Select>
           </FormControl>
-          <TextField label="Количество" type="number" fullWidth value={quantity} onChange={(e) => setQuantity(e.target.value)} />
-          {error && <Alert severity="error">{(error as { data?: { message?: string } })?.data?.message || 'Ошибка перемещения'}</Alert>}
+          <TextField
+            label="Количество"
+            type="number"
+            fullWidth
+            value={quantity}
+            onChange={(e) => setQuantity(e.target.value)}
+          />
+          {error && (
+            <Alert severity="error">
+              {(error as { data?: { message?: string } })?.data?.message || 'Ошибка перемещения'}
+            </Alert>
+          )}
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpen(false)}>Отмена</Button>
-          <Button variant="contained" onClick={handleSubmit} disabled={!valid || isLoading}>Переместить</Button>
+          <Button variant="contained" onClick={handleSubmit} disabled={!valid || isLoading}>
+            Переместить
+          </Button>
         </DialogActions>
       </Dialog>
     </Box>
