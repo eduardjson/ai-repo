@@ -1,0 +1,11 @@
+.builder-page {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.builder-page__body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+}

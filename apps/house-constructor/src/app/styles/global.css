@@ -1,0 +1,26 @@
+@import "tailwindcss";
+@import "@heroui/styles";
+
+/*
+ * Безопасная глобальная часть (загружается и в standalone, и внутри хоста).
+ * Кастомные свойства + box-sizing — не влияют на хост (MUI уже задаёт их сам).
+ * «Опасные» сбросы (html/body/#root, h1-h4/p, scrollbar) вынесены в base.css
+ * и подключаются только в standalone-режиме (main.tsx), чтобы не перебивать
+ * стили хоста при монтировании через Module Federation.
+ */
+:root {
+  --bg: #f2f4f7;
+  --panel-bg: #ffffff;
+  --panel-border: #e2e6ea;
+  --text: #1f2933;
+  --text-muted: #64707d;
+  --accent: #2563eb;
+  --accent-soft: #e8f0fe;
+  --danger: #dc2626;
+  --radius: 8px;
+  --shadow: 0 1px 3px rgba(16, 24, 40, 0.08);
+}
+
+* {
+  box-sizing: border-box;
+}

@@ -1,14 +1,19 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import CssBaseline from '@mui/material/CssBaseline'
-import App from './App'
+import { Provider } from 'react-redux'
 
-// Точка входа для standalone-разработки конструктора (`npm run dev`).
-// В production приложение грузится хостом через Module Federation и этот
-// файл не используется.
+import { App } from '@/app'
+import { store } from '@/app/store'
+
+// Standalone-базовые стили (html/body/#root, скроллбар и т.п.). Подключаются
+// только здесь — при монтировании в хост через Module Federation не грузятся,
+// чтобы не перебивать стили хоста.
+import '@/app/styles/base.css'
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <CssBaseline />
-    <App />
+    <Provider store={store}>
+      <App />
+    </Provider>
   </StrictMode>,
 )

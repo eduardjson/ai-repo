@@ -10,7 +10,7 @@ Fullstack-приложение для учёта стройматериалов,
 - **Объекты** — строительные площадки с геометками на карте (Leaflet) и IP-камерами (HLS / MJPEG / snapshot).
 - **Отгрузки** — перемещение товаров со склада на объект, статусы, возврат остатков при отмене.
 - **Перемещения** — внутренний трансфер товаров между складами.
-- **Конструктор** — 3D-модель модуля (Three.js), 2D-чертёж, расчёт сметы, экспорт CSV/PDF, сохранение проектов.
+- **Конструктор** — интерактивное 3D-моделирование дома (фундамент → стены → стропильная система → кровля; React Three Fiber) — отдельное приложение (микрофронтенд).
 - **Чат** — реального времени (Socket.IO), редактирование/удаление последнего сообщения, PDF-вложения в БД.
 - **Сотрудники** — управление пользователями (только ADMIN), роли `ADMIN` / `USER`.
 - **Авторизация** — JWT: access-токен в памяти + refresh-токен в httpOnly-cookie с ротацией.
@@ -65,33 +65,54 @@ docker compose up --build
 
 ## Микрофронтенды (Конструктор)
 
-Вкладка «Конструктор» — это отдельное приложение в `apps/house-constructor`,
-подключаемое через **Module Federation** (`@module-federation/vite`):
+Вкладка «Конструктор» — это **отдельное приложение** в `apps/house-constructor`
+(исходный проект HOUSE_BUILDER), подключаемое через **Module Federation**
+(`@module-federation/vite`):
 
 ```
-client (host)                          apps/house-constructor (remote)
-Vite 6                                 Vite 6
-  └─ lazy(() => import(                  └─ federation({
-       'houseConstructor/Builder'))         name: 'houseConstructor',
-                                            exposes: { './Builder': ... }
+client (host)                              apps/house-constructor (remote)
+React 19 + Vite 6 + MUI                    React 19.3 + Vite 8 + HeroUI/Tailwind/R3F
+  └─ import('houseConstructor/mount')         └─ federation({
+       .then(m => m.mount(container))           name: 'houseConstructor',
+                                                 exposes: { './mount': ... } })
 ```
 
-- Remote отдаёт модуль `Builder` из `remoteEntry.js`; хост грузит его лениво —
-  бандл конструктора (three.js, MUI, jspdf) тянется только при открытии вкладки.
-- `react`/`react-dom` шарится (singleton), остальное бандлится локально в remote.
-- Авторизация остаётся в хосте: remote получает доступ к API через пропсы
-  (`getAccessToken`/`setAccessToken`) и при 401 сам перевыпускает токен.
-- Подробнее: [`apps/house-constructor/README.md`](apps/house-constructor/README.md).
+- **Remote самодостаточен**: свой стек (React 19.3, Vite 8, TypeScript 7,
+  React Three Fiber + drei, HeroUI, Tailwind 4, Redux Toolkit), свои зависимости,
+  свой `package.json`/lockfile. С хостом **ничего не шарится** (в т.ч. React).
+- **Интеграция — через `mount()`/`unmount()`** (паттерн single-spa): хост рендерит
+  контейнер `<div>`, remote создаёт в нём собственный React-root. Хост лишь грузит
+  `remoteEntry.js` по URL в рантайме.
+- Бандл remote (R3F, HeroUI, Tailwind) тянется только при открытии вкладки.
 
-Локальная разработка конструктора:
+### Отдельная команда и отдельный репозиторий
+
+Конструктор поддерживается отдельной командой, поэтому он оформлен как полностью
+изолированный пакет. В продакшене его выносят в **отдельный репозиторий** и
+деплоят независимо, а хост ссылается на него по URL:
+
+- локально: `VITE_CONSTRUCTOR_REMOTE=http://localhost:5174/remoteEntry.js`
+- продакшен: `VITE_CONSTRUCTOR_REMOTE=https://constructor.example.com/remoteEntry.js`
+
+Вынос в отдельный репозиторий — механический: `apps/house-constructor` уже
+самодостаточен (свои `package.json`, `tsconfig`, `vite.config`, `.gitignore`).
+Достаточно перенести папку в отдельный репозиторий (или `git subtree split`),
+не меняя код. Хост при этом менять не нужно — только URL remote.
+
+### Локальная разработка
 
 ```bash
+# remote (терминал 1)
 cd apps/house-constructor
 npm install
-npm run dev   # http://localhost:5174 (remote)
+npm run dev        # http://localhost:5174
+
+# host (терминал 2)
+cd client
+npm run dev        # http://localhost:5173
 ```
 
-Хост в dev подхватывает remote по `VITE_CONSTRUCTOR_REMOTE`
+Хост подхватывает remote по `VITE_CONSTRUCTOR_REMOTE`
 (по умолчанию `http://localhost:5174/remoteEntry.js`).
 
 ## API-контракт и кодогенерация
